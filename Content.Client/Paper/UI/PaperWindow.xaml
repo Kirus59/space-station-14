@@ -1,5 +1,6 @@
 <paper:PaperWindow xmlns="https://spacestation14.io"
     xmlns:paper="clr-namespace:Content.Client.Paper.UI"
+    xmlns:paperSS220="clr-namespace:Content.Client.SS220.Paper.UI"
     MouseFilter="Stop" Resizable="True" MinSize="150 150"
     SetSize="510 660"> <!-- Provide some reasonable sizes by default. Can be changed by the component -->
 
@@ -24,6 +25,8 @@
                         </BoxContainer>
                     </BoxContainer>
                     <paper:StampCollection Name="StampDisplay" VerticalAlignment="Bottom" Margin="6"/>
+                    <!-- SS220 personal signatures -->
+                    <paperSS220:Signature Name="SignatureDisplay" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="6"/>
 
                 </PanelContainer>
             </ScrollContainer>
