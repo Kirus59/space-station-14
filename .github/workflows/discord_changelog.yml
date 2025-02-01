@@ -1,0 +1,22 @@
+name: "Discord changelog"
+
+on:
+  pull_request:
+    branches:
+      - master
+      - add-action-to-discord
+    types:
+      - edited
+
+jobs:
+  example-job:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./discord_changelog
+    steps:
+      - name: Send message to discord
+        run: ./send_message.js
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_secret: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
