@@ -1,0 +1,21 @@
+name: "Discord changeloger"
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [reopened]
+
+jobs:
+  send_changelog:
+    runs-on: ubuntu-latest
+    name: A job to send a chengelog to Discord
+    steps:
+      - name: Hello world action step
+        id: hello
+        uses: Kirus59/discord-changelog-action
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_secret: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
+          text: ${{ github.event.pull_request.body }}
+          author: ${{ github.event.pull_request.user.login }}
