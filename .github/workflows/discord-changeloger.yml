@@ -16,5 +16,5 @@ jobs:
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_secret: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
-          text: ${{ github.event.body }}
-          author: ${{ github.event.user.login }}
+          text: ${{ github.event.pull_request.body }}
+          author: ${{ github.event.pull_request.user.login }}
