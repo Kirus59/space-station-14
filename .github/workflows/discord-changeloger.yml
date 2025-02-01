@@ -8,9 +8,8 @@ on:
 
 jobs:
   send_changelog:
-    if: github.event == 'pull_request'
     runs-on: ubuntu-latest
-    name: A job to send a chengelog to Discord
+    name: A job to send a changelog to Discord
     steps:
       - name: Send message
         uses: Kirus59/discord-changelog-action@main
