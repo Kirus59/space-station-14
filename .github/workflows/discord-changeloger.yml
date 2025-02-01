@@ -8,12 +8,12 @@ on:
 
 jobs:
   send_changelog:
+    if: github.event == 'pull_request'
     runs-on: ubuntu-latest
     name: A job to send a chengelog to Discord
     steps:
-      - name: Hello world action step
-        id: hello
-        uses: Kirus59/discord-changelog-action
+      - name: Send message
+        uses: Kirus59/discord-changelog-action@main
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_secret: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
