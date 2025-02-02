@@ -12,7 +12,7 @@ jobs:
     name: A job to send a changelog to Discord
     steps:
       - name: Send message
-        uses: Kirus59/discord-changelog-action@main
+        uses: SerbiaStrong-220/ss220-DiscordCLAct@main
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_secret: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
