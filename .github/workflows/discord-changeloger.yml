@@ -15,7 +15,7 @@ jobs:
         uses: SerbiaStrong-220/ss220-DiscordCLAct@main
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_secret: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
           text: ${{ github.event.pull_request.body }}
           author: ${{ github.event.pull_request.user.login }}
           title: ${{ github.event.pull_request.title }}
