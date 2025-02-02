@@ -4,14 +4,15 @@ on:
   pull_request_target:
     branches:
       - master
-    types: [reopened]
+    types: [closed]
 
 jobs:
   send_changelog:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    name: A job to send a changelog to Discord
+    name: Send a changelog to the Discord server
     steps:
-      - name: Send message
+      - name: Generate and send message
         uses: SerbiaStrong-220/ss220-DiscordCLAct@main
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
