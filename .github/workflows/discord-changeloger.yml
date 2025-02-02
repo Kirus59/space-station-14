@@ -18,3 +18,5 @@ jobs:
           webhook_secret: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
           text: ${{ github.event.pull_request.body }}
           author: ${{ github.event.pull_request.user.login }}
+          title: ${{ github.event.pull_request.title }}
+          url: ${{ github.event.pull_request.url }}
