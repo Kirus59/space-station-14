@@ -4,11 +4,11 @@ on:
   pull_request_target:
     branches:
       - master
-    types: [closed]
+    types: [reopened]
 
 jobs:
   send_changelog:
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: Send a changelog to the Discord server
     steps:
@@ -17,7 +17,7 @@ jobs:
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_SECRET }}
-          text: ${{ github.event.pull_request.body }}
-          author: ${{ github.event.pull_request.user.login }}
-          title: ${{ github.event.pull_request.title }}
-          url: ${{ github.event.pull_request.html_url }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.repository }}
+          pull_number: ${{ github.event.pull_request.number }}
