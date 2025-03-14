@@ -1,0 +1,11 @@
+# © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
+
+# Tail section
+- type: marking
+  id: RezomiTail
+  bodyPart: Tail
+  markingCategory: Tail
+  speciesRestriction: [Rezomi]
+  sprites:
+  - sprite: SS220/Mobs/Customization/Rezomi/rezomi_parts.rsi
+    state: rezomi_tail
