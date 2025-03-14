@@ -1,0 +1,51 @@
+# © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
+
+- type: body
+  name: "rezomi"
+  id: Rezomi
+  root: torso
+  slots:
+    head:
+      part: HeadRezomi
+      connections:
+      - torso
+      organs:
+        brain: OrganHumanBrain
+        eyes: OrganHumanEyes
+    torso:
+      part: TorsoRezomi
+      organs:
+        heart: OrganAnimalHeart
+        lungs: OrganHumanLungs
+        stomach: OrganRezomiStomach
+        liver: OrganAnimalLiver
+        kidneys: OrganHumanKidneys
+      connections:
+      - right arm
+      - left arm
+      - right leg
+      - left leg
+    right arm:
+      part: RightArmRezomi
+      connections:
+      - right hand
+    left arm:
+      part: LeftArmRezomi
+      connections:
+      - left hand
+    right hand:
+      part: RightHandRezomi
+    left hand:
+      part: LeftHandRezomi
+    right leg:
+      part: RightLegRezomi
+      connections:
+      - right foot
+    left leg:
+      part: LeftLegRezomi
+      connections:
+      - left foot
+    right foot:
+      part: RightFootRezomi
+    left foot:
+      part: LeftFootRezomi

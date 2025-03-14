@@ -130,3 +130,9 @@
     Slash: 0.5
     Radiation: 0.4
     Stamina: 0.4
+
+- type: damageModifierSet
+  id: MobRezomi
+  coefficients:
+    Heat: 1.2 # Excessive increase can kill this race, so...
+    Cold: 0.6
