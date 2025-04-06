@@ -13,19 +13,18 @@ public sealed class PartyMenuEui : BaseEui
         IoCManager.InjectDependencies(this);
     }
 
-    public override void Closed()
-    {
-        base.Closed();
-        _partyManager.ClosePartyMenu(Player);
-    }
 
     public override void HandleMessage(EuiMessageBase msg)
     {
         PartyData? party = null;
         switch (msg)
         {
+            case CloseEuiMessage:
+                _partyManager.ClosePartyMenu(Player);
+                break;
+
             case PartyMenuEuiMsg.CreateParty:
-                _partyManager.CreateParty(Player.UserId);
+                _partyManager.TryCreateParty(Player.UserId, out _);
                 break;
 
             case PartyMenuEuiMsg.DisbandParty:

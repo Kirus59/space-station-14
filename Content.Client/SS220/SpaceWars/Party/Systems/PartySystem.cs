@@ -1,5 +1,6 @@
 using Content.Shared.SS220.SpaceWars.Party;
 using Content.Shared.SS220.SpaceWars.Party.Systems;
+using Robust.Client.Player;
 
 namespace Content.Client.SS220.SpaceWars.Party.Systems;
 

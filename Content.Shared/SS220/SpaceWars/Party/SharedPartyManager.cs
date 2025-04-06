@@ -1,8 +1,7 @@
 
 using Robust.Shared.Network;
-using Robust.Shared.Player;
 using Robust.Shared.Serialization;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
@@ -22,72 +21,76 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
 [Access(typeof(SharedPartyManager), Other = AccessPermissions.ReadExecute)]
 public sealed class PartyData
 {
-    public NetUserId? Leader => GetLeader();
+    public PartyUser? Leader => GetLeader();
 
-    public NetUserId[] Members;
+    public List<PartyUser> Members = new();
 
-    /// <summary>
-    ///     The first session in the array will be considered the leader
-    /// </summary>
-    public PartyData(NetUserId[] players)
+    public bool Disbanded = false;
+
+    public PartyData() { }
+
+    public PartyData(List<PartyUser> players)
     {
         Members = players;
     }
 
-    public PartyData(NetUserId leader) : this([leader]) { }
-
-    public NetUserId? GetLeader()
+    public PartyUser? GetLeader()
     {
-        if (Members.Length <= 0)
-            return null;
-
-        return Members[0];
+        return Members.Find(u => u.Role == PartyRole.Leader);
     }
 
-    public bool IsLeader(NetUserId session)
+    public bool IsLeader(NetUserId userId)
     {
-        return Leader == session;
+        return Leader?.Id == userId;
     }
 
-    public bool ContainMember(NetUserId session)
+    public bool ContainMember(NetUserId userId)
     {
-        var contains = false;
-        for (var i = 0; i < Members.Length; i++)
-        {
-            if (Members[i] == session)
-                contains = true;
-        }
+        return Members.Find(u => u.Id == userId) != null;
+    }
 
-        return contains;
+    public bool TryGetMember(NetUserId netUser, [NotNullWhen(true)] out PartyUser? partyUser)
+    {
+        partyUser = Members.Find(u => u.Id == netUser);
+        return partyUser != null;
     }
 
     [Access(typeof(SharedPartyManager))]
-    public void AddMember(NetUserId member)
+    public void AddMember(PartyUser user)
     {
-        var newArray = new NetUserId[Members.Length + 1];
-        Members.CopyTo(newArray, 0);
-        newArray[^1] = member;
+        if (Members.Contains(user))
+            throw new ArgumentException($"{user.Name} is currently added in this party");
 
-        Members = newArray;
+        Members.Add(user);
     }
 
     [Access(typeof(SharedPartyManager))]
-    public void RemoveMember(NetUserId member)
+    public void RemoveMember(PartyUser user)
     {
-        if (!ContainMember(member))
-            return;
-
-        var newArray = new NetUserId[Members.Length - 1];
-        var accumulate = 0;
-        for (var i = 0; i < Members.Length; i++)
-        {
-            if (Members[i] == member)
-                continue;
-
-            newArray[accumulate] = Members[i];
-            accumulate++;
-        }
-
-        Members = newArray;
+        Members.Remove(user);
     }
+}
+
+[Serializable, NetSerializable]
+[Access(typeof(SharedPartyManager), Other = AccessPermissions.Read)]
+public sealed class PartyUser
+{
+    public NetUserId Id;
+    public PartyRole Role;
+    public string Name;
+    public bool Connected;
+
+    public PartyUser(NetUserId userId, PartyRole role, string name, bool connected)
+    {
+        Id = userId;
+        Role = role;
+        Name = name;
+        Connected = connected;
+    }
+}
+
+public enum PartyRole
+{
+    Member,
+    Leader
 }

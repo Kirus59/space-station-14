@@ -16,6 +16,7 @@ public sealed class PartyMenuEui : BaseEui
 
         _partyManager.SetPartyMenuEui(this);
         _window = new PartyMenu();
+        _window.OnClose += OnWindowClosed;
     }
 
     public override void Opened()
@@ -29,6 +30,7 @@ public sealed class PartyMenuEui : BaseEui
     public override void Closed()
     {
         base.Closed();
+
         _window.Close();
     }
 
@@ -53,6 +55,11 @@ public sealed class PartyMenuEui : BaseEui
     {
         var msg = new PartyMenuEuiMsg.LeaveParty();
         SendMessage(msg);
+    }
+
+    public void OnWindowClosed()
+    {
+        SendMessage(new CloseEuiMessage());
     }
 
     public override void HandleMessage(EuiMessageBase msg)

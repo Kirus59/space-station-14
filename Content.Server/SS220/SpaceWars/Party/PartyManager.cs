@@ -1,8 +1,10 @@
 using Content.Server.EUI;
 using Content.Server.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
+using Robust.Server.Player;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
+using Robust.Shared.Enums;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Content.Server.SS220.SpaceWars.Party;
@@ -10,15 +12,19 @@ namespace Content.Server.SS220.SpaceWars.Party;
 public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 {
     [Dependency] private readonly EuiManager _euiManager = default!;
+    [Dependency] private readonly IPlayerManager _playerManager = default!;
 
     public event Action<PartyData>? OnPartyDataUpdated;
-    public event Action<PartyData>? OnPartyDisbanded;
+    public event Action<PartyData>? OnPartyDisbanding;
+    public event Action<PartyUser>? OnPartyUserUpdated;
 
     public List<PartyData> Parties => _parties;
     private List<PartyData> _parties = new();
 
     public Dictionary<ICommonSession, PartyMenuEui> OpenedMenu => _openedMenu;
     private Dictionary<ICommonSession, PartyMenuEui> _openedMenu = new();
+
+    private Dictionary<NetUserId, PartyUser> _partyUsers = new();
 
     /// <inheritdoc/>
     public bool TryCreateParty(NetUserId leader, [NotNullWhen(false)] out string? reason)
@@ -41,9 +47,14 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public PartyData CreateParty(NetUserId leader)
     {
         CheckAvaliableMember(leader);
-        var party = new PartyData(leader);
+
+        var partyUser = GetPartyUser(leader);
+        var party = new PartyData();
         _parties.Add(party);
-        OnPartyDataUpdated?.Invoke(party);
+
+        SetRole(partyUser, PartyRole.Leader);
+        party.AddMember(partyUser);
+        OnPartyUserUpdated?.Invoke(partyUser);
 
         return party;
     }
@@ -51,7 +62,10 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     /// <inheritdoc/>
     public void DisbandParty(PartyData party)
     {
-        OnPartyDisbanded?.Invoke(party);
+        foreach (var member in party.Members)
+            RemovePlayerFromParty(member.Id, party);
+
+        OnPartyDisbanding?.Invoke(party);
         _parties.Remove(party);
     }
 
@@ -89,22 +103,29 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     {
         CheckAvaliableMember(member);
 
-        party.AddMember(member);
+        var partyUser = GetPartyUser(member);
+        party.AddMember(partyUser);
+        SetRole(partyUser, PartyRole.Member);
+
         OnPartyDataUpdated?.Invoke(party);
     }
 
     /// <inheritdoc/>
     public void RemovePlayerFromParty(NetUserId member, PartyData party)
     {
-        if (party.Leader == member)
+        if (!party.TryGetMember(member, out var partyUser))
             return;
 
-        party.RemoveMember(member);
+        party.RemoveMember(partyUser);
         OnPartyDataUpdated?.Invoke(party);
+        OnPartyUserUpdated?.Invoke(partyUser);
     }
 
     private bool CheckAvaliableMember(NetUserId member, bool throwExeption = true)
     {
+        if (!_partyUsers.TryGetValue(member, out var partyUser))
+            return true;
+
         if (GetPartyByMember(member) != null)
         {
             if (throwExeption)
@@ -114,6 +135,32 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
 
         return true;
+    }
+
+    public PartyUser GetPartyUser(NetUserId userId)
+    {
+        if (_partyUsers.TryGetValue(userId, out var user))
+            return user;
+        else
+        {
+            var session = _playerManager.GetSessionById(userId);
+            var partyUser = new PartyUser(userId, PartyRole.Member, session.Name, session.Status is SessionStatus.Connected);
+            _partyUsers.Add(userId, partyUser);
+
+            return partyUser;
+        }
+    }
+
+    public void SetRole(PartyUser user, PartyRole role)
+    {
+        user.Role = role;
+        OnPartyUserUpdated?.Invoke(user);
+    }
+
+    public void SetConnected(PartyUser user, bool connected)
+    {
+        user.Connected = connected;
+        OnPartyUserUpdated?.Invoke(user);
     }
 
     #region PartyMenuUI

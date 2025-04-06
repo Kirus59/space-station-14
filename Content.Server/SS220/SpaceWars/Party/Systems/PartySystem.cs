@@ -15,8 +15,8 @@ public sealed partial class PartySystem : SharedPartySystem
     {
         base.Initialize();
 
-        _partyManager.OnPartyDataUpdated += UpdateInfoForMembers;
-        _partyManager.OnPartyDisbanded += OnPartyDisbanded;
+        _partyManager.OnPartyDataUpdated += UpdatePartyDataForMembers;
+        _partyManager.OnPartyUserUpdated += UpdatePartyData;
 
         SubscribeNetworkEvent<CreatePartyRequestMessage>(OnCreatePartyRequest);
         SubscribeNetworkEvent<PartyDataInfoRequestMessage>(OnPartyDataInfoRequest);
@@ -32,34 +32,21 @@ public sealed partial class PartySystem : SharedPartySystem
     private void OnPartyDataInfoRequest(PartyDataInfoRequestMessage message, EntitySessionEventArgs args)
     {
         var party = _partyManager.GetPartyByMember(args.SenderSession.UserId);
-        UpdatePartyData(args.SenderSession, party);
+        var partyUser = _partyManager.GetPartyUser(args.SenderSession.UserId);
+        UpdatePartyData(partyUser);
     }
 
-    public void UpdatePartyData(NetUserId user, PartyData? party)
+    public void UpdatePartyData(PartyUser user)
     {
-        var session = _playerManager.GetSessionById(user);
-        UpdatePartyData(session, party);
+        var session = _playerManager.GetSessionById(user.Id);
+        var currentParty = _partyManager.GetPartyByMember(user.Id);
+        var ev = new UpdatePartyDataInfoMessage(currentParty);
+        RaiseNetworkEvent(ev, session);
     }
 
-    public void UpdatePartyData(ICommonSession session, PartyData? party)
-    {
-        var ev = new UpdatePartyDataInfoMessage(party);
-        RaiseNetworkEvent(ev, session.Channel);
-    }
-
-    private void UpdateInfoForMembers(PartyData party)
+    private void UpdatePartyDataForMembers(PartyData party)
     {
         foreach (var member in party.Members)
-        {
-            UpdatePartyData(member, party);
-        }
-    }
-
-    private void OnPartyDisbanded(PartyData party)
-    {
-        foreach (var member in party.Members)
-        {
-            UpdatePartyData(member, null);
-        }
+            UpdatePartyData(member);
     }
 }

@@ -9,7 +9,8 @@ namespace Content.Server.SS220.SpaceWars.Party;
 public interface IPartyManager : ISharedPartyManager
 {
     event Action<PartyData>? OnPartyDataUpdated;
-    event Action<PartyData>? OnPartyDisbanded;
+    event Action<PartyData>? OnPartyDisbanding;
+    event Action<PartyUser>? OnPartyUserUpdated;
 
     [Access(Other = AccessPermissions.Read)]
     List<PartyData> Parties { get; }
@@ -39,6 +40,8 @@ public interface IPartyManager : ISharedPartyManager
     void AddPlayerToParty(NetUserId member, PartyData party);
 
     void RemovePlayerFromParty(NetUserId member, PartyData party);
+
+    PartyUser GetPartyUser(NetUserId userId);
 
     #region PartyMenuUI
     void OpenPartyMenu(ICommonSession session);
