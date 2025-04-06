@@ -89,8 +89,39 @@ public sealed class PartyUser
     }
 }
 
+[Serializable, NetSerializable]
+public sealed class PartyInvite
+{
+    public readonly NetUserId Sender;
+    public readonly string SenderName;
+
+    public NetUserId? Target;
+    public string? TargetName;
+    public InviteStatus InviteStatus;
+
+    public PartyInvite(NetUserId sender, string senderName, InviteStatus inviteStatus = InviteStatus.None)
+    {
+        Sender = sender;
+        SenderName = senderName;
+        InviteStatus = inviteStatus;
+    }
+}
+
 public enum PartyRole
 {
     Member,
     Leader
+}
+
+public enum InviteStatus
+{
+    None,
+    Error,
+    UserNotFound,
+    TargetIsSender,
+    Sended,
+    AlreadySended,
+
+    Accepted,
+    Denied
 }

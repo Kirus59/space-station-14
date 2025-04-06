@@ -1,5 +1,7 @@
-using Content.Server.SS220.SpaceWars.Party.UI;
+
+using Content.Server.SS220.SpaceWars.Party.Systems;
 using Content.Shared.SS220.SpaceWars.Party;
+using Content.Shared.SS220.SpaceWars.Party.Systems;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using System.Diagnostics.CodeAnalysis;
@@ -11,11 +13,13 @@ public interface IPartyManager : ISharedPartyManager
     event Action<PartyData>? OnPartyDataUpdated;
     event Action<PartyData>? OnPartyDisbanding;
     event Action<PartyUser>? OnPartyUserUpdated;
+    event Action<PartyInvite>? OnPartyInviteUpdated;
 
     [Access(Other = AccessPermissions.Read)]
     List<PartyData> Parties { get; }
 
-    Dictionary<ICommonSession, PartyMenuEui> OpenedMenu { get; }
+    [Access(typeof(SharedPartySystem))]
+    void SetPartySystem(PartySystem partySystem);
 
     bool TryCreateParty(NetUserId leader, [NotNullWhen(false)] out string? reason);
 
@@ -42,6 +46,19 @@ public interface IPartyManager : ISharedPartyManager
     void RemovePlayerFromParty(NetUserId member, PartyData party);
 
     PartyUser GetPartyUser(NetUserId userId);
+
+    void AcceptInvite(PartyInvite invite);
+
+    void DenyInvite(PartyInvite invite);
+
+    public void SetPartyUserRole(PartyUser user, PartyRole role);
+
+    public void SetPartyUserConnected(PartyUser user, bool connected);
+
+    void SendInviteToUser(ICommonSession sender, string username);
+    public void SendInviteToUser(ICommonSession sender, ICommonSession target);
+    public void SendInviteToUser(PartyInvite invite, string username);
+    public void SendInviteToUser(PartyInvite invite, ICommonSession target);
 
     #region PartyMenuUI
     void OpenPartyMenu(ICommonSession session);

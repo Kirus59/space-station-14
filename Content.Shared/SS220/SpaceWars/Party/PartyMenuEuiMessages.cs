@@ -14,7 +14,6 @@ public static class PartyMenuEuiMsg
     [Serializable, NetSerializable]
     public sealed class DisbandParty() : EuiMessageBase
     {
-
     }
 
     [Serializable, NetSerializable]

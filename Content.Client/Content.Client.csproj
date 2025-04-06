@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- Work around https://github.com/dotnet/project-system/issues/4314 -->
     <TargetFramework>$(TargetFramework)</TargetFramework>
@@ -27,6 +27,12 @@
   <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
   <ItemGroup>
     <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\PartyUserInfo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AdditionalFiles>
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\InviteInPartyWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AdditionalFiles>
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\InvitedInPartyWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
   </ItemGroup>

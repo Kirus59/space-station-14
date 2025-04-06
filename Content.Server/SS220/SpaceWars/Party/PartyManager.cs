@@ -1,30 +1,40 @@
-using Content.Server.EUI;
-using Content.Server.SS220.SpaceWars.Party.UI;
+
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Server.Player;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Enums;
 using System.Diagnostics.CodeAnalysis;
+using Content.Server.SS220.SpaceWars.Party.Systems;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 {
-    [Dependency] private readonly EuiManager _euiManager = default!;
     [Dependency] private readonly IPlayerManager _playerManager = default!;
+
+    private PartySystem? _partySystem = default!;
 
     public event Action<PartyData>? OnPartyDataUpdated;
     public event Action<PartyData>? OnPartyDisbanding;
     public event Action<PartyUser>? OnPartyUserUpdated;
+    public event Action<PartyInvite>? OnPartyInviteUpdated;
 
     public List<PartyData> Parties => _parties;
     private List<PartyData> _parties = new();
 
-    public Dictionary<ICommonSession, PartyMenuEui> OpenedMenu => _openedMenu;
-    private Dictionary<ICommonSession, PartyMenuEui> _openedMenu = new();
-
     private Dictionary<NetUserId, PartyUser> _partyUsers = new();
+    private HashSet<PartyInvite> _sendedInvites = new();
+
+    public override void Initialize()
+    {
+        base.Initialize();
+    }
+
+    public void SetPartySystem(PartySystem partySystem)
+    {
+        _partySystem = partySystem;
+    }
 
     /// <inheritdoc/>
     public bool TryCreateParty(NetUserId leader, [NotNullWhen(false)] out string? reason)
@@ -52,7 +62,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         var party = new PartyData();
         _parties.Add(party);
 
-        SetRole(partyUser, PartyRole.Leader);
+        SetPartyUserRole(partyUser, PartyRole.Leader);
         party.AddMember(partyUser);
         OnPartyUserUpdated?.Invoke(partyUser);
 
@@ -105,7 +115,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         var partyUser = GetPartyUser(member);
         party.AddMember(partyUser);
-        SetRole(partyUser, PartyRole.Member);
+        SetPartyUserRole(partyUser, PartyRole.Member);
 
         OnPartyDataUpdated?.Invoke(party);
     }
@@ -151,36 +161,131 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
     }
 
-    public void SetRole(PartyUser user, PartyRole role)
+    public void SetPartyUserRole(PartyUser user, PartyRole role)
     {
         user.Role = role;
         OnPartyUserUpdated?.Invoke(user);
     }
 
-    public void SetConnected(PartyUser user, bool connected)
+    public void SetPartyUserConnected(PartyUser user, bool connected)
     {
         user.Connected = connected;
         OnPartyUserUpdated?.Invoke(user);
     }
 
+    public void SendInviteToUser(ICommonSession sender, string username)
+    {
+        var invite = new PartyInvite(sender.UserId, sender.Name);
+        SendInviteToUser(invite, username);
+    }
+
+    public void SendInviteToUser(ICommonSession sender, ICommonSession target)
+    {
+        var invite = new PartyInvite(sender.UserId, sender.Name);
+        SendInviteToUser(invite, target);
+    }
+
+    public void SendInviteToUser(PartyInvite invite, string username)
+    {
+        var inviteState = GetInviteState(invite);
+        if (!_playerManager.TryGetSessionByUsername(username, out var target))
+        {
+            inviteState.InviteStatus = InviteStatus.UserNotFound;
+            HandleInviteState(invite, inviteState);
+            return;
+        }
+
+        SendInviteToUser(invite, target);
+    }
+
+    public void SendInviteToUser(PartyInvite invite, ICommonSession target)
+    {
+        var inviteState = GetInviteState(invite);
+        if (!_playerManager.TryGetSessionById(invite.Sender, out var sender))
+        {
+            inviteState.InviteStatus = InviteStatus.Error;
+            HandleInviteState(invite, inviteState);
+            return;
+        }
+
+        if (target == sender)
+        {
+            inviteState.InviteStatus = InviteStatus.TargetIsSender;
+            HandleInviteState(invite, inviteState);
+            return;
+        }
+
+        if (_sendedInvites.Contains(invite))
+        {
+            inviteState.InviteStatus = InviteStatus.AlreadySended;
+            HandleInviteState(invite, inviteState);
+            return;
+        }
+
+        inviteState.Target = target.UserId;
+        inviteState.TargetName = target.Name;
+        inviteState.InviteStatus = InviteStatus.Sended;
+        HandleInviteState(invite, inviteState);
+    }
+
+    public PartyInviteState GetInviteState(PartyInvite invite)
+    {
+        return new PartyInviteState(invite.Target, invite.TargetName, invite.InviteStatus);
+    }
+
+    public void HandleInviteState(PartyInvite invite, PartyInviteState state)
+    {
+        invite.Target = state.Target;
+        invite.TargetName = state.TargetName;
+        invite.InviteStatus = state.InviteStatus;
+        OnPartyInviteUpdated?.Invoke(invite);
+    }
+
+    public void AcceptInvite(PartyInvite invite)
+    {
+        var party = GetPartyByLeader(invite.Sender);
+        if (party != null && invite.Target != null)
+            AddPlayerToParty(invite.Target.Value, party);
+
+        var inviteState = GetInviteState(invite);
+        inviteState.InviteStatus = InviteStatus.Accepted;
+        HandleInviteState(invite, inviteState);
+
+        _sendedInvites.Remove(invite);
+    }
+
+    public void DenyInvite(PartyInvite invite)
+    {
+        var inviteState = GetInviteState(invite);
+        inviteState.InviteStatus = InviteStatus.Denied;
+        HandleInviteState(invite, inviteState);
+
+        _sendedInvites.Remove(invite);
+    }
+
     #region PartyMenuUI
     public void OpenPartyMenu(ICommonSession session)
     {
-        if (_openedMenu.ContainsKey(session))
-            return;
-
-        var ui = new PartyMenuEui();
-        _openedMenu.Add(session, ui);
-        _euiManager.OpenEui(ui, session);
+        _partySystem?.OpenPartyMenu(session);
     }
 
     public void ClosePartyMenu(ICommonSession session)
     {
-        if (!_openedMenu.TryGetValue(session, out var ui))
-            return;
-
-        _openedMenu.Remove(session);
-        _euiManager.CloseEui(ui);
+        _partySystem?.ClosePartyMenu(session);
     }
     #endregion
+}
+
+public record struct PartyInviteState
+{
+    public NetUserId? Target;
+    public string? TargetName;
+    public InviteStatus InviteStatus;
+
+    public PartyInviteState(NetUserId? target, string? targetName, InviteStatus inviteStatus)
+    {
+        Target = target;
+        TargetName = targetName;
+        InviteStatus = inviteStatus;
+    }
 }

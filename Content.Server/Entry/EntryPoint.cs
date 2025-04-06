@@ -126,7 +126,6 @@ namespace Content.Server.Entry
                 IoCManager.Resolve<DiscordBanPostManager>().Initialize(); // SS220 discord ban post manager
                 IoCManager.Resolve<ServerControlController>().Initialize(); // SS220 Backend-Api
                 IoCManager.Resolve<ServerApi>().Initialize();
-                IoCManager.Resolve<IPartyManager>().Initialize();
 
                 _voteManager.Initialize();
                 _updateManager.Initialize();
@@ -170,6 +169,7 @@ namespace Content.Server.Entry
                 IoCManager.Resolve<IBanManager>().Initialize();
                 IoCManager.Resolve<IConnectionManager>().PostInit();
                 IoCManager.Resolve<MultiServerKickManager>().Initialize();
+                IoCManager.Resolve<IPartyManager>().Initialize(); // SS220 SpaceWars Party
             }
         }
 
