@@ -14,7 +14,7 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        SendButton.OnPressed += _ => SendInvite();
+        InviteButton.OnPressed += _ => SendInvite();
         CancelButton.OnPressed += _ => Close();
     }
 

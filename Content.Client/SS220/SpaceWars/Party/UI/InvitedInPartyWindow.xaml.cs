@@ -12,6 +12,8 @@ public sealed partial class InvitedInPartyWindow : DefaultWindow
 
     private PartyInvite _invite;
 
+    private bool _anyButtonPressed = false;
+
     public InvitedInPartyWindow(PartyInvite invite)
     {
         RobustXamlLoader.Load(this);
@@ -22,18 +24,24 @@ public sealed partial class InvitedInPartyWindow : DefaultWindow
         SenderLabel.Text = Loc.GetString("ui-InvitedInPartyWindow-SenderLabel", ("sender", _invite.SenderName));
         AcceptButton.OnPressed += _ =>
         {
+            _anyButtonPressed = true;
             _partyManager.AcceptInvite(_invite);
+            Close();
         };
 
         DenyButton.OnPressed += _ =>
         {
+            _anyButtonPressed = true;
             _partyManager.DenyInvite(_invite);
+            Close();
         };
     }
 
     public override void Close()
     {
         base.Close();
-        _partyManager.DenyInvite(_invite);
+
+        if (!_anyButtonPressed)
+            _partyManager.DenyInvite(_invite);
     }
 }

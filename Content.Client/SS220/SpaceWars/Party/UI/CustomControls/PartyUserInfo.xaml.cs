@@ -11,16 +11,19 @@ namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 [GenerateTypedNameReferences]
 public sealed partial class PartyUserInfo : PanelContainer
 {
-    private PartyUser _user;
+    private PartyUser? _user;
 
-    public PartyUserInfo(PartyUser user)
+    public PartyUserInfo()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
         PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(60, 60, 60) };
-        _user = user;
-        Populate();
+    }
+
+    public PartyUserInfo(PartyUser user) : this()
+    {
+        Populate(user);
     }
 
     public void Populate(PartyUser user)
@@ -31,9 +34,11 @@ public sealed partial class PartyUserInfo : PanelContainer
 
     public void Populate()
     {
-        UserNameLabel.Text = _user.Name;
-        PartyRoleLabel.Text = GetUserRoleName(_user.Role);
-        ConnectionStatusLabel.Text = _user.Connected ? Loc.GetString("ui-PartyUserInfo-Connected") : Loc.GetString("ui-PartyUserInfo-Disconnected");
+        UserNameLabel.Text = _user?.Name;
+        PartyRoleLabel.Text = _user == null ? null : GetUserRoleName(_user.Role);
+        ConnectionStatusLabel.Text = _user == null
+            ? null
+            : _user.Connected ? Loc.GetString("ui-PartyUserInfo-Connected") : Loc.GetString("ui-PartyUserInfo-Disconnected");
     }
 
     public void SetNewSize(Vector2 vector)

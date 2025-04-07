@@ -9,5 +9,9 @@ ui-PartyUserInfo-Connected = В сети
 ui-PartyUserInfo-Disconnected = Не в сети
 
 ui-InviteInPartyWindow-InfoLabel = Напишите cKey игрока, которого хотите пригласить в пати
+ui-InviteInPartyWindow-InviteButton = Пригласить
+ui-InviteInPartyWindow-CancelButton = Отмена
 
-ui-InvitedInPartyWindow-SenderLabel = { $sender } приглашает вас в пати
+ui-InvitedInPartyWindow-SenderLabel = { $sender } приглашает вас в пати!
+ui-InvitedInPartyWindow-AcceptButton = Принять
+ui-InvitedInPartyWindow-DenyButton = Отклонить
