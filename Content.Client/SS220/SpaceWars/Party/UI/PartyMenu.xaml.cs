@@ -28,5 +28,6 @@ public sealed partial class PartyMenu : DefaultWindow
     public void Update()
     {
         MainTab.Update();
+        IncomingInvitesTab.Populate();
     }
 }

@@ -4,5 +4,6 @@
                MinSize="600 320">
     <TabContainer Name="Tabs" Access="Public">
         <tabs:MainTab Name="MainTab" VerticalExpand="True"/>
+        <tabs:IncomingInvitesTab Name="IncomingInvitesTab" VerticalExpand="True"/>
     </TabContainer>
 </DefaultWindow>

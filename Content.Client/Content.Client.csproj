@@ -32,7 +32,10 @@
     <AdditionalFiles Update="SS220\SpaceWars\Party\UI\InviteInPartyWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
-    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\InvitedInPartyWindow.xaml">
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\IncomingInvite.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AdditionalFiles>
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\Tabs\IncomingInvitesTab.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
   </ItemGroup>

@@ -15,3 +15,6 @@ ui-InviteInPartyWindow-CancelButton = Отмена
 ui-InvitedInPartyWindow-SenderLabel = { $sender } приглашает вас в пати!
 ui-InvitedInPartyWindow-AcceptButton = Принять
 ui-InvitedInPartyWindow-DenyButton = Отклонить
+
+ui-IncomingInvite-AcceptButton = Принять
+ui-IncomingInvite-DenyButton = Отклонить

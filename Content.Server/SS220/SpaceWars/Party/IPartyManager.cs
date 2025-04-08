@@ -8,12 +8,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public interface IPartyManager : ISharedPartyManager
+public partial interface IPartyManager : ISharedPartyManager
 {
     event Action<PartyData>? OnPartyDataUpdated;
     event Action<PartyData>? OnPartyDisbanding;
     event Action<PartyUser>? OnPartyUserUpdated;
-    event Action<PartyInvite>? OnPartyInviteUpdated;
 
     [Access(Other = AccessPermissions.Read)]
     List<PartyData> Parties { get; }
@@ -43,22 +42,13 @@ public interface IPartyManager : ISharedPartyManager
     /// <exception cref="ArgumentException"> <paramref name="member"/> must not be present at another party </exception>
     void AddPlayerToParty(NetUserId member, PartyData party);
 
-    void RemovePlayerFromParty(NetUserId member, PartyData party);
+    void RemoveUserFromParty(NetUserId member, PartyData party);
 
     PartyUser GetPartyUser(NetUserId userId);
-
-    void AcceptInvite(PartyInvite invite);
-
-    void DenyInvite(PartyInvite invite);
 
     public void SetPartyUserRole(PartyUser user, PartyRole role);
 
     public void SetPartyUserConnected(PartyUser user, bool connected);
-
-    void SendInviteToUser(ICommonSession sender, string username);
-    public void SendInviteToUser(ICommonSession sender, ICommonSession target);
-    public void SendInviteToUser(PartyInvite invite, string username);
-    public void SendInviteToUser(PartyInvite invite, ICommonSession target);
 
     #region PartyMenuUI
     void OpenPartyMenu(ICommonSession session);

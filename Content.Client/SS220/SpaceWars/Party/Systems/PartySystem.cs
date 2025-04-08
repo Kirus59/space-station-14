@@ -1,35 +1,14 @@
-using Content.Client.SS220.SpaceWars.Party.UI;
+
 using Content.Shared.SS220.SpaceWars.Party;
 using Content.Shared.SS220.SpaceWars.Party.Systems;
-using Robust.Shared.Timing;
 
 namespace Content.Client.SS220.SpaceWars.Party.Systems;
 
 public sealed partial class PartySystem : SharedPartySystem
 {
     [Dependency] private readonly IPartyManager _partyManager = default!;
-    [Dependency] private readonly IGameTiming _gameTiming = default!;
 
     public Action<bool, string?>? CreatedPartyResponce;
-
-    public TimeSpan _invitesDequeuePeriod = TimeSpan.FromSeconds(3);
-    public TimeSpan _nextInviteDequeueTick = TimeSpan.Zero;
-
-    public override void Update(float frameTime)
-    {
-        base.Update(frameTime);
-
-        if (_gameTiming.CurTime < _nextInviteDequeueTick)
-            return;
-
-        var invite = _partyManager.DequeueIncomingInvite();
-        if (invite == null)
-            return;
-
-        var invitedWindow = new InvitedInPartyWindow(invite);
-        invitedWindow.OpenCentered();
-        _nextInviteDequeueTick = _gameTiming.CurTime + _invitesDequeuePeriod;
-    }
 
     public override void Initialize()
     {
@@ -39,10 +18,11 @@ public sealed partial class PartySystem : SharedPartySystem
 
         SubscribeNetworkEvent<CreatePartyResponceMessage>(OnCreatePartyResponce);
         SubscribeNetworkEvent<UpdatePartyDataInfoMessage>(OnUpdatePartyDataInfo);
-        SubscribeNetworkEvent<UpdateInviteInfo>(OnInviteUpdate);
 
         SubscribeNetworkEvent<OpenPartyMenuMessage>(OnOpenPartyMenuMessage);
         SubscribeNetworkEvent<ClosePartyMenuMessage>(OnClosePartyMenuMessage);
+
+        InviteInitialize();
     }
 
     private void OnCreatePartyResponce(CreatePartyResponceMessage message)
@@ -63,11 +43,6 @@ public sealed partial class PartySystem : SharedPartySystem
     private void OnClosePartyMenuMessage(ClosePartyMenuMessage message)
     {
         _partyManager.PartyMenu?.Close();
-    }
-
-    private void OnInviteUpdate(UpdateInviteInfo message)
-    {
-        _partyManager.UpdateInviteInfo(message.Invite);
     }
 
     public void SendCreatePartyRequest()
@@ -91,18 +66,6 @@ public sealed partial class PartySystem : SharedPartySystem
     public void SendInviteRequest(string username)
     {
         var ev = new InviteInPartyRequestMessage(username);
-        RaiseNetworkEvent(ev);
-    }
-
-    public void AcceptInvite(PartyInvite invite)
-    {
-        var ev = new AcceptInviteMessage(invite);
-        RaiseNetworkEvent(ev);
-    }
-
-    public void DenyInvite(PartyInvite invite)
-    {
-        var ev = new DenyInviteMessage(invite);
         RaiseNetworkEvent(ev);
     }
 }

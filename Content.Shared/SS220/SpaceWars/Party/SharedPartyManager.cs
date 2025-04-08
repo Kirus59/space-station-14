@@ -1,4 +1,5 @@
 
+using Pidgin.Expression;
 using Robust.Shared.Network;
 using Robust.Shared.Serialization;
 using System.Diagnostics.CodeAnalysis;
@@ -75,7 +76,8 @@ public sealed class PartyData
 [Access(typeof(SharedPartyManager), Other = AccessPermissions.Read)]
 public sealed class PartyUser
 {
-    public NetUserId Id;
+    public readonly NetUserId Id;
+
     public PartyRole Role;
     public string Name;
     public bool Connected;
@@ -87,23 +89,71 @@ public sealed class PartyUser
         Name = name;
         Connected = connected;
     }
+
+    public bool Equals(PartyUser user)
+    {
+        return Id == user.Id;
+    }
+
+    public static bool Equals(PartyUser? user1, PartyUser? user2)
+    {
+        if (user1 == null) return user2 == null;
+        if (user2 == null) return user1 == null;
+
+        return user1.Equals(user2);
+    }
+
+    public static bool operator ==(PartyUser? left, PartyUser? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(PartyUser? left, PartyUser? right)
+    {
+        return !Equals(left, right);
+    }
 }
 
 [Serializable, NetSerializable]
 public sealed class PartyInvite
 {
-    public readonly NetUserId Sender;
-    public readonly string SenderName;
+    public readonly uint Id;
+    public readonly PartyUser Sender;
+    public readonly PartyUser Target;
+    public readonly PartyData Party;
 
-    public NetUserId? Target;
-    public string? TargetName;
-    public InviteStatus InviteStatus;
+    public InviteStatus Status;
 
-    public PartyInvite(NetUserId sender, string senderName, InviteStatus inviteStatus = InviteStatus.None)
+    public PartyInvite(uint id, PartyUser sender, PartyUser target, PartyData party, InviteStatus status = InviteStatus.None)
     {
+        Id = id;
         Sender = sender;
-        SenderName = senderName;
-        InviteStatus = inviteStatus;
+        Target = target;
+        Party = party;
+        Status = status;
+    }
+
+    public bool Equals(PartyInvite invite)
+    {
+        return Id == invite.Id;
+    }
+
+    public static bool Equals(PartyInvite? invite1, PartyInvite? invite2)
+    {
+        if (invite1 == null) return invite2 == null;
+        if (invite2 == null) return invite1 == null;
+
+        return invite1.Equals(invite2);
+    }
+
+    public static bool operator ==(PartyInvite? left, PartyInvite? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(PartyInvite? left, PartyInvite? right)
+    {
+        return !Equals(left, right);
     }
 }
 
@@ -117,11 +167,13 @@ public enum InviteStatus
 {
     None,
     Error,
-    UserNotFound,
+    Deleted,
+    TargetNotFound,
     TargetIsSender,
     Sended,
-    AlreadySended,
 
     Accepted,
     Denied
 }
+
+public record struct PartyInviteState(uint Id, InviteStatus Status);

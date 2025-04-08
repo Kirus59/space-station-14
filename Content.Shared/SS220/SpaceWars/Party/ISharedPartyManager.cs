@@ -1,7 +1,7 @@
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
-public interface ISharedPartyManager
+public partial interface ISharedPartyManager
 {
     void Initialize();
 }

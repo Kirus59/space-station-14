@@ -6,17 +6,13 @@ using Content.Shared.SS220.SpaceWars.Party.Systems;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
-public interface IPartyManager : ISharedPartyManager
+public partial interface IPartyManager : ISharedPartyManager
 {
     event Action<PartyData?>? OnPartyDataUpdated;
 
     PartyMenu? PartyMenu { get; }
 
     PartyData? CurrentParty { get; }
-
-    PartyInvite? LastSendedInvite { get; }
-
-    HashSet<PartyInvite> SendedInvites { get; }
 
     [Access(typeof(SharedPartySystem))]
     void SetPartySystem(PartySystem partySystem);
@@ -29,16 +25,6 @@ public interface IPartyManager : ISharedPartyManager
     void SendDisbandPartyRequest();
 
     void SendLeavePartyRequest();
-
-    void SendInviteRequest(string username);
-
-    void AcceptInvite(PartyInvite invite);
-
-    void DenyInvite(PartyInvite invite);
-
-    void UpdateInviteInfo(PartyInvite invite);
-
-    PartyInvite? DequeueIncomingInvite();
 
     #region PartyMenuUI
     [Access(typeof(SharedPartySystem))]

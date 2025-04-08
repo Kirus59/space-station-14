@@ -1,0 +1,9 @@
+<PanelContainer xmlns="https://spacestation14.io">
+    <BoxContainer Orientation="Vertical" HorizontalExpand="True">
+        <Label Name="SenderLabel" HorizontalAlignment="Center"/>
+        <BoxContainer Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Name="AcceptButton" Access="Public"  Text="{Loc 'ui-IncomingInvite-AcceptButton'}"/>
+            <Button Name="DenyButton" Access="Public"  Text="{Loc 'ui-IncomingInvite-DenyButton'}"/>
+        </BoxContainer>
+    </BoxContainer>
+</PanelContainer>

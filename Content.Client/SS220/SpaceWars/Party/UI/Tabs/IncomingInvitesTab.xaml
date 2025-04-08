@@ -1,0 +1,12 @@
+<tabs:IncomingInvitesTab xmlns="https://spacestation14.io"
+                         xmlns:tabs="clr-namespace:Content.Client.SS220.SpaceWars.Party.UI.Tabs"
+                         MinSize="300 200">
+    <BoxContainer Orientation="Vertical">
+        <Label Text="Приглашения"/>
+        <PanelContainer Name="InvitesPanel" Margin="5 5 5 5" MinSize="320 200">
+            <ScrollContainer>
+                <BoxContainer Name="InvitesContainer" Orientation="Vertical" MinSize="160 50"/>
+            </ScrollContainer>
+        </PanelContainer>
+    </BoxContainer>
+</tabs:IncomingInvitesTab>

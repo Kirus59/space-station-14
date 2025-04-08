@@ -19,17 +19,14 @@ public sealed partial class PartySystem : SharedPartySystem
 
         _partyManager.OnPartyDataUpdated += UpdatePartyDataForMembers;
         _partyManager.OnPartyUserUpdated += UpdatePartyData;
-        _partyManager.OnPartyInviteUpdated += UpdateInviteInfo;
 
         SubscribeNetworkEvent<CreatePartyRequestMessage>(OnCreatePartyRequest);
         SubscribeNetworkEvent<DisbandPartyRequestMessage>(OnDisbandPartyRequest);
         SubscribeNetworkEvent<LeavePartyRequestMessage>(OnLeavePartyMessage);
-        SubscribeNetworkEvent<InviteInPartyRequestMessage>(OnInviteInPartyMessage);
 
         SubscribeNetworkEvent<PartyDataInfoRequestMessage>(OnPartyDataInfoRequest);
 
-        SubscribeNetworkEvent<AcceptInviteMessage>(OnAcceptInvite);
-        SubscribeNetworkEvent<DenyInviteMessage>(OnDenyInvite);
+        InviteInitialize();
     }
 
     private void OnCreatePartyRequest(CreatePartyRequestMessage message, EntitySessionEventArgs args)
@@ -54,12 +51,7 @@ public sealed partial class PartySystem : SharedPartySystem
         if (party == null)
             return;
 
-        _partyManager.RemovePlayerFromParty(args.SenderSession.UserId, party);
-    }
-
-    private void OnInviteInPartyMessage(InviteInPartyRequestMessage message, EntitySessionEventArgs args)
-    {
-        _partyManager.SendInviteToUser(args.SenderSession, message.Username);
+        _partyManager.RemoveUserFromParty(args.SenderSession.UserId, party);
     }
 
     private void OnPartyDataInfoRequest(PartyDataInfoRequestMessage message, EntitySessionEventArgs args)
@@ -67,16 +59,6 @@ public sealed partial class PartySystem : SharedPartySystem
         var party = _partyManager.GetPartyByMember(args.SenderSession.UserId);
         var partyUser = _partyManager.GetPartyUser(args.SenderSession.UserId);
         UpdatePartyData(partyUser);
-    }
-
-    private void OnAcceptInvite(AcceptInviteMessage message, EntitySessionEventArgs args)
-    {
-        _partyManager.AcceptInvite(message.Invite);
-    }
-
-    private void OnDenyInvite(DenyInviteMessage message, EntitySessionEventArgs args)
-    {
-        _partyManager.DenyInvite(message.Invite);
     }
 
     public void UpdatePartyData(PartyUser user)
@@ -91,18 +73,6 @@ public sealed partial class PartySystem : SharedPartySystem
     {
         foreach (var member in party.Members)
             UpdatePartyData(member);
-    }
-
-    public void UpdateInviteInfo(PartyInvite invite)
-    {
-        if (!_playerManager.TryGetSessionById(invite.Sender, out var sender))
-            return;
-
-        var ev = new UpdateInviteInfo(invite);
-        RaiseNetworkEvent(ev, sender);
-
-        if (_playerManager.TryGetSessionById(invite.Target, out var target))
-            RaiseNetworkEvent(ev, target);
     }
 
     public void OpenPartyMenu(ICommonSession session)
