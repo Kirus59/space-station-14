@@ -40,14 +40,19 @@ public sealed class PartyData
         return Members.Find(u => u.Role == PartyRole.Leader);
     }
 
-    public bool IsLeader(NetUserId userId)
+    public bool IsLeader(NetUserId user)
     {
-        return Leader?.Id == userId;
+        return Leader?.Id == user;
     }
 
-    public bool ContainMember(NetUserId userId)
+    public bool IsLeader(PartyUser user)
     {
-        return Members.Find(u => u.Id == userId) != null;
+        return Leader == user;
+    }
+
+    public bool ContainUser(PartyUser user)
+    {
+        return Members.Find(u => u == user) != null;
     }
 
     public bool TryGetMember(NetUserId netUser, [NotNullWhen(true)] out PartyUser? partyUser)
@@ -97,8 +102,8 @@ public sealed class PartyUser
 
     public static bool Equals(PartyUser? user1, PartyUser? user2)
     {
-        if (user1 == null) return user2 == null;
-        if (user2 == null) return user1 == null;
+        if (user1 is null) return user2 is null;
+        if (user2 is null) return user1 is null;
 
         return user1.Equals(user2);
     }
@@ -140,8 +145,8 @@ public sealed class PartyInvite
 
     public static bool Equals(PartyInvite? invite1, PartyInvite? invite2)
     {
-        if (invite1 == null) return invite2 == null;
-        if (invite2 == null) return invite1 == null;
+        if (invite1 is null) return invite2 is null;
+        if (invite2 is null) return invite1 is null;
 
         return invite1.Equals(invite2);
     }
@@ -176,4 +181,5 @@ public enum InviteStatus
     Denied
 }
 
+[Serializable, NetSerializable]
 public record struct PartyInviteState(uint Id, InviteStatus Status);

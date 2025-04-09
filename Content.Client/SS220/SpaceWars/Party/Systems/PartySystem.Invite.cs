@@ -26,6 +26,12 @@ public sealed partial class PartySystem
         _partyManager.HandleInviteState(message.State);
     }
 
+    public void SendInvite(string username)
+    {
+        var ev = new InviteInPartyRequestMessage(username);
+        RaiseNetworkEvent(ev);
+    }
+
     public void AcceptInvite(uint inviteId)
     {
         var ev = new AcceptInviteMessage(inviteId);

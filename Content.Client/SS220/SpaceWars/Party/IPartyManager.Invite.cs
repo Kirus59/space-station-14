@@ -1,9 +1,4 @@
 using Content.Shared.SS220.SpaceWars.Party;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
@@ -14,20 +9,26 @@ public partial interface IPartyManager
     event Action<PartyInvite>? OnIncomingInviteAdded;
     event Action<PartyInvite>? OnIncomingInviteRemoved;
 
-    public void HandleInviteState(PartyInviteState state);
+    event Action<PartyInvite>? OnPartyInviteUpdated;
 
+    public Dictionary<uint, PartyInvite> OutgoingInvites { get; }
+    public Dictionary<uint, PartyInvite> IncomingInvites { get; }
 
-    public void HandleInviteState(PartyInviteState state, PartyInvite invite);
+    void SendInvite(string username);
 
+    void AcceptInvite(uint inviteId);
 
-    public void AddOutgoingInvite(PartyInvite invite);
+    void DenyInvite(uint inviteId);
 
+    void HandleInviteState(PartyInviteState state);
 
-    public void RemoveOutgoingInvite(PartyInvite invite);
+    void HandleInviteState(PartyInviteState state, PartyInvite invite);
 
+    void AddOutgoingInvite(PartyInvite invite);
 
-    public void AddIncomingInvite(PartyInvite invite);
+    void RemoveOutgoingInvite(PartyInvite invite);
 
+    void AddIncomingInvite(PartyInvite invite);
 
-    public void RemoveIncomingInvite(PartyInvite invite);
+    void RemoveIncomingInvite(PartyInvite invite);
 }

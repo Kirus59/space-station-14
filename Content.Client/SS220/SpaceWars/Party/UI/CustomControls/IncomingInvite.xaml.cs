@@ -18,6 +18,6 @@ public sealed partial class IncomingInvite : PanelContainer
 
         _invite = invite;
         PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(60, 60, 60) };
-        SenderLabel.Text = Loc.GetString("ui-InvitedInPartyWindow-SenderLabel", ("sender", _invite.SenderName));
+        SenderLabel.Text = Loc.GetString("ui-InvitedInPartyWindow-SenderLabel", ("sender", _invite.Sender.Name));
     }
 }

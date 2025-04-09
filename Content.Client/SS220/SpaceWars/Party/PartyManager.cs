@@ -9,8 +9,6 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 {
-    [Dependency] private readonly IPlayerManager _playerManager = default!;
-
     private PartySystem? _partySystem;
 
     public event Action<PartyData?>? OnPartyDataUpdated;
@@ -52,21 +50,6 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public void SendLeavePartyRequest()
     {
         _partySystem?.SendLeavePartyRequest();
-    }
-
-    public void SendInviteRequest(string username)
-    {
-        _partySystem?.SendInviteRequest(username);
-    }
-
-    public void AcceptInvite(PartyInvite invite)
-    {
-        _partySystem?.AcceptInvite(invite);
-    }
-
-    public void DenyInvite(PartyInvite invite)
-    {
-        _partySystem?.DenyInvite(invite);
     }
 
     #region PartyMenuUI

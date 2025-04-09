@@ -24,6 +24,6 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
         if (string.IsNullOrEmpty(text))
             return;
 
-        _partyManager.SendInviteRequest(text);
+        _partyManager.SendInvite(text);
     }
 }

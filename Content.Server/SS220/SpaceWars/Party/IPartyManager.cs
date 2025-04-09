@@ -21,30 +21,37 @@ public partial interface IPartyManager : ISharedPartyManager
     void SetPartySystem(PartySystem partySystem);
 
     bool TryCreateParty(NetUserId leader, [NotNullWhen(false)] out string? reason);
+    bool TryCreateParty(PartyUser leader, [NotNullWhen(false)] out string? reason);
 
     /// <summary>
     ///     Creates a new party with the <paramref name="leader"/>
     /// </summary>
     /// <exception cref="ArgumentException"> <paramref name="leader"/> must not be present at another party </exception>
-    PartyData? CreateParty(NetUserId leader);
+    PartyData CreateParty(PartyUser leader);
 
     void DisbandParty(PartyData party);
 
     PartyData? GetPartyByLeader(NetUserId leader);
+    PartyData? GetPartyByLeader(PartyUser leader);
 
     PartyData? GetPartyByMember(NetUserId member);
+    PartyData? GetPartyByMember(PartyUser member);
 
-    bool TryAddPlayerToParty(NetUserId member, PartyData party, [NotNullWhen(false)] out string? reason);
+    bool TryAddUserToParty(PartyUser user, PartyData party, [NotNullWhen(false)] out string? reason);
 
     /// <summary>
     ///     Adds a <paramref name="member"/> to the <paramref name="party"/>
     /// </summary>
     /// <exception cref="ArgumentException"> <paramref name="member"/> must not be present at another party </exception>
-    void AddPlayerToParty(NetUserId member, PartyData party);
+    void AddUserToParty(PartyUser user, PartyData party);
 
-    void RemoveUserFromParty(NetUserId member, PartyData party);
+    void RemoveUserFromParty(NetUserId user, PartyData party);
 
     PartyUser GetPartyUser(NetUserId userId);
+
+    bool TryGetSessionByPartyUser(PartyUser user, [NotNullWhen(true)] out ICommonSession? session);
+
+    ICommonSession GetSessionByPartyUser(PartyUser user);
 
     public void SetPartyUserRole(PartyUser user, PartyRole role);
 

@@ -17,8 +17,8 @@ public sealed partial class IncomingInvitesTab : Control
         IoCManager.InjectDependencies(this);
 
         InvitesPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(32, 32, 40) };
-        _partyManager.OnAddedIncomingInvite += _ => Populate();
-        _partyManager.OnRemovedIncomingInvite += _ => Populate();
+        _partyManager.OnIncomingInviteAdded += _ => Populate();
+        _partyManager.OnIncomingInviteRemoved += _ => Populate();
     }
 
     public void Populate()
@@ -28,18 +28,18 @@ public sealed partial class IncomingInvitesTab : Control
         if (invites.Count <= 0)
             return;
 
-        foreach (var invite in invites)
+        foreach (var (id, invite) in invites)
         {
             var control = new IncomingInvite(invite);
             control.Margin = new Thickness(5);
             control.AcceptButton.OnPressed += _ =>
             {
-                _partyManager.AcceptInvite(invite);
+                _partyManager.AcceptInvite(id);
             };
 
             control.DenyButton.OnPressed += _ =>
             {
-                _partyManager.DenyInvite(invite);
+                _partyManager.DenyInvite(id);
             };
             InvitesContainer.AddChild(control);
         }

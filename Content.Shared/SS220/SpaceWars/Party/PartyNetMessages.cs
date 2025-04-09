@@ -86,6 +86,6 @@ public sealed class GetInviteState() : EntityEventArgs { }
 [Serializable, NetSerializable]
 public sealed class HandleInviteState(PartyInviteState state) : EntityEventArgs
 {
-    public readonly PartyInviteState State;
+    public readonly PartyInviteState State = state;
 }
 #endregion

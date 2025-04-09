@@ -19,7 +19,8 @@ public sealed partial class PartyManager
             return;
 
         invite.Status = InviteStatus.Accepted;
-        TryAddPlayerToParty(invite.Target.Id, invite.Party, out _);
+        DirtyInvite(invite);
+        TryAddUserToParty(invite.Target, invite.Party, out _);
         _invites.Remove(invite.Id);
     }
 
@@ -32,18 +33,19 @@ public sealed partial class PartyManager
             return;
 
         invite.Status = InviteStatus.Denied;
+        DirtyInvite(invite);
         _invites.Remove(invite.Id);
     }
 
     public void DeleteInvite(PartyInvite invite)
     {
         invite.Status = InviteStatus.Deleted;
+        DirtyInvite(invite);
         _invites.Remove(invite.Id);
     }
 
     public bool TrySendInvite(ICommonSession sender, string username, [NotNullWhen(false)] out string? failReason)
     {
-        failReason = null;
         if (!_playerManager.TryGetSessionByUsername(username, out var target))
         {
             failReason = $"Not found session for {username}";
@@ -55,7 +57,6 @@ public sealed partial class PartyManager
 
     public bool TrySendInvite(ICommonSession sender, ICommonSession target, [NotNullWhen(false)] out string? failReason)
     {
-        failReason = null;
         var party = GetPartyByLeader(sender.UserId);
         if (party == null)
         {
