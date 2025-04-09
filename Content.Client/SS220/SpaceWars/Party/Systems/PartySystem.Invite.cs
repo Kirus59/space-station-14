@@ -43,4 +43,10 @@ public sealed partial class PartySystem
         var ev = new AcceptInviteMessage(inviteId);
         RaiseNetworkEvent(ev);
     }
+
+    public void DeleteInvite(uint inviteId)
+    {
+        var ev = new DeleteInviteMessage(inviteId);
+        RaiseNetworkEvent(ev);
+    }
 }

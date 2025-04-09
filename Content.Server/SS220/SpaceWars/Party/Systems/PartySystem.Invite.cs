@@ -10,6 +10,7 @@ public sealed partial class PartySystem
         SubscribeNetworkEvent<InviteInPartyRequestMessage>(OnInviteInPartyRequest);
         SubscribeNetworkEvent<AcceptInviteMessage>(OnAcceptInvite);
         SubscribeNetworkEvent<DenyInviteMessage>(OnDenyInvite);
+        SubscribeNetworkEvent<DeleteInviteMessage>(OnDeleteInvite);
     }
 
     private void OnInviteInPartyRequest(InviteInPartyRequestMessage message, EntitySessionEventArgs args)
@@ -27,6 +28,11 @@ public sealed partial class PartySystem
     private void OnDenyInvite(DenyInviteMessage message, EntitySessionEventArgs args)
     {
         _partyManager.DenyInvite(message.InviteId, args.SenderSession);
+    }
+
+    private void OnDeleteInvite(DeleteInviteMessage message, EntitySessionEventArgs args)
+    {
+        _partyManager.DeleteInvite(message.InviteId, args.SenderSession);
     }
 
     public void SendInvite(PartyInvite invite, ICommonSession sender, ICommonSession target)

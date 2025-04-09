@@ -68,6 +68,12 @@ public sealed class DenyInviteMessage(uint inviteId) : EntityEventArgs
 }
 
 [Serializable, NetSerializable]
+public sealed class DeleteInviteMessage(uint inviteId) : EntityEventArgs
+{
+    public readonly uint InviteId = inviteId;
+}
+
+[Serializable, NetSerializable]
 public sealed class InviteInPartyRequestMessage(string username) : EntityEventArgs
 {
     public readonly string Username = username;

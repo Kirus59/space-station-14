@@ -20,6 +20,8 @@ public partial interface IPartyManager
 
     void DenyInvite(uint inviteId);
 
+    void DeleteInvite(uint inviteId);
+
     void HandleInviteState(PartyInviteState state);
 
     void HandleInviteState(PartyInviteState state, PartyInvite invite);

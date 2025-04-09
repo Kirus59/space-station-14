@@ -37,6 +37,17 @@ public sealed partial class PartyManager
         _invites.Remove(invite.Id);
     }
 
+    public void DeleteInvite(uint inviteId, ICommonSession session)
+    {
+        if (!_invites.TryGetValue(inviteId, out var invite))
+            return;
+
+        if (invite.Sender.Id != session.UserId)
+            return;
+
+        DeleteInvite(invite);
+    }
+
     public void DeleteInvite(PartyInvite invite)
     {
         invite.Status = InviteStatus.Deleted;

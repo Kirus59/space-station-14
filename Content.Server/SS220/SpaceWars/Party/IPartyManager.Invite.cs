@@ -8,6 +8,8 @@ public partial interface IPartyManager
 {
     void AcceptInvite(uint inviteId, ICommonSession target);
     void DenyInvite(uint inviteId, ICommonSession target);
+
+    void DeleteInvite(uint inviteId, ICommonSession session);
     void DeleteInvite(PartyInvite invite);
 
     bool TrySendInvite(ICommonSession sender, string username, [NotNullWhen(false)] out string? failReason);

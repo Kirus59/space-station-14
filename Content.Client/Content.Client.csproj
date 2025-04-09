@@ -26,6 +26,9 @@
   <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
   <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
   <ItemGroup>
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\OutgoingInvite.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AdditionalFiles>
     <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\PartyUserInfo.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>

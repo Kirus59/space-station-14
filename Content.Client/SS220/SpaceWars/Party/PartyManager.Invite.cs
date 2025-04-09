@@ -32,6 +32,11 @@ public sealed partial class PartyManager
         _partySystem?.DenyInvite(inviteId);
     }
 
+    public void DeleteInvite(uint inviteId)
+    {
+        _partySystem?.DeleteInvite(inviteId);
+    }
+
     public void HandleInviteState(PartyInviteState state)
     {
         if (_outgoingInvites.TryGetValue(state.Id, out var outgoingInvite))
