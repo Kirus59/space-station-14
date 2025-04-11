@@ -8,7 +8,6 @@ using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
-using System.Threading.Tasks;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 
@@ -23,7 +22,6 @@ public sealed partial class MainTab : Control
     private Dictionary<PartyUser, PartyUserInfo> _partyUsers = new();
     private InviteInPartyWindow _inviteWindow = new InviteInPartyWindow();
 
-    private Dictionary<Button, OldButtonState> _awaitConfirm = new();
     public MainTab()
     {
         RobustXamlLoader.Load(this);
@@ -153,43 +151,4 @@ public sealed partial class MainTab : Control
         foreach (var info in _partyUsers.Values)
             MembersContainer.AddChild(info);
     }
-
-    //private void DoAfterConfirm(Button button, Action act, float delay = 5f, string? confirmText = null)
-    //{
-    //    if (_awaitConfirm.TryGetValue(button, out _))
-    //    {
-    //        act.Invoke();
-    //        RemoveAwaitConfirm(button);
-    //    }
-    //    else
-    //    {
-    //        AddAwaitConfirm(button, 5f);
-
-    //        confirmText ??= "Вы уверены?";
-    //        button.Text = confirmText;
-    //        button.ModulateSelfOverride = StyleNano.ButtonColorCautionDefault;
-    //        button.AddStyleClass(ContainerButton.StyleClassButton);
-    //    }
-    //}
-
-    //private async void AddAwaitConfirm(Button button, float awaitTime = 0)
-    //{
-    //    var oldState = new OldButtonState(button.Text, button.ModulateSelfOverride);
-    //    _awaitConfirm.Add(button, oldState);
-
-    //    await Task.Delay((int)(awaitTime * 1000));
-    //    RemoveAwaitConfirm(button);
-    //}
-
-    //private void RemoveAwaitConfirm(Button button)
-    //{
-    //    if (button.Disposed || !_awaitConfirm.TryGetValue(button, out var state))
-    //        return;
-
-    //    button.Text = state.Text;
-    //    button.StyleBoxOverride = state.OverrideColor;
-    //    _awaitConfirm.Remove(button);
-    //}
-
-    private record struct OldButtonState(string? Text, Color? OverrideColor);
 }
