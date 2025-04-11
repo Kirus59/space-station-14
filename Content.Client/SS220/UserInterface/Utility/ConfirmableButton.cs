@@ -65,6 +65,9 @@ public sealed class ConfirmableButton : Button
 
     public void Update()
     {
+        if (Disposed)
+            return;
+
         if (_curClicks >= ClicksForConfirm)
             Confirmed();
 
@@ -85,6 +88,9 @@ public sealed class ConfirmableButton : Button
 
     private void UpdateState()
     {
+        if (Disposed)
+            return;
+
         if (_clickStates.TryGetValue((uint)_curClicks, out var state))
         {
             Text = state.Text;
