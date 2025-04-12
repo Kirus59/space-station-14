@@ -1,7 +1,5 @@
 using Content.Shared.SS220.SpaceWars.Party;
 using Content.Shared.SS220.SpaceWars.Party.Systems;
-using Robust.Server.Player;
-using Robust.Shared.Network;
 using Robust.Shared.Player;
 
 namespace Content.Server.SS220.SpaceWars.Party.Systems;
@@ -9,7 +7,6 @@ namespace Content.Server.SS220.SpaceWars.Party.Systems;
 public sealed partial class PartySystem : SharedPartySystem
 {
     [Dependency] private readonly IPartyManager _partyManager = default!;
-    [Dependency] private readonly IPlayerManager _playerManager = default!;
 
     public override void Initialize()
     {
@@ -17,28 +14,23 @@ public sealed partial class PartySystem : SharedPartySystem
 
         _partyManager.SetPartySystem(this);
 
-        _partyManager.OnPartyDataUpdated += UpdatePartyDataForMembers;
-        _partyManager.OnPartyUserUpdated += UpdatePartyData;
-
         SubscribeNetworkEvent<CreatePartyRequestMessage>(OnCreatePartyRequest);
         SubscribeNetworkEvent<DisbandPartyRequestMessage>(OnDisbandPartyRequest);
         SubscribeNetworkEvent<LeavePartyRequestMessage>(OnLeavePartyMessage);
-
-        SubscribeNetworkEvent<PartyDataInfoRequestMessage>(OnPartyDataInfoRequest);
 
         InviteInitialize();
     }
 
     private void OnCreatePartyRequest(CreatePartyRequestMessage message, EntitySessionEventArgs args)
     {
-        var created = _partyManager.TryCreateParty(args.SenderSession.UserId, out var reason);
+        var created = _partyManager.TryCreateParty(args.SenderSession, out var reason);
         var responce = new CreatePartyResponceMessage(created, reason);
         RaiseNetworkEvent(responce, args.SenderSession.Channel);
     }
 
     private void OnDisbandPartyRequest(DisbandPartyRequestMessage message, EntitySessionEventArgs args)
     {
-        var party = _partyManager.GetPartyByLeader(args.SenderSession.UserId);
+        var party = _partyManager.GetPartyByLeader(args.SenderSession);
         if (party == null)
             return;
 
@@ -47,32 +39,23 @@ public sealed partial class PartySystem : SharedPartySystem
 
     private void OnLeavePartyMessage(LeavePartyRequestMessage message, EntitySessionEventArgs args)
     {
-        var party = _partyManager.GetPartyByMember(args.SenderSession.UserId);
+        var party = _partyManager.GetPartyByMember(args.SenderSession);
         if (party == null)
             return;
 
-        _partyManager.RemoveUserFromParty(args.SenderSession.UserId, party);
+        _partyManager.RemoveUserFromParty(args.SenderSession, party);
     }
 
-    private void OnPartyDataInfoRequest(PartyDataInfoRequestMessage message, EntitySessionEventArgs args)
+    public void UpdatePartyData(ClientPartyDataState party, ICommonSession session)
     {
-        var party = _partyManager.GetPartyByMember(args.SenderSession.UserId);
-        var partyUser = _partyManager.GetPartyUser(args.SenderSession.UserId);
-        UpdatePartyData(partyUser);
-    }
-
-    public void UpdatePartyData(PartyUser user)
-    {
-        var session = _playerManager.GetSessionById(user.Id);
-        var currentParty = _partyManager.GetPartyByMember(user.Id);
-        var ev = new UpdatePartyDataInfoMessage(currentParty);
+        var ev = new UpdateCurrentPartyMessage(party);
         RaiseNetworkEvent(ev, session);
     }
 
-    private void UpdatePartyDataForMembers(PartyData party)
+    public void SetCurrentParty(ClientPartyDataState? state, ICommonSession session)
     {
-        foreach (var member in party.Members)
-            UpdatePartyData(member);
+        var ev = new SetCurrentPartyMessage(state);
+        RaiseNetworkEvent(ev, session);
     }
 
     public void OpenPartyMenu(ICommonSession session)

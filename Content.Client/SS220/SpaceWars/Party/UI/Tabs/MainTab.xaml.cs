@@ -1,3 +1,4 @@
+
 using Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 using Content.Client.SS220.UserInterface.Utility;
 using Content.Client.Stylesheets;
@@ -8,6 +9,7 @@ using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
+using System.Linq;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 
@@ -17,9 +19,6 @@ public sealed partial class MainTab : Control
     [Dependency] private readonly IPartyManager _partyManager = default!;
     [Dependency] private readonly IPlayerManager _playerManager = default!;
 
-    private PartyData? _currentParty;
-
-    private Dictionary<PartyUser, PartyUserInfo> _partyUsers = new();
     private InviteInPartyWindow _inviteWindow = new InviteInPartyWindow();
 
     public MainTab()
@@ -35,51 +34,36 @@ public sealed partial class MainTab : Control
 
     public void Update()
     {
-        UpdatePartyInfo();
         UpdateMembers();
         UpdateButtons();
     }
 
-    public void UpdatePartyInfo()
-    {
-        _currentParty = _partyManager.CurrentParty;
-    }
-
     public void UpdateMembers()
     {
-        if (_currentParty == null)
-        {
-            _partyUsers.Clear();
-            PopulateMembersContainer();
+        MembersContainer.RemoveAllChildren();
+
+        if (_partyManager.CurrentParty is not { } currentParty)
             return;
-        }
 
-        Dictionary<PartyUser, PartyUserInfo> newDict = new();
-        foreach (var user in _currentParty.Members)
+        var members = currentParty.Members.OrderByDescending(x => x.Role).ThenBy(x => x.Name);
+        foreach (var member in members)
         {
-            _partyUsers.TryGetValue(user, out var info);
-            info ??= new PartyUserInfo();
-            UpdatePartyUserInfo(user, info);
-            newDict.Add(user, info);
+            var control = new PartyUserInfoPanel();
+            control.Margin = new Thickness(5, 5, 5, 0);
+            control.Populate(member.Name, member.Role, member.Connected);
+            MembersContainer.AddChild(control);
         }
-
-        _partyUsers = newDict;
-        PopulateMembersContainer();
     }
 
     public void UpdateButtons()
     {
         ButtonContainer.RemoveAllChildren();
 
-        var player = _playerManager.LocalSession;
-        if (player == null)
-            return;
-
-        if (_currentParty == null)
+        if (_partyManager.CurrentParty is not { } currentParty)
         {
             ButtonContainer.AddChild(NewCreatePartyButton());
         }
-        else if (_currentParty.IsLeader(player.UserId))
+        else if (currentParty.LocalUserInfo.Role is PartyRole.Leader)
         {
             ButtonContainer.AddChild(NewDisbandPartyButton());
             ButtonContainer.AddChild(NewInviteInPartyButton());
@@ -88,13 +72,6 @@ public sealed partial class MainTab : Control
         {
             ButtonContainer.AddChild(NewLeavePartyButton());
         }
-    }
-
-    public void UpdatePartyUserInfo(PartyUser user, PartyUserInfo info)
-    {
-        info.Populate(user);
-        info.Margin = new Thickness(5, 5, 5, 5);
-        info.SetNewSize(new System.Numerics.Vector2(MembersContainer.Size.X - 10, 50));
     }
 
     public Button NewCreatePartyButton()
@@ -143,12 +120,5 @@ public sealed partial class MainTab : Control
             _inviteWindow.OpenCentered();
         };
         return button;
-    }
-
-    private void PopulateMembersContainer()
-    {
-        MembersContainer.RemoveAllChildren();
-        foreach (var info in _partyUsers.Values)
-            MembersContainer.AddChild(info);
     }
 }

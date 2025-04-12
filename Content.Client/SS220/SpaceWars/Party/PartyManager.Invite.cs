@@ -4,18 +4,19 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager
 {
-    public event Action<PartyInvite>? OnOutgoingInviteAdded;
-    public event Action<PartyInvite>? OnOutgoingInviteRemoved;
-    public event Action<PartyInvite>? OnIncomingInviteAdded;
-    public event Action<PartyInvite>? OnIncomingInviteRemoved;
+    public event Action<SendedPartyInvite>? OnSendedInviteAdded;
+    public event Action<SendedPartyInvite>? OnSendedInviteRemoved;
+    public event Action<SendedPartyInvite>? OnSendedInviteUpdated;
 
-    public event Action<PartyInvite>? OnPartyInviteUpdated;
+    public event Action<IncomingPartyInvite>? OnIncomingInviteAdded;
+    public event Action<IncomingPartyInvite>? OnIncomingInviteRemoved;
+    public event Action<IncomingPartyInvite>? OnIncomingInviteUpdated;
 
-    public Dictionary<uint, PartyInvite> OutgoingInvites => _outgoingInvites;
-    private Dictionary<uint, PartyInvite> _outgoingInvites = new();
+    public Dictionary<uint, SendedPartyInvite> SendedInvites => _sendedInvites;
+    private Dictionary<uint, SendedPartyInvite> _sendedInvites = new();
 
-    public Dictionary<uint, PartyInvite> IncomingInvites => _incomingInvites;
-    private Dictionary<uint, PartyInvite> _incomingInvites = new();
+    public Dictionary<uint, IncomingPartyInvite> IncomingInvites => _incomingInvites;
+    private Dictionary<uint, IncomingPartyInvite> _incomingInvites = new();
 
     public void SendInvite(string username)
     {
@@ -37,41 +38,51 @@ public sealed partial class PartyManager
         _partySystem?.DeleteInvite(inviteId);
     }
 
-    public void HandleInviteState(PartyInviteState state)
+    public void HandleInviteState(ClientPartyInviteState state)
     {
-        if (_outgoingInvites.TryGetValue(state.Id, out var outgoingInvite))
-            HandleInviteState(state, outgoingInvite);
+        if (_sendedInvites.TryGetValue(state.Id, out var sendedInvite))
+            UpdateSendedInvite(state, sendedInvite);
 
         if (_incomingInvites.TryGetValue(state.Id, out var incomingInvite))
-            HandleInviteState(state, incomingInvite);
+            UpdateIncomingInvite(state, incomingInvite);
     }
 
-    public void HandleInviteState(PartyInviteState state, PartyInvite invite)
+    private void UpdateSendedInvite(ClientPartyInviteState state, SendedPartyInvite invite)
     {
         if (state.Id != invite.Id)
             return;
 
         invite.Status = state.Status;
         CheckInviteStatus(invite);
-        OnPartyInviteUpdated?.Invoke(invite);
+        OnSendedInviteUpdated?.Invoke(invite);
     }
 
-    public void AddOutgoingInvite(PartyInvite invite)
+    private void UpdateIncomingInvite(ClientPartyInviteState state, IncomingPartyInvite invite)
     {
-        if (_outgoingInvites.ContainsKey(invite.Id))
+        if (state.Id != invite.Id)
             return;
 
-        _outgoingInvites.Add(invite.Id, invite);
-        OnOutgoingInviteAdded?.Invoke(invite);
+        invite.Status = state.Status;
+        CheckInviteStatus(invite);
+        OnIncomingInviteUpdated?.Invoke(invite);
     }
 
-    public void RemoveOutgoingInvite(PartyInvite invite)
+    public void AddSendedInvite(SendedPartyInvite invite)
     {
-        _outgoingInvites.Remove(invite.Id);
-        OnOutgoingInviteRemoved?.Invoke(invite);
+        if (_sendedInvites.ContainsKey(invite.Id))
+            return;
+
+        _sendedInvites.Add(invite.Id, invite);
+        OnSendedInviteAdded?.Invoke(invite);
     }
 
-    public void AddIncomingInvite(PartyInvite invite)
+    public void RemoveSendedInvite(SendedPartyInvite invite)
+    {
+        _sendedInvites.Remove(invite.Id);
+        OnSendedInviteRemoved?.Invoke(invite);
+    }
+
+    public void AddIncomingInvite(IncomingPartyInvite invite)
     {
         if (_incomingInvites.ContainsKey(invite.Id))
             return;
@@ -80,22 +91,44 @@ public sealed partial class PartyManager
         OnIncomingInviteAdded?.Invoke(invite);
     }
 
-    public void RemoveIncomingInvite(PartyInvite invite)
+    public void RemoveIncomingInvite(IncomingPartyInvite invite)
     {
         _incomingInvites.Remove(invite.Id);
         OnIncomingInviteRemoved?.Invoke(invite);
     }
 
-    private void CheckInviteStatus(PartyInvite invite)
+    private void CheckInviteStatus(SharedPartyInvite invite)
     {
         switch (invite.Status)
         {
             case InviteStatus.Deleted:
             case InviteStatus.Accepted:
             case InviteStatus.Denied:
-                RemoveIncomingInvite(invite);
-                RemoveOutgoingInvite(invite);
+                if (invite is SendedPartyInvite sendedInvite)
+                    RemoveSendedInvite(sendedInvite);
+                else if (invite is IncomingPartyInvite incomingInvite)
+                    RemoveIncomingInvite(incomingInvite);
                 break;
         }
+    }
+}
+
+public sealed class SendedPartyInvite : SharedPartyInvite
+{
+    public readonly string TargetName;
+
+    public SendedPartyInvite(uint id, string targetName, InviteStatus status = InviteStatus.None) : base(id, status)
+    {
+        TargetName = targetName;
+    }
+}
+
+public sealed class IncomingPartyInvite : SharedPartyInvite
+{
+    public readonly string SenderName;
+
+    public IncomingPartyInvite(uint id, string senderName, InviteStatus status = InviteStatus.None) : base(id, status)
+    {
+        SenderName = senderName;
     }
 }

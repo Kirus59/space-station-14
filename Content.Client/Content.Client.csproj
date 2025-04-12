@@ -26,20 +26,31 @@
   <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
   <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
   <ItemGroup>
-    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\OutgoingInvite.xaml">
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\SendedInvitePanel.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
-    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\PartyUserInfo.xaml">
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\PartyUserInfoPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
     <AdditionalFiles Update="SS220\SpaceWars\Party\UI\InviteInPartyWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
-    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\IncomingInvite.xaml">
+    <AdditionalFiles Update="SS220\SpaceWars\Party\UI\CustomControls\IncomingInvitePanel.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
     <AdditionalFiles Update="SS220\SpaceWars\Party\UI\Tabs\IncomingInvitesTab.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AdditionalFiles>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\IncomingInvitePanel.xaml.cs">
+      <DependentUpon>IncomingInvitePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\SendedInvitePanel.xaml.cs">
+      <DependentUpon>SendedInvitePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\PartyUserInfoPanel.xaml.cs">
+      <DependentUpon>PartyUserInfoPanel.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

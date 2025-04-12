@@ -17,7 +17,8 @@ public sealed partial class PartySystem : SharedPartySystem
         _partyManager.SetPartySystem(this);
 
         SubscribeNetworkEvent<CreatePartyResponceMessage>(OnCreatePartyResponce);
-        SubscribeNetworkEvent<UpdatePartyDataInfoMessage>(OnUpdatePartyDataInfo);
+        SubscribeNetworkEvent<SetCurrentPartyMessage>(OnSetCurrentParty);
+        SubscribeNetworkEvent<UpdateCurrentPartyMessage>(OnUpdatePartyDataInfo);
 
         SubscribeNetworkEvent<OpenPartyMenuMessage>(OnOpenPartyMenuMessage);
         SubscribeNetworkEvent<ClosePartyMenuMessage>(OnClosePartyMenuMessage);
@@ -30,9 +31,14 @@ public sealed partial class PartySystem : SharedPartySystem
         CreatedPartyResponce?.Invoke(message.IsCreated, message.Reason);
     }
 
-    private void OnUpdatePartyDataInfo(UpdatePartyDataInfoMessage message)
+    private void OnSetCurrentParty(SetCurrentPartyMessage message)
     {
-        _partyManager.SetPartyData(message.PartyData);
+        _partyManager.SetCurrentParty(message.State);
+    }
+
+    private void OnUpdatePartyDataInfo(UpdateCurrentPartyMessage message)
+    {
+        _partyManager.UpdateCurrentParty(message.State);
     }
 
     private void OnOpenPartyMenuMessage(OpenPartyMenuMessage message)

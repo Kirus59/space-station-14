@@ -26,14 +26,15 @@ public sealed class CreatePartyResponceMessage(bool isCreated, string? reason = 
 }
 
 [Serializable, NetSerializable]
-public sealed class PartyDataInfoRequestMessage() : EntityEventArgs
+public sealed class SetCurrentPartyMessage(ClientPartyDataState? state) : EntityEventArgs
 {
+    public readonly ClientPartyDataState? State = state;
 }
 
 [Serializable, NetSerializable]
-public sealed class UpdatePartyDataInfoMessage(PartyData? partyData) : EntityEventArgs
+public sealed class UpdateCurrentPartyMessage(ClientPartyDataState state) : EntityEventArgs
 {
-    public readonly PartyData? PartyData = partyData;
+    public readonly ClientPartyDataState State = state;
 }
 
 [Serializable, NetSerializable]
@@ -44,15 +45,19 @@ public sealed class ClosePartyMenuMessage() : EntityEventArgs { }
 
 #region Invite
 [Serializable, NetSerializable]
-public sealed class CreatedNewInviteMessage(PartyInvite invite) : EntityEventArgs
+public sealed class CreatedNewInviteMessage(uint inviteId, string targetName, InviteStatus status) : EntityEventArgs
 {
-    public readonly PartyInvite Invite = invite;
+    public readonly uint InviteId = inviteId;
+    public readonly string TargetName = targetName;
+    public readonly InviteStatus Status = status;
 }
 
 [Serializable, NetSerializable]
-public sealed class InviteReceivedMessage(PartyInvite invite) : EntityEventArgs
+public sealed class InviteReceivedMessage(uint inviteId, string senderName, InviteStatus status) : EntityEventArgs
 {
-    public readonly PartyInvite Invite = invite;
+    public readonly uint InviteId = inviteId;
+    public readonly string SenderName = senderName;
+    public readonly InviteStatus Status = status;
 }
 
 [Serializable, NetSerializable]
@@ -90,8 +95,8 @@ public sealed class InviteInPartyAttemptResponceMessage(bool sended, string? mes
 public sealed class GetInviteState() : EntityEventArgs { }
 
 [Serializable, NetSerializable]
-public sealed class HandleInviteState(PartyInviteState state) : EntityEventArgs
+public sealed class HandleInviteState(ClientPartyInviteState state) : EntityEventArgs
 {
-    public readonly PartyInviteState State = state;
+    public readonly ClientPartyInviteState State = state;
 }
 #endregion

@@ -35,16 +35,16 @@ public sealed partial class PartySystem
         _partyManager.DeleteInvite(message.InviteId, args.SenderSession);
     }
 
-    public void SendInvite(PartyInvite invite, ICommonSession sender, ICommonSession target)
+    public void SendInvite(ServerPartyInvite invite)
     {
-        var senderEv = new CreatedNewInviteMessage(invite);
-        RaiseNetworkEvent(senderEv, sender);
+        var senderEv = new CreatedNewInviteMessage(invite.Id, invite.Target.Name, invite.Status);
+        RaiseNetworkEvent(senderEv, invite.Sender);
 
-        var targetEv = new InviteReceivedMessage(invite);
-        RaiseNetworkEvent(targetEv, target);
+        var targetEv = new InviteReceivedMessage(invite.Id, invite.Sender.Name, invite.Status);
+        RaiseNetworkEvent(targetEv, invite.Target);
     }
 
-    public void DirtyInvite(PartyInviteState state, ICommonSession session)
+    public void DirtyInvite(ClientPartyInviteState state, ICommonSession session)
     {
         var ev = new HandleInviteState(state);
         RaiseNetworkEvent(ev, session);

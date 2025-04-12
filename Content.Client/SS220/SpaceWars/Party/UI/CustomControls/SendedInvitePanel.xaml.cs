@@ -7,13 +7,11 @@ using Robust.Client.UserInterface.XAML;
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
 [GenerateTypedNameReferences]
-public sealed partial class OutgoingInvite : PanelContainer
+public sealed partial class SendedInvitePanel : PanelContainer
 {
-    [Dependency] private readonly IPartyManager _partyManager = default!;
+    private SendedPartyInvite _invite;
 
-    private PartyInvite _invite;
-
-    public OutgoingInvite(PartyInvite invite)
+    public SendedInvitePanel(SendedPartyInvite invite)
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
@@ -23,7 +21,7 @@ public sealed partial class OutgoingInvite : PanelContainer
         Populate();
     }
 
-    public void Populate(PartyInvite invite)
+    public void Populate(SendedPartyInvite invite)
     {
         _invite = invite;
         Populate();
@@ -31,7 +29,7 @@ public sealed partial class OutgoingInvite : PanelContainer
 
     public void Populate()
     {
-        TargetLabel.Text = $"Игрок: {_invite.Target.Name}";
+        TargetLabel.Text = $"Игрок: {_invite.TargetName}";
         StatusLabel.Text = $"Статус: {_invite.Status}";
     }
 }

@@ -4,33 +4,32 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager
 {
-    event Action<PartyInvite>? OnOutgoingInviteAdded;
-    event Action<PartyInvite>? OnOutgoingInviteRemoved;
-    event Action<PartyInvite>? OnIncomingInviteAdded;
-    event Action<PartyInvite>? OnIncomingInviteRemoved;
+    event Action<SendedPartyInvite>? OnSendedInviteAdded;
+    event Action<SendedPartyInvite>? OnSendedInviteRemoved;
+    event Action<SendedPartyInvite>? OnSendedInviteUpdated;
 
-    event Action<PartyInvite>? OnPartyInviteUpdated;
+    event Action<IncomingPartyInvite>? OnIncomingInviteAdded;
+    event Action<IncomingPartyInvite>? OnIncomingInviteRemoved;
+    event Action<IncomingPartyInvite>? OnIncomingInviteUpdated;
 
-    public Dictionary<uint, PartyInvite> OutgoingInvites { get; }
-    public Dictionary<uint, PartyInvite> IncomingInvites { get; }
+    Dictionary<uint, SendedPartyInvite> SendedInvites { get; }
+
+    Dictionary<uint, IncomingPartyInvite> IncomingInvites { get; }
 
     void SendInvite(string username);
-
     void AcceptInvite(uint inviteId);
 
     void DenyInvite(uint inviteId);
 
     void DeleteInvite(uint inviteId);
 
-    void HandleInviteState(PartyInviteState state);
+    void HandleInviteState(ClientPartyInviteState state);
 
-    void HandleInviteState(PartyInviteState state, PartyInvite invite);
+    void AddSendedInvite(SendedPartyInvite invite);
 
-    void AddOutgoingInvite(PartyInvite invite);
+    void RemoveSendedInvite(SendedPartyInvite invite);
 
-    void RemoveOutgoingInvite(PartyInvite invite);
+    void AddIncomingInvite(IncomingPartyInvite invite);
 
-    void AddIncomingInvite(PartyInvite invite);
-
-    void RemoveIncomingInvite(PartyInvite invite);
+    void RemoveIncomingInvite(IncomingPartyInvite invite);
 }

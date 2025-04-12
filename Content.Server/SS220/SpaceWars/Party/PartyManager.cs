@@ -1,11 +1,11 @@
 
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Server.Player;
-using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Enums;
 using System.Diagnostics.CodeAnalysis;
 using Content.Server.SS220.SpaceWars.Party.Systems;
+using System.Linq;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
@@ -15,14 +15,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     private PartySystem? _partySystem = default!;
 
-    public event Action<PartyData>? OnPartyDataUpdated;
-    public event Action<PartyData>? OnPartyDisbanding;
-    public event Action<PartyUser>? OnPartyUserUpdated;
+    public event Action<ServerPartyData>? OnPartyDataUpdated;
+    public event Action<ServerPartyData>? OnPartyDisbanding;
 
-    public List<PartyData> Parties => _parties;
-    private List<PartyData> _parties = new();
-
-    private Dictionary<NetUserId, PartyUser> _partyUsers = new();
+    public List<ServerPartyData> Parties => _parties;
+    private List<ServerPartyData> _parties = new();
 
     public override void Initialize()
     {
@@ -34,13 +31,8 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         _partySystem = partySystem;
     }
 
-    public bool TryCreateParty(NetUserId leader, [NotNullWhen(false)] out string? reason)
-    {
-        return TryCreateParty(GetPartyUser(leader), out reason);
-    }
-
     /// <inheritdoc/>
-    public bool TryCreateParty(PartyUser leader, [NotNullWhen(false)] out string? reason)
+    public bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason)
     {
         reason = null;
 
@@ -57,57 +49,47 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     }
 
     /// <inheritdoc/>
-    public PartyData CreateParty(PartyUser leader)
+    public ServerPartyData CreateParty(ICommonSession leader)
     {
         CheckAvaliableUser(leader);
 
-        var party = new PartyData();
+        var party = new ServerPartyData(GetFreePartyId());
         _parties.Add(party);
 
-        SetPartyUserRole(leader, PartyRole.Leader);
-        party.AddMember(leader);
-        OnPartyUserUpdated?.Invoke(leader);
-
+        AddUserToParty(leader, party, PartyRole.Leader);
         return party;
     }
 
     /// <inheritdoc/>
-    public void DisbandParty(PartyData party)
+    public void DisbandParty(ServerPartyData party)
     {
-        while (party.Members.Count > 0)
-        {
-            var user = party.Members[0].Id;
+        var usersToRemove = party.Members.Keys;
+        foreach (var user in usersToRemove)
             RemoveUserFromParty(user, party);
-        }
+
+        party.Disbanded = true;
+        DirtyParty(party);
 
         OnPartyDisbanding?.Invoke(party);
         _parties.Remove(party);
     }
 
-    public PartyData? GetPartyByLeader(NetUserId leader)
+    public ServerPartyData? GetPartyById(uint id)
     {
-        return GetPartyByLeader(GetPartyUser(leader));
+        return _parties.Find(p => p.Id == id);
     }
 
-    /// <inheritdoc/>
-    public PartyData? GetPartyByLeader(PartyUser leader)
+    public ServerPartyData? GetPartyByLeader(ICommonSession leader)
     {
-        return _parties.Find(x => x.IsLeader(leader));
+        return _parties.Find(p => p.Leader == leader);
     }
 
-    public PartyData? GetPartyByMember(NetUserId member)
+    public ServerPartyData? GetPartyByMember(ICommonSession member)
     {
-        return GetPartyByMember(GetPartyUser(member));
+        return _parties.Find(p => p.ContainsUser(member));
     }
 
-    /// <inheritdoc/>
-    public PartyData? GetPartyByMember(PartyUser member)
-    {
-        return _parties.Find(x => x.ContainUser(member));
-    }
-
-    /// <inheritdoc/>
-    public bool TryAddUserToParty(PartyUser user, PartyData party, [NotNullWhen(false)] out string? reason)
+    public bool TryAddUserToParty(ICommonSession user, ServerPartyData party, [NotNullWhen(false)] out string? reason)
     {
         reason = null;
 
@@ -123,62 +105,78 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
     }
 
-    /// <inheritdoc/>
-    public void AddUserToParty(PartyUser user, PartyData party)
+    public void AddUserToParty(ICommonSession user, ServerPartyData party, PartyRole role = PartyRole.Member)
     {
         CheckAvaliableUser(user);
-        party.AddMember(user);
-        SetPartyUserRole(user, PartyRole.Member);
 
-        OnPartyDataUpdated?.Invoke(party);
-    }
-
-    /// <inheritdoc/>
-    public void RemoveUserFromParty(NetUserId user, PartyData party)
-    {
-        if (!party.TryGetMember(user, out var partyUser))
+        if (!party.AddMember(user, role))
             return;
 
-        party.RemoveMember(partyUser);
+        SetCurrentParty(user, party);
+        DirtyParty(party);
+
         OnPartyDataUpdated?.Invoke(party);
-        OnPartyUserUpdated?.Invoke(partyUser);
     }
 
-    public PartyUser GetPartyUser(NetUserId userId)
+    public void RemoveUserFromParty(ICommonSession user, ServerPartyData party)
     {
-        if (_partyUsers.TryGetValue(userId, out var user))
-            return user;
-        else
-        {
-            var session = _playerManager.GetSessionById(userId);
-            var partyUser = new PartyUser(userId, PartyRole.Member, session.Name, session.Status is SessionStatus.Connected);
-            _partyUsers.Add(userId, partyUser);
+        if (!party.RemoveMember(user))
+            return;
 
-            return partyUser;
+        SetCurrentParty(user, null);
+        DirtyParty(party);
+
+        OnPartyDataUpdated?.Invoke(party);
+    }
+
+    private bool CheckAvaliableUser(ICommonSession user, bool throwExeption = true)
+    {
+        if (GetPartyByMember(user) != null)
+        {
+            if (throwExeption)
+                throw new ArgumentException($"{user.Name} is already the member of the another party");
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private ClientPartyDataState GetClientPartyState(ServerPartyData party, ICommonSession client)
+    {
+        var localUserInfo = party.GetUserInfo(client);
+        if (localUserInfo == null)
+            throw new ArgumentException($"{client.Name} is not the member of this party");
+
+        var membersList = party.Members.Select(x => x.Value).ToList();
+        return new ClientPartyDataState(party.Id, localUserInfo, membersList, party.Disbanded);
+    }
+
+    private void SetCurrentParty(ICommonSession session, ServerPartyData? party)
+    {
+        ClientPartyDataState? state = null;
+        if (party != null)
+            state = GetClientPartyState(party, session);
+
+        _partySystem?.SetCurrentParty(state, session);
+    }
+
+    private void DirtyParty(ServerPartyData party)
+    {
+        foreach (var (session, _) in party.Members)
+        {
+            var state = GetClientPartyState(party, session);
+            _partySystem?.UpdatePartyData(state, session);
         }
     }
 
-    public bool TryGetSessionByPartyUser(PartyUser user, [NotNullWhen(true)] out ICommonSession? session)
+    private uint GetFreePartyId()
     {
-        _playerManager.TryGetSessionById(user.Id, out session);
-        return session != null;
-    }
+        uint id = 1;
+        while (GetPartyById(id) != null)
+            id++;
 
-    public ICommonSession GetSessionByPartyUser(PartyUser user)
-    {
-        return _playerManager.GetSessionById(user.Id);
-    }
-
-    public void SetPartyUserRole(PartyUser user, PartyRole role)
-    {
-        user.Role = role;
-        OnPartyUserUpdated?.Invoke(user);
-    }
-
-    public void SetPartyUserConnected(PartyUser user, bool connected)
-    {
-        user.Connected = connected;
-        OnPartyUserUpdated?.Invoke(user);
+        return id;
     }
 
     #region PartyMenuUI
@@ -192,17 +190,53 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         _partySystem?.ClosePartyMenu(session);
     }
     #endregion
+}
 
-    private bool CheckAvaliableUser(PartyUser user, bool throwExeption = true)
+public sealed class ServerPartyData : SharedPartyData
+{
+    public ICommonSession? Leader => GetLeader();
+    public Dictionary<ICommonSession, PartyUserInfo> Members = new();
+
+    public ServerPartyData(uint id) : base(id)
     {
-        if (GetPartyByMember(user) != null)
-        {
-            if (throwExeption)
-                throw new ArgumentException($"{user.Id} is already the member of the another party");
+    }
 
-            return false;
+    public ICommonSession? GetLeader()
+    {
+        foreach (var (session, info) in Members)
+        {
+            if (info.Role == PartyRole.Leader)
+                return session;
         }
 
+        return null;
+    }
+
+    public bool AddMember(ICommonSession session, PartyRole role)
+    {
+        if (Members.ContainsKey(session) ||
+            (role == PartyRole.Leader && Leader != null))
+            return false; ;
+
+        var connected = session.Status == SessionStatus.Connected || session.Status == SessionStatus.InGame;
+        var userInfo = new PartyUserInfo(role, session.Name, connected);
+        Members.Add(session, userInfo);
         return true;
+    }
+
+    public bool RemoveMember(ICommonSession session)
+    {
+        return Members.Remove(session);
+    }
+
+    public PartyUserInfo? GetUserInfo(ICommonSession session)
+    {
+        Members.TryGetValue(session, out var userInfo);
+        return userInfo;
+    }
+
+    public bool ContainsUser(ICommonSession session)
+    {
+        return Members.ContainsKey(session);
     }
 }

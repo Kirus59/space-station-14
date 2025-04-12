@@ -17,7 +17,7 @@ public sealed partial class PartyMenu : DefaultWindow
 
         Update();
 
-        _partyManager.OnPartyDataUpdated += _ => Update();
+        _partyManager.OnCurrentPartyUpdated += Update;
     }
 
     protected override void Opened()

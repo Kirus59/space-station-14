@@ -20,14 +20,15 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
         InputLine.PlaceHolder = "Введите ckey игрока, которого хотите пригласить";
         InviteButton.OnPressed += _ => SendInvite();
 
-        _partyManager.OnOutgoingInviteAdded += _ => Populate();
-        _partyManager.OnOutgoingInviteRemoved += _ => Populate();
+        _partyManager.OnSendedInviteAdded += _ => Populate();
+        _partyManager.OnSendedInviteRemoved += _ => Populate();
+        _partyManager.OnSendedInviteUpdated += _ => Populate();
         Populate();
     }
 
     public void Populate()
     {
-        var invites = _partyManager.OutgoingInvites;
+        var invites = _partyManager.SendedInvites;
 
         var invitesCountInfo = $"Отправлено приглашений: {invites.Count}/5";
         InvitesCountLabel.Text = invitesCountInfo;
@@ -35,7 +36,7 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
         InvitesContainer.RemoveAllChildren();
         foreach (var (id, invite) in invites)
         {
-            var control = new OutgoingInvite(invite);
+            var control = new SendedInvitePanel(invite);
             control.Margin = new Thickness(5);
             control.CancelButton.OnPressed += _ =>
             {

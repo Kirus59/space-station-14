@@ -30,7 +30,7 @@ public sealed partial class IncomingInvitesTab : Control
 
         foreach (var (id, invite) in invites)
         {
-            var control = new IncomingInvite(invite);
+            var control = new IncomingInvitePanel(invite);
             control.Margin = new Thickness(5);
             control.AcceptButton.OnPressed += _ =>
             {

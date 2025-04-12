@@ -5,57 +5,39 @@ using Content.Shared.SS220.SpaceWars.Party.Systems;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager : ISharedPartyManager
 {
-    event Action<PartyData>? OnPartyDataUpdated;
-    event Action<PartyData>? OnPartyDisbanding;
-    event Action<PartyUser>? OnPartyUserUpdated;
+    event Action<ServerPartyData>? OnPartyDataUpdated;
+    event Action<ServerPartyData>? OnPartyDisbanding;
 
-    [Access(Other = AccessPermissions.Read)]
-    List<PartyData> Parties { get; }
+    List<ServerPartyData> Parties { get; }
 
-    [Access(typeof(SharedPartySystem))]
     void SetPartySystem(PartySystem partySystem);
 
-    bool TryCreateParty(NetUserId leader, [NotNullWhen(false)] out string? reason);
-    bool TryCreateParty(PartyUser leader, [NotNullWhen(false)] out string? reason);
+    /// <inheritdoc/>
+    bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason);
 
-    /// <summary>
-    ///     Creates a new party with the <paramref name="leader"/>
-    /// </summary>
-    /// <exception cref="ArgumentException"> <paramref name="leader"/> must not be present at another party </exception>
-    PartyData CreateParty(PartyUser leader);
+    /// <inheritdoc/>
+    ServerPartyData CreateParty(ICommonSession leader);
 
-    void DisbandParty(PartyData party);
+    /// <inheritdoc/>
+    void DisbandParty(ServerPartyData party);
 
-    PartyData? GetPartyByLeader(NetUserId leader);
-    PartyData? GetPartyByLeader(PartyUser leader);
+    ServerPartyData? GetPartyById(uint id);
 
-    PartyData? GetPartyByMember(NetUserId member);
-    PartyData? GetPartyByMember(PartyUser member);
+    ServerPartyData? GetPartyByLeader(ICommonSession leader);
 
-    bool TryAddUserToParty(PartyUser user, PartyData party, [NotNullWhen(false)] out string? reason);
+    ServerPartyData? GetPartyByMember(ICommonSession member);
 
-    /// <summary>
-    ///     Adds a <paramref name="member"/> to the <paramref name="party"/>
-    /// </summary>
-    /// <exception cref="ArgumentException"> <paramref name="member"/> must not be present at another party </exception>
-    void AddUserToParty(PartyUser user, PartyData party);
+    bool TryAddUserToParty(ICommonSession user, ServerPartyData party, [NotNullWhen(false)] out string? reason);
 
-    void RemoveUserFromParty(NetUserId user, PartyData party);
+    void AddUserToParty(ICommonSession user, ServerPartyData party, PartyRole role = PartyRole.Member);
 
-    PartyUser GetPartyUser(NetUserId userId);
-
-    bool TryGetSessionByPartyUser(PartyUser user, [NotNullWhen(true)] out ICommonSession? session);
-
-    ICommonSession GetSessionByPartyUser(PartyUser user);
-
-    public void SetPartyUserRole(PartyUser user, PartyRole role);
-
-    public void SetPartyUserConnected(PartyUser user, bool connected);
+    void RemoveUserFromParty(ICommonSession user, ServerPartyData party);
 
     #region PartyMenuUI
     void OpenPartyMenu(ICommonSession session);

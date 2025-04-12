@@ -13,12 +13,14 @@ public sealed partial class PartySystem
 
     private void OnCreatedNewInvite(CreatedNewInviteMessage message)
     {
-        _partyManager.AddOutgoingInvite(message.Invite);
+        var invite = new SendedPartyInvite(message.InviteId, message.TargetName, message.Status);
+        _partyManager.AddSendedInvite(invite);
     }
 
     private void OnInviteReceived(InviteReceivedMessage message)
     {
-        _partyManager.AddIncomingInvite(message.Invite);
+        var invite = new IncomingPartyInvite(message.InviteId, message.SenderName, message.Status);
+        _partyManager.AddIncomingInvite(invite);
     }
 
     private void OnInviteHandleState(HandleInviteState message)
