@@ -43,28 +43,29 @@ public sealed partial class MainTab : Control
 
     public void UpdateMembers()
     {
-        if (_partyManager.CurrentParty is not { } currentParty)
-            return;
-
         var panelsToRemove = _userPanels.Keys.ToList();
-        var members = currentParty.Members.OrderByDescending(x => x.Role).ThenBy(x => x.Name);
-        foreach (var member in members)
-        {
-            if (!_userPanels.TryGetValue(member.Name, out var userPanel))
-            {
-                userPanel = new PartyUserInfoPanel(member);
-                userPanel.Margin = new Thickness(5, 5, 5, 0);
-                MembersContainer.AddChild(userPanel);
-                _userPanels.Add(member.Name, userPanel);
 
-                if (member.Role != PartyRole.Leader &&
-                    _partyManager.LocalPartyUserInfo?.Role == PartyRole.Leader)
-                    userPanel.BottomBox.AddChild(NewKickButton(member.Id));
-            }
-            else
+        if (_partyManager.CurrentParty is { } currentParty)
+        {
+            var members = currentParty.Members.OrderByDescending(x => x.Role).ThenBy(x => x.Name);
+            foreach (var member in members)
             {
-                userPanel.Populate(member);
-                panelsToRemove.Remove(member.Name);
+                if (!_userPanels.TryGetValue(member.Name, out var userPanel))
+                {
+                    userPanel = new PartyUserInfoPanel(member);
+                    userPanel.Margin = new Thickness(5, 5, 5, 0);
+                    MembersContainer.AddChild(userPanel);
+                    _userPanels.Add(member.Name, userPanel);
+
+                    if (member.Role != PartyRole.Leader &&
+                        _partyManager.LocalPartyUserInfo?.Role == PartyRole.Leader)
+                        userPanel.BottomBox.AddChild(NewKickButton(member.Id));
+                }
+                else
+                {
+                    userPanel.Populate(member);
+                    panelsToRemove.Remove(member.Name);
+                }
             }
         }
 

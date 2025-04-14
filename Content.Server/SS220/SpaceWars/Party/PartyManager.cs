@@ -248,7 +248,7 @@ public sealed class ServerPartyData : SharedPartyData
     private uint GetFreeUserId()
     {
         uint id = 1;
-        while (Members.Where(m => m.Value.Id == id) != null)
+        while (Members.Where(m => m.Value.Id == id).Any())
             id++;
 
         return id;
