@@ -17,6 +17,7 @@ public sealed partial class PartySystem : SharedPartySystem
         SubscribeNetworkEvent<CreatePartyRequestMessage>(OnCreatePartyRequest);
         SubscribeNetworkEvent<DisbandPartyRequestMessage>(OnDisbandPartyRequest);
         SubscribeNetworkEvent<LeavePartyRequestMessage>(OnLeavePartyMessage);
+        SubscribeNetworkEvent<KickFromPartyRequestMessage>(OnKickFromPartyRequest);
 
         InviteInitialize();
     }
@@ -44,6 +45,19 @@ public sealed partial class PartySystem : SharedPartySystem
             return;
 
         _partyManager.RemoveUserFromParty(args.SenderSession, party);
+    }
+
+    public void OnKickFromPartyRequest(KickFromPartyRequestMessage message, EntitySessionEventArgs args)
+    {
+        var party = _partyManager.GetPartyByLeader(args.SenderSession);
+        if (party == null)
+            return;
+
+        var user = party.GetUserByPartyUserId(message.PartyUserId);
+        if (user == null)
+            return;
+
+        _partyManager.RemoveUserFromParty(user, party);
     }
 
     public void UpdatePartyData(ClientPartyDataState party, ICommonSession session)

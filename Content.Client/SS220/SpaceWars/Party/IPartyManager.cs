@@ -13,6 +13,8 @@ public partial interface IPartyManager : ISharedPartyManager
 
     ClientPartyData? CurrentParty { get; }
 
+    PartyUserInfo? LocalPartyUserInfo { get; }
+
     void SetPartySystem(PartySystem partySystem);
 
     void SetCurrentParty(ClientPartyDataState? state);
@@ -24,6 +26,8 @@ public partial interface IPartyManager : ISharedPartyManager
     void SendDisbandPartyRequest();
 
     void SendLeavePartyRequest();
+
+    void SendKickFromPartyRequest(uint partyUserId);
 
     #region PartyMenuUI
     void SetPartyMenu(PartyMenu? partyMenu);

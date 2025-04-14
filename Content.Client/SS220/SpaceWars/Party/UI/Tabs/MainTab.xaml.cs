@@ -8,8 +8,10 @@ using Robust.Client.Graphics;
 using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
+using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
 using System.Linq;
+using System.Numerics;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 
@@ -17,9 +19,10 @@ namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 public sealed partial class MainTab : Control
 {
     [Dependency] private readonly IPartyManager _partyManager = default!;
-    [Dependency] private readonly IPlayerManager _playerManager = default!;
 
     private InviteInPartyWindow _inviteWindow = new InviteInPartyWindow();
+
+    private Dictionary<string, PartyUserInfoPanel> _userPanels = new();
 
     public MainTab()
     {
@@ -40,18 +43,37 @@ public sealed partial class MainTab : Control
 
     public void UpdateMembers()
     {
-        MembersContainer.RemoveAllChildren();
-
         if (_partyManager.CurrentParty is not { } currentParty)
             return;
 
+        var panelsToRemove = _userPanels.Keys.ToList();
         var members = currentParty.Members.OrderByDescending(x => x.Role).ThenBy(x => x.Name);
         foreach (var member in members)
         {
-            var control = new PartyUserInfoPanel();
-            control.Margin = new Thickness(5, 5, 5, 0);
-            control.Populate(member.Name, member.Role, member.Connected);
-            MembersContainer.AddChild(control);
+            if (!_userPanels.TryGetValue(member.Name, out var userPanel))
+            {
+                userPanel = new PartyUserInfoPanel(member);
+                userPanel.Margin = new Thickness(5, 5, 5, 0);
+                MembersContainer.AddChild(userPanel);
+                _userPanels.Add(member.Name, userPanel);
+
+                if (member.Role != PartyRole.Leader &&
+                    _partyManager.LocalPartyUserInfo?.Role == PartyRole.Leader)
+                    userPanel.BottomBox.AddChild(NewKickButton(member.Id));
+            }
+            else
+            {
+                userPanel.Populate(member);
+                panelsToRemove.Remove(member.Name);
+            }
+        }
+
+        foreach (var key in panelsToRemove)
+        {
+            if (_userPanels.TryGetValue(key, out var panel))
+                MembersContainer.RemoveChild(panel);
+
+            _userPanels.Remove(key);
         }
     }
 
@@ -74,7 +96,8 @@ public sealed partial class MainTab : Control
         }
     }
 
-    public Button NewCreatePartyButton()
+    #region Buttons
+    private Button NewCreatePartyButton()
     {
         var button = new Button();
         button.Text = Loc.GetString("ui-PartyMenu-MainTab-CreatePartyButton");
@@ -85,7 +108,7 @@ public sealed partial class MainTab : Control
         return button;
     }
 
-    public Button NewDisbandPartyButton()
+    private Button NewDisbandPartyButton()
     {
         var text = Loc.GetString("ui-PartyMenu-MainTab-DisbandPartyButton");
         var button = new ConfirmableButton(text, null);
@@ -98,7 +121,7 @@ public sealed partial class MainTab : Control
         return button;
     }
 
-    public Button NewLeavePartyButton()
+    private Button NewLeavePartyButton()
     {
         var text = Loc.GetString("ui-PartyMenu-MainTab-LeavePartyButton");
         var button = new ConfirmableButton(text, null);
@@ -111,7 +134,7 @@ public sealed partial class MainTab : Control
         return button;
     }
 
-    public Button NewInviteInPartyButton()
+    private Button NewInviteInPartyButton()
     {
         var button = new Button();
         button.Text = Loc.GetString("ui-PartyMenu-MainTab-InviteInPartyButton");
@@ -121,4 +144,21 @@ public sealed partial class MainTab : Control
         };
         return button;
     }
+
+    private TextureButton NewKickButton(uint partyUserId)
+    {
+        var button = new TextureButton()
+        {
+            MinSize = new Vector2(25, 25),
+            Margin = new Thickness(0, 0, 5, 0),
+            VerticalAlignment = VAlignment.Center
+        };
+        button.AddStyleClass(DefaultWindow.StyleClassWindowCloseButton);
+        button.OnPressed += _ =>
+        {
+            _partyManager.SendKickFromPartyRequest(partyUserId);
+        };
+        return button;
+    }
+    #endregion
 }

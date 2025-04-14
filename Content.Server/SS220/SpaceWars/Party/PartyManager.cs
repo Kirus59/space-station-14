@@ -219,7 +219,7 @@ public sealed class ServerPartyData : SharedPartyData
             return false; ;
 
         var connected = session.Status == SessionStatus.Connected || session.Status == SessionStatus.InGame;
-        var userInfo = new PartyUserInfo(role, session.Name, connected);
+        var userInfo = new PartyUserInfo(GetFreeUserId(), role, session.Name, connected);
         Members.Add(session, userInfo);
         return true;
     }
@@ -238,5 +238,19 @@ public sealed class ServerPartyData : SharedPartyData
     public bool ContainsUser(ICommonSession session)
     {
         return Members.ContainsKey(session);
+    }
+
+    public ICommonSession? GetUserByPartyUserId(uint id)
+    {
+        return Members.Where(m => m.Value.Id == id)?.First().Key;
+    }
+
+    private uint GetFreeUserId()
+    {
+        uint id = 1;
+        while (Members.Where(m => m.Value.Id == id) != null)
+            id++;
+
+        return id;
     }
 }

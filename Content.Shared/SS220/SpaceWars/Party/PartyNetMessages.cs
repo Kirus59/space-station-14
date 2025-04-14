@@ -19,6 +19,12 @@ public sealed class LeavePartyRequestMessage() : EntityEventArgs
 }
 
 [Serializable, NetSerializable]
+public sealed class KickFromPartyRequestMessage(uint partyUserId) : EntityEventArgs
+{
+    public readonly uint PartyUserId = partyUserId;
+}
+
+[Serializable, NetSerializable]
 public sealed class CreatePartyResponceMessage(bool isCreated, string? reason = null) : EntityEventArgs
 {
     public readonly bool IsCreated = isCreated;

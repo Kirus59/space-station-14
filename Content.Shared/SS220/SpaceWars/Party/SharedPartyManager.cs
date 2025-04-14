@@ -1,9 +1,5 @@
 
-using Content.Shared.Light.Components;
-using Pidgin.Expression;
-using Robust.Shared.Network;
 using Robust.Shared.Serialization;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
@@ -39,12 +35,14 @@ public record struct ClientPartyDataState(uint Id, PartyUserInfo LocalUserInfo, 
 [Access(typeof(SharedPartyManager), Other = AccessPermissions.Read)]
 public sealed class PartyUserInfo
 {
+    public readonly uint Id;
     public PartyRole Role;
     public string Name;
     public bool Connected;
 
-    public PartyUserInfo(PartyRole role, string name, bool connected)
+    public PartyUserInfo(uint id, PartyRole role, string name, bool connected)
     {
+        Id = id;
         Role = role;
         Name = name;
         Connected = connected;

@@ -69,6 +69,12 @@ public sealed partial class PartySystem : SharedPartySystem
         RaiseNetworkEvent(ev);
     }
 
+    public void SendKickFromPartyRequest(uint partyUserId)
+    {
+        var ev = new KickFromPartyRequestMessage(partyUserId);
+        RaiseNetworkEvent(ev);
+    }
+
     public void SendInviteRequest(string username)
     {
         var ev = new InviteInPartyRequestMessage(username);

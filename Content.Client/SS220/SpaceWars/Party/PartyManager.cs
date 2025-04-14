@@ -17,6 +17,8 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public ClientPartyData? CurrentParty => _currentParty;
     private ClientPartyData? _currentParty;
 
+    public PartyUserInfo? LocalPartyUserInfo => CurrentParty?.LocalUserInfo;
+
     public override void Initialize()
     {
         base.Initialize();
@@ -76,6 +78,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public void SendLeavePartyRequest()
     {
         _partySystem?.SendLeavePartyRequest();
+    }
+
+    public void SendKickFromPartyRequest(uint partyUserId)
+    {
+        _partySystem?.SendKickFromPartyRequest(partyUserId);
     }
 
     #region PartyMenuUI
