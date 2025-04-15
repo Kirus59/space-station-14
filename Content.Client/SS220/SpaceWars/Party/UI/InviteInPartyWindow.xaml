@@ -2,7 +2,7 @@
                Title="Окно приглашений"
                MinSize="600 300">
     <BoxContainer Orientation="Vertical" HorizontalExpand="True" Margin="5">
-        <Label Name="InvitesCountLabel" HorizontalExpand="True" ClipText="True"/>
+        <Label Name="InvitesCountLabel" HorizontalExpand="True"/>
         <PanelContainer Name="InvitesPanel" VerticalExpand="True">
             <ScrollContainer>
                 <BoxContainer Name="InvitesContainer" Orientation="Vertical"/>
@@ -11,7 +11,7 @@
         <LineEdit Name="InputLine"/>
         <BoxContainer Orientation="Horizontal">
             <Button Name="InviteButton" Text="{Loc 'ui-InviteInPartyWindow-InviteButton'}"/>
-            <Label Name="FailReasonLabel" HorizontalExpand="True" ClipText="True" Margin="5 0"/>
+            <RichTextLabel Name="FailReasonLabel" HorizontalExpand="True" Margin="5 0"/>
         </BoxContainer>
     </BoxContainer>
 </DefaultWindow>

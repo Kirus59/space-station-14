@@ -9,7 +9,8 @@ ui-PartyMenu-MainTab-KickButton-Tooltip = Исключить из пати
 ui-PartyUserInfo-Connected = В сети
 ui-PartyUserInfo-Disconnected = Не в сети
 
-ui-InviteInPartyWindow-InfoLabel = Напишите cKey игрока, которого хотите пригласить в пати
+ui-InviteInPartyWindow-Placeholder = Введите ckey игрока, которого хотите пригласить
+ui-InviteInPartyWindow-sended-invites-count = Отправлено приглашений: { $count }/{ $limit }
 ui-InviteInPartyWindow-InviteButton = Пригласить
 ui-InviteInPartyWindow-CancelButton = Отмена
 
