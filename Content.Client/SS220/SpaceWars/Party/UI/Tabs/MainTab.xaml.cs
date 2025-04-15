@@ -10,6 +10,7 @@ using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
+using Robust.Shared.Utility;
 using System.Linq;
 using System.Numerics;
 
@@ -159,6 +160,11 @@ public sealed partial class MainTab : Control
         {
             _partyManager.SendKickFromPartyRequest(partyUserId);
         };
+
+        var tooltip = new Tooltip();
+        tooltip.SetMessage(FormattedMessage.FromMarkupPermissive(Loc.GetString("ui-PartyMenu-MainTab-KickButton-Tooltip")));
+        button.TooltipSupplier = _ => tooltip;
+
         return button;
     }
     #endregion
