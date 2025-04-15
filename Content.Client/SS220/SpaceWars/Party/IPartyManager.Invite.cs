@@ -12,11 +12,14 @@ public partial interface IPartyManager
     event Action<IncomingPartyInvite>? OnIncomingInviteRemoved;
     event Action<IncomingPartyInvite>? OnIncomingInviteUpdated;
 
+    event Action<string>? OnSendInviteFail;
     Dictionary<uint, SendedPartyInvite> SendedInvites { get; }
 
     Dictionary<uint, IncomingPartyInvite> IncomingInvites { get; }
 
     void SendInvite(string username);
+
+    void SendInviteFail(string reason);
     void AcceptInvite(uint inviteId);
 
     void DenyInvite(uint inviteId);

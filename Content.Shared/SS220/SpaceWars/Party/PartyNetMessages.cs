@@ -25,13 +25,6 @@ public sealed class KickFromPartyRequestMessage(uint partyUserId) : EntityEventA
 }
 
 [Serializable, NetSerializable]
-public sealed class CreatePartyResponceMessage(bool isCreated, string? reason = null) : EntityEventArgs
-{
-    public readonly bool IsCreated = isCreated;
-    public readonly string? Reason = reason;
-}
-
-[Serializable, NetSerializable]
 public sealed class SetCurrentPartyMessage(ClientPartyDataState? state) : EntityEventArgs
 {
     public readonly ClientPartyDataState? State = state;
@@ -91,10 +84,9 @@ public sealed class InviteInPartyRequestMessage(string username) : EntityEventAr
 }
 
 [Serializable, NetSerializable]
-public sealed class InviteInPartyAttemptResponceMessage(bool sended, string? message) : EntityEventArgs
+public sealed class InviteInPartyFailMessage(string reason) : EntityEventArgs
 {
-    public readonly bool Sended = sended;
-    public readonly string? Message = message;
+    public readonly string Reason = reason;
 }
 
 [Serializable, NetSerializable]

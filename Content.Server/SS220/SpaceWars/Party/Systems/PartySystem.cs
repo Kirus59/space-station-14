@@ -24,9 +24,7 @@ public sealed partial class PartySystem : SharedPartySystem
 
     private void OnCreatePartyRequest(CreatePartyRequestMessage message, EntitySessionEventArgs args)
     {
-        var created = _partyManager.TryCreateParty(args.SenderSession, out var reason);
-        var responce = new CreatePartyResponceMessage(created, reason);
-        RaiseNetworkEvent(responce, args.SenderSession.Channel);
+        _partyManager.TryCreateParty(args.SenderSession, out var reason);
     }
 
     private void OnDisbandPartyRequest(DisbandPartyRequestMessage message, EntitySessionEventArgs args)

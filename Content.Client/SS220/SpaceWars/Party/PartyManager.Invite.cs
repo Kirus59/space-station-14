@@ -12,6 +12,8 @@ public sealed partial class PartyManager
     public event Action<IncomingPartyInvite>? OnIncomingInviteRemoved;
     public event Action<IncomingPartyInvite>? OnIncomingInviteUpdated;
 
+    public event Action<string>? OnSendInviteFail;
+
     public Dictionary<uint, SendedPartyInvite> SendedInvites => _sendedInvites;
     private Dictionary<uint, SendedPartyInvite> _sendedInvites = new();
 
@@ -21,6 +23,11 @@ public sealed partial class PartyManager
     public void SendInvite(string username)
     {
         _partySystem?.SendInvite(username);
+    }
+
+    public void SendInviteFail(string reason)
+    {
+        OnSendInviteFail?.Invoke(reason);
     }
 
     public void AcceptInvite(uint inviteId)

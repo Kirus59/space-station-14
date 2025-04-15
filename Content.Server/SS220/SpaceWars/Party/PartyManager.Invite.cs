@@ -63,7 +63,7 @@ public sealed partial class PartyManager
     {
         if (!_playerManager.TryGetSessionByUsername(username, out var target))
         {
-            failReason = $"Not found session for {username}";
+            failReason = Loc.GetString("partymanager-invite-failreason-user-not-found", ("user", username));
             return false;
         }
 
@@ -75,7 +75,7 @@ public sealed partial class PartyManager
         failReason = null;
         if (!TryCreateNewInvite(sender, target, out var invite))
         {
-            failReason = $"{sender.Name} has already sent an invite to {target.Name}";
+            failReason = Loc.GetString("partymanager-invite-failreason-user-already-invited", ("user", target.Name));
             return false;
         }
 

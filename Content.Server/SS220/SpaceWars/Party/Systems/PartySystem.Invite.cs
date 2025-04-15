@@ -15,8 +15,10 @@ public sealed partial class PartySystem
 
     private void OnInviteInPartyRequest(InviteInPartyRequestMessage message, EntitySessionEventArgs args)
     {
-        var sended = _partyManager.TrySendInvite(args.SenderSession, message.Username, out var failReason);
-        var ev = new InviteInPartyAttemptResponceMessage(sended, failReason);
+        if (_partyManager.TrySendInvite(args.SenderSession, message.Username, out var failReason))
+            return;
+
+        var ev = new InviteInPartyFailMessage(failReason);
         RaiseNetworkEvent(ev, args.SenderSession);
     }
 

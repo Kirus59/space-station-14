@@ -6,9 +6,16 @@ public sealed partial class PartySystem
 {
     public void InviteInitialize()
     {
+        SubscribeNetworkEvent<InviteInPartyFailMessage>(OnSendInviteFail);
+
         SubscribeNetworkEvent<CreatedNewInviteMessage>(OnCreatedNewInvite);
         SubscribeNetworkEvent<InviteReceivedMessage>(OnInviteReceived);
         SubscribeNetworkEvent<HandleInviteState>(OnInviteHandleState);
+    }
+
+    private void OnSendInviteFail(InviteInPartyFailMessage message)
+    {
+        _partyManager.SendInviteFail(message.Reason);
     }
 
     private void OnCreatedNewInvite(CreatedNewInviteMessage message)
