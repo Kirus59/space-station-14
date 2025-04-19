@@ -1,5 +1,6 @@
 using Content.Shared.SS220.SpaceWars.Party;
 using Content.Shared.SS220.SpaceWars.Party.Systems;
+using Robust.Server.Player;
 using Robust.Shared.Player;
 
 namespace Content.Server.SS220.SpaceWars.Party.Systems;
@@ -55,7 +56,7 @@ public sealed partial class PartySystem : SharedPartySystem
         if (user == null)
             return;
 
-        _partyManager.RemoveUserFromParty(user, party);
+        _partyManager.RemoveUserFromParty(user.Value, party);
     }
 
     public void UpdatePartyData(ClientPartyDataState party, ICommonSession session)

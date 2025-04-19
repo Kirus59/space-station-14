@@ -1,18 +1,16 @@
 
 using Content.Server.SS220.SpaceWars.Party.Systems;
 using Content.Shared.SS220.SpaceWars.Party;
-using Content.Shared.SS220.SpaceWars.Party.Systems;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager : ISharedPartyManager
 {
-    event Action<ServerPartyData>? OnPartyDataUpdated;
-    event Action<ServerPartyData>? OnPartyDisbanding;
+    event Action<ServerPartyData>? PartyDataUpdated;
+    event Action<ServerPartyData>? PartyDisbanding;
 
     List<ServerPartyData> Parties { get; }
 
@@ -27,6 +25,12 @@ public partial interface IPartyManager : ISharedPartyManager
     /// <inheritdoc/>
     void DisbandParty(ServerPartyData party);
 
+    bool TryGetPartyById(uint id, [NotNullWhen(true)] out ServerPartyData? party);
+
+    bool TryGetPartyByLeader(ICommonSession leader, [NotNullWhen(true)] out ServerPartyData? party);
+
+    bool TryGetPartyByMember(ICommonSession member, [NotNullWhen(true)] out ServerPartyData? party);
+
     ServerPartyData? GetPartyById(uint id);
 
     ServerPartyData? GetPartyByLeader(ICommonSession leader);
@@ -38,6 +42,8 @@ public partial interface IPartyManager : ISharedPartyManager
     void AddUserToParty(ICommonSession user, ServerPartyData party, PartyRole role = PartyRole.Member);
 
     void RemoveUserFromParty(ICommonSession user, ServerPartyData party);
+
+    void RemoveUserFromParty(NetUserId user, ServerPartyData party);
 
     #region PartyMenuUI
     void OpenPartyMenu(ICommonSession session);
