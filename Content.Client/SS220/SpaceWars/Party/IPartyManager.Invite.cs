@@ -26,13 +26,27 @@ public partial interface IPartyManager
 
     void DeleteInvite(uint inviteId);
 
-    void HandleInviteState(ClientPartyInviteState state);
+    void UpdateSendedInvitesInfo(List<SendedInviteState> sendedInvites);
+
+    void UpdateIncomingInvitesInfo(List<IncomingInviteState> incomingInvites);
+
+    void UpdateSendedInvite(SendedInviteState state);
+
+    void UpdateIncomingInvite(IncomingInviteState state);
+
+    void AddSendedInvite(SendedInviteState state);
 
     void AddSendedInvite(SendedPartyInvite invite);
 
+    void RemoveSendedInvite(uint id);
+
     void RemoveSendedInvite(SendedPartyInvite invite);
 
+    void AddIncomingInvite(IncomingInviteState state);
+
     void AddIncomingInvite(IncomingPartyInvite invite);
+
+    void RemoveIncomingInvite(uint id);
 
     void RemoveIncomingInvite(IncomingPartyInvite invite);
 }

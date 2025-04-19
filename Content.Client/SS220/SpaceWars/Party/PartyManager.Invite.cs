@@ -1,3 +1,4 @@
+
 using Content.Shared.SS220.SpaceWars.Party;
 
 namespace Content.Client.SS220.SpaceWars.Party;
@@ -45,17 +46,49 @@ public sealed partial class PartyManager
         _partySystem?.DeleteInvite(inviteId);
     }
 
-    public void HandleInviteState(ClientPartyInviteState state)
+    public void UpdateSendedInvitesInfo(List<SendedInviteState> sendedInvites)
     {
-        if (_sendedInvites.TryGetValue(state.Id, out var sendedInvite))
-            UpdateSendedInvite(state, sendedInvite);
+        HashSet<uint> idToRemove = [.. _sendedInvites.Keys];
 
-        if (_incomingInvites.TryGetValue(state.Id, out var incomingInvite))
-            UpdateIncomingInvite(state, incomingInvite);
+        foreach (var state in sendedInvites)
+        {
+            if (_sendedInvites.ContainsKey(state.Id))
+            {
+                idToRemove.Remove(state.Id);
+                UpdateSendedInvite(state);
+            }
+            else
+                AddSendedInvite(state);
+        }
+
+        foreach (var id in idToRemove)
+            RemoveSendedInvite(id);
     }
 
-    private void UpdateSendedInvite(ClientPartyInviteState state, SendedPartyInvite invite)
+    public void UpdateIncomingInvitesInfo(List<IncomingInviteState> incomingInvites)
     {
+        HashSet<uint> idToRemove = [.. _incomingInvites.Keys];
+
+        foreach (var state in incomingInvites)
+        {
+            if (_incomingInvites.ContainsKey(state.Id))
+            {
+                idToRemove.Remove(state.Id);
+                UpdateIncomingInvite(state);
+            }
+            else
+                AddIncomingInvite(state);
+        }
+
+        foreach (var id in idToRemove)
+            RemoveIncomingInvite(id);
+    }
+
+    public void UpdateSendedInvite(SendedInviteState state)
+    {
+        if (!_sendedInvites.TryGetValue(state.Id, out var invite))
+            return;
+
         if (state.Id != invite.Id)
             return;
 
@@ -64,14 +97,23 @@ public sealed partial class PartyManager
         OnSendedInviteUpdated?.Invoke(invite);
     }
 
-    private void UpdateIncomingInvite(ClientPartyInviteState state, IncomingPartyInvite invite)
+    public void UpdateIncomingInvite(IncomingInviteState state)
     {
+        if (!_incomingInvites.TryGetValue(state.Id, out var invite))
+            return;
+
         if (state.Id != invite.Id)
             return;
 
         invite.Status = state.Status;
         CheckInviteStatus(invite);
         OnIncomingInviteUpdated?.Invoke(invite);
+    }
+
+    public void AddSendedInvite(SendedInviteState state)
+    {
+        var invite = new SendedPartyInvite(state);
+        AddSendedInvite(invite);
     }
 
     public void AddSendedInvite(SendedPartyInvite invite)
@@ -83,10 +125,24 @@ public sealed partial class PartyManager
         OnSendedInviteAdded?.Invoke(invite);
     }
 
+    public void RemoveSendedInvite(uint id)
+    {
+        if (!_sendedInvites.TryGetValue(id, out var invite))
+            return;
+
+        RemoveSendedInvite(invite);
+    }
+
     public void RemoveSendedInvite(SendedPartyInvite invite)
     {
         _sendedInvites.Remove(invite.Id);
         OnSendedInviteRemoved?.Invoke(invite);
+    }
+
+    public void AddIncomingInvite(IncomingInviteState state)
+    {
+        var invite = new IncomingPartyInvite(state);
+        AddIncomingInvite(invite);
     }
 
     public void AddIncomingInvite(IncomingPartyInvite invite)
@@ -96,6 +152,14 @@ public sealed partial class PartyManager
 
         _incomingInvites.Add(invite.Id, invite);
         OnIncomingInviteAdded?.Invoke(invite);
+    }
+
+    public void RemoveIncomingInvite(uint id)
+    {
+        if (!_incomingInvites.TryGetValue(id, out var invite))
+            return;
+
+        RemoveIncomingInvite(invite);
     }
 
     public void RemoveIncomingInvite(IncomingPartyInvite invite)
@@ -124,6 +188,8 @@ public sealed class SendedPartyInvite : SharedPartyInvite
 {
     public readonly string TargetName;
 
+    public SendedPartyInvite(SendedInviteState state) : this(state.Id, state.TargetName, state.Status) { }
+
     public SendedPartyInvite(uint id, string targetName, InviteStatus status = InviteStatus.None) : base(id, status)
     {
         TargetName = targetName;
@@ -133,6 +199,8 @@ public sealed class SendedPartyInvite : SharedPartyInvite
 public sealed class IncomingPartyInvite : SharedPartyInvite
 {
     public readonly string SenderName;
+
+    public IncomingPartyInvite(IncomingInviteState state) : this(state.Id, state.SenderName, state.Status) { }
 
     public IncomingPartyInvite(uint id, string senderName, InviteStatus status = InviteStatus.None) : base(id, status)
     {

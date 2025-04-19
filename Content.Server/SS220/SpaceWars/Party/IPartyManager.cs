@@ -17,10 +17,10 @@ public partial interface IPartyManager : ISharedPartyManager
     void SetPartySystem(PartySystem partySystem);
 
     /// <inheritdoc/>
-    bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason);
+    bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, bool force = false);
 
     /// <inheritdoc/>
-    ServerPartyData CreateParty(ICommonSession leader);
+    ServerPartyData? CreateParty(ICommonSession leader, bool force = false);
 
     /// <inheritdoc/>
     void DisbandParty(ServerPartyData party);
@@ -29,17 +29,29 @@ public partial interface IPartyManager : ISharedPartyManager
 
     bool TryGetPartyByLeader(ICommonSession leader, [NotNullWhen(true)] out ServerPartyData? party);
 
+    bool TryGetPartyByLeader(NetUserId leader, [NotNullWhen(true)] out ServerPartyData? party);
+
     bool TryGetPartyByMember(ICommonSession member, [NotNullWhen(true)] out ServerPartyData? party);
+
+    bool TryGetPartyByMember(NetUserId member, [NotNullWhen(true)] out ServerPartyData? party);
 
     ServerPartyData? GetPartyById(uint id);
 
     ServerPartyData? GetPartyByLeader(ICommonSession leader);
 
+    ServerPartyData? GetPartyByLeader(NetUserId leader);
+
     ServerPartyData? GetPartyByMember(ICommonSession member);
 
-    bool TryAddUserToParty(ICommonSession user, ServerPartyData party, [NotNullWhen(false)] out string? reason);
+    ServerPartyData? GetPartyByMember(NetUserId member);
 
-    void AddUserToParty(ICommonSession user, ServerPartyData party, PartyRole role = PartyRole.Member);
+    bool TryAddUserToParty(ICommonSession user,
+        ServerPartyData party,
+        [NotNullWhen(false)] out string? reason,
+        PartyRole role = PartyRole.Member,
+        bool force = false);
+
+    void AddUserToParty(ICommonSession user, ServerPartyData party, PartyRole role = PartyRole.Member, bool force = false);
 
     void RemoveUserFromParty(ICommonSession user, ServerPartyData party);
 

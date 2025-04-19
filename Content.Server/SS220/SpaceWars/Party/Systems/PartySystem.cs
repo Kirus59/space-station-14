@@ -8,6 +8,7 @@ namespace Content.Server.SS220.SpaceWars.Party.Systems;
 public sealed partial class PartySystem : SharedPartySystem
 {
     [Dependency] private readonly IPartyManager _partyManager = default!;
+    [Dependency] private readonly IPlayerManager _playerManager = default!;
 
     public override void Initialize()
     {

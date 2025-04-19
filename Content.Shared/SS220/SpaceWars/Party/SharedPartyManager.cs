@@ -107,4 +107,7 @@ public enum InviteStatus
 }
 
 [Serializable, NetSerializable]
-public record struct ClientPartyInviteState(uint Id, InviteStatus Status);
+public record struct SendedInviteState(uint Id, string TargetName, InviteStatus Status);
+
+[Serializable, NetSerializable]
+public record struct IncomingInviteState(uint Id, string SenderName, InviteStatus Status);

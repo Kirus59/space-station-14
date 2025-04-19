@@ -10,7 +10,9 @@ public sealed partial class PartySystem
 
         SubscribeNetworkEvent<CreatedNewInviteMessage>(OnCreatedNewInvite);
         SubscribeNetworkEvent<InviteReceivedMessage>(OnInviteReceived);
-        SubscribeNetworkEvent<HandleInviteState>(OnInviteHandleState);
+        SubscribeNetworkEvent<UpdateSendedInviteMessage>(OnUpdateSendedInvite);
+        SubscribeNetworkEvent<UpdateIncomingInviteMessage>(OnUpdateIncomingInvite);
+        SubscribeNetworkEvent<UpdateInvitesInfoMessage>(OnUpdateInvitesInfo);
     }
 
     private void OnSendInviteFail(InviteInPartyFailMessage message)
@@ -20,19 +22,30 @@ public sealed partial class PartySystem
 
     private void OnCreatedNewInvite(CreatedNewInviteMessage message)
     {
-        var invite = new SendedPartyInvite(message.InviteId, message.TargetName, message.Status);
+        var invite = new SendedPartyInvite(message.State);
         _partyManager.AddSendedInvite(invite);
     }
 
     private void OnInviteReceived(InviteReceivedMessage message)
     {
-        var invite = new IncomingPartyInvite(message.InviteId, message.SenderName, message.Status);
+        var invite = new IncomingPartyInvite(message.State);
         _partyManager.AddIncomingInvite(invite);
     }
 
-    private void OnInviteHandleState(HandleInviteState message)
+    private void OnUpdateSendedInvite(UpdateSendedInviteMessage message)
     {
-        _partyManager.HandleInviteState(message.State);
+        _partyManager.UpdateSendedInvite(message.State);
+    }
+
+    private void OnUpdateIncomingInvite(UpdateIncomingInviteMessage message)
+    {
+        _partyManager.UpdateIncomingInvite(message.State);
+    }
+
+    private void OnUpdateInvitesInfo(UpdateInvitesInfoMessage message)
+    {
+        _partyManager.UpdateSendedInvitesInfo(message.SendedInvites);
+        _partyManager.UpdateIncomingInvitesInfo(message.IncomingInvites);
     }
 
     public void SendInvite(string username)

@@ -1,5 +1,6 @@
 
 using Content.Shared.SS220.SpaceWars.Party;
+using Robust.Shared.Network;
 using Robust.Shared.Player;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -15,7 +16,7 @@ public sealed partial class PartyManager
         if (!_invites.TryGetValue(inviteId, out var invite))
             return;
 
-        if (invite.Target != target)
+        if (invite.Target != target.UserId)
             return;
 
         var party = GetPartyByLeader(invite.Sender);
@@ -33,7 +34,7 @@ public sealed partial class PartyManager
         if (!_invites.TryGetValue(inviteId, out var invite))
             return;
 
-        if (invite.Target != target)
+        if (invite.Target != target.UserId)
             return;
 
         invite.Status = InviteStatus.Denied;
@@ -46,7 +47,7 @@ public sealed partial class PartyManager
         if (!_invites.TryGetValue(inviteId, out var invite))
             return;
 
-        if (invite.Sender != session)
+        if (invite.Sender != session.UserId)
             return;
 
         DeleteInvite(invite);
@@ -73,7 +74,7 @@ public sealed partial class PartyManager
     public bool TrySendInvite(ICommonSession sender, ICommonSession target, [NotNullWhen(false)] out string? failReason)
     {
         failReason = null;
-        if (!TryCreateNewInvite(sender, target, out var invite))
+        if (!TryCreateNewInvite(sender.UserId, target.UserId, out var invite))
         {
             failReason = Loc.GetString("partymanager-invite-failreason-user-already-invited", ("user", target.Name));
             return false;
@@ -89,7 +90,7 @@ public sealed partial class PartyManager
         _partySystem?.SendInvite(invite);
     }
 
-    private bool TryGetInvite(ICommonSession sender, ICommonSession target, [NotNullWhen(true)] out ServerPartyInvite? invite)
+    private bool TryGetInvite(NetUserId sender, NetUserId target, [NotNullWhen(true)] out ServerPartyInvite? invite)
     {
         invite = null;
         var founded = _invites.Values.Where(i => i.Sender == sender && i.Target == target);
@@ -102,20 +103,24 @@ public sealed partial class PartyManager
         return false;
     }
 
-    private bool TryCreateNewInvite(ICommonSession sender, ICommonSession target, [NotNullWhen(true)] out ServerPartyInvite? invite, InviteStatus status = InviteStatus.None)
+    private bool TryCreateNewInvite(NetUserId sender, NetUserId target, [NotNullWhen(true)] out ServerPartyInvite? invite, InviteStatus status = InviteStatus.None)
     {
         invite = null;
         if (TryGetInvite(sender, target, out _))
             return false;
 
-        invite = CreateNewInvite(sender, target, status);
+        if (!_playerManager.TryGetSessionById(sender, out var senderSession) ||
+            !_playerManager.TryGetSessionById(target, out var targetSession))
+            return false;
+
+        invite = CreateNewInvite(senderSession, targetSession, status);
         return true;
     }
 
     private ServerPartyInvite CreateNewInvite(ICommonSession sender, ICommonSession target, InviteStatus status = InviteStatus.None)
     {
         var id = GenerateInviteId();
-        var invite = new ServerPartyInvite(id, sender, target, status);
+        var invite = new ServerPartyInvite(id, sender.UserId, target.UserId, sender.Name, target.Name, status);
         _invites.Add(id, invite);
         return invite;
     }
@@ -129,28 +134,48 @@ public sealed partial class PartyManager
         return id;
     }
 
-    private void DirtyInvite(ServerPartyInvite invite)
+    private void UpdateInvitesInfo(ICommonSession session)
     {
-        var state = GetClientInviteState(invite);
-
-        _partySystem?.DirtyInvite(state, invite.Sender);
-        _partySystem?.DirtyInvite(state, invite.Target);
+        var sendedInvites = _invites.Values.Where(i => i.Sender == session.UserId).Select(i => i.GetSendedInviteState()).ToList();
+        var incomingInvites = _invites.Values.Where(i => i.Target == session.UserId).Select(i => i.GetIncomingInviteState()).ToList();
+        _partySystem?.UpdateInvitesInfo(sendedInvites, incomingInvites, session);
     }
 
-    private ClientPartyInviteState GetClientInviteState(ServerPartyInvite invite)
+    private void DirtyInvite(ServerPartyInvite invite)
     {
-        return new ClientPartyInviteState(invite.Id, invite.Status);
+        _partySystem?.DirtyInvite(invite);
     }
 }
 
 public sealed class ServerPartyInvite : SharedPartyInvite
 {
-    public readonly ICommonSession Sender;
-    public readonly ICommonSession Target;
+    public readonly NetUserId Sender;
+    public readonly NetUserId Target;
 
-    public ServerPartyInvite(uint id, ICommonSession sender, ICommonSession target, InviteStatus status = InviteStatus.None) : base(id, status)
+    public readonly string SenderName;
+    public readonly string TargetName;
+
+    public ServerPartyInvite(uint id,
+        NetUserId sender,
+        NetUserId target,
+        string senderName,
+        string targetName,
+        InviteStatus status = InviteStatus.None) : base(id, status)
     {
         Sender = sender;
         Target = target;
+
+        SenderName = senderName;
+        TargetName = targetName;
+    }
+
+    public IncomingInviteState GetIncomingInviteState()
+    {
+        return new IncomingInviteState(Id, SenderName, Status);
+    }
+
+    public SendedInviteState GetSendedInviteState()
+    {
+        return new SendedInviteState(Id, TargetName, Status);
     }
 }

@@ -1,4 +1,5 @@
 
+using Content.Shared.Store;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
@@ -44,19 +45,15 @@ public sealed class ClosePartyMenuMessage() : EntityEventArgs { }
 
 #region Invite
 [Serializable, NetSerializable]
-public sealed class CreatedNewInviteMessage(uint inviteId, string targetName, InviteStatus status) : EntityEventArgs
+public sealed class CreatedNewInviteMessage(SendedInviteState state) : EntityEventArgs
 {
-    public readonly uint InviteId = inviteId;
-    public readonly string TargetName = targetName;
-    public readonly InviteStatus Status = status;
+    public readonly SendedInviteState State = state;
 }
 
 [Serializable, NetSerializable]
-public sealed class InviteReceivedMessage(uint inviteId, string senderName, InviteStatus status) : EntityEventArgs
+public sealed class InviteReceivedMessage(IncomingInviteState state) : EntityEventArgs
 {
-    public readonly uint InviteId = inviteId;
-    public readonly string SenderName = senderName;
-    public readonly InviteStatus Status = status;
+    public readonly IncomingInviteState State = state;
 }
 
 [Serializable, NetSerializable]
@@ -90,11 +87,21 @@ public sealed class InviteInPartyFailMessage(string reason) : EntityEventArgs
 }
 
 [Serializable, NetSerializable]
-public sealed class GetInviteState() : EntityEventArgs { }
+public sealed class UpdateSendedInviteMessage(SendedInviteState state) : EntityEventArgs
+{
+    public readonly SendedInviteState State = state;
+}
 
 [Serializable, NetSerializable]
-public sealed class HandleInviteState(ClientPartyInviteState state) : EntityEventArgs
+public sealed class UpdateIncomingInviteMessage(IncomingInviteState state) : EntityEventArgs
 {
-    public readonly ClientPartyInviteState State = state;
+    public readonly IncomingInviteState State = state;
+}
+
+[Serializable, NetSerializable]
+public sealed class UpdateInvitesInfoMessage(List<SendedInviteState> sendedInvites, List<IncomingInviteState> incomingInvites) : EntityEventArgs
+{
+    public readonly List<SendedInviteState> SendedInvites = sendedInvites;
+    public readonly List<IncomingInviteState> IncomingInvites = incomingInvites;
 }
 #endregion
