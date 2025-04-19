@@ -31,16 +31,30 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs e)
     {
-        if (!TryGetPartyByMember(e.Session, out var party))
+        var connected = e.NewStatus is SessionStatus.Connected or SessionStatus.InGame;
+        UpdateUserConnected(e.Session, connected);
+
+        if (e.NewStatus is SessionStatus.Connected)
+            UpdateClientInfo(e.Session);
+    }
+
+    private void UpdateUserConnected(ICommonSession session, bool connected)
+    {
+        if (!TryGetPartyByMember(session, out var party))
             return;
 
-        var userInfo = party.GetUserInfo(e.Session);
+        var userInfo = party.GetUserInfo(session);
         if (userInfo == null)
             return;
 
-        var conected = e.NewStatus is SessionStatus.Connected or SessionStatus.InGame;
-        userInfo.Connected = conected;
+        userInfo.Connected = connected;
         DirtyParty(party);
+    }
+
+    private void UpdateClientInfo(ICommonSession session)
+    {
+        var curParty = GetPartyByMember(session);
+        SetCurrentParty(session, curParty);
     }
 
     public void SetPartySystem(PartySystem partySystem)
