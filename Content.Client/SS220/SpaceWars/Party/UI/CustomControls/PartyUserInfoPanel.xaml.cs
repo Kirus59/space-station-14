@@ -36,33 +36,47 @@ public sealed partial class PartyUserInfoPanel : PanelContainer
         SetConnectionStatus(false);
     }
 
-    public PartyUserInfoPanel(string? username, PartyRole? role, bool conected) : this()
+    public PartyUserInfoPanel(string? username, bool conected, PartyRole role = PartyRole.None) : this()
     {
-        Populate(username, role, conected);
+        Populate(username, conected, role);
     }
 
-    public PartyUserInfoPanel(PartyUserInfo userInfo) : this(userInfo.Name, userInfo.Role, userInfo.Connected) { }
+    public PartyUserInfoPanel(PartyUserInfo userInfo) : this(userInfo.Name, userInfo.Connected, userInfo.Role) { }
 
     public void Populate(PartyUserInfo userInfo)
     {
-        Populate(userInfo.Name, userInfo.Role, userInfo.Connected);
+        Populate(userInfo.Name, userInfo.Connected, userInfo.Role);
     }
 
-    public void Populate(string? username, PartyRole? role, bool conected)
+    public void Populate(string? username, bool conected, PartyRole role = PartyRole.None)
     {
         UserNameLabel.Text = username;
-        PartyRoleLabel.Text = role == null ? null : GetUserRoleName(role.Value);
+        PartyRoleLabel.Text = GetRoleName(role);
+
+        var roleBackground = GetRoleColor(role);
+        if (roleBackground != null)
+            PartyRolePanel.PanelOverride = new StyleBoxFlat() { BackgroundColor = roleBackground.Value };
 
         SetConnectionStatus(conected);
     }
 
-    private string GetUserRoleName(PartyRole role)
+    private string GetRoleName(PartyRole role)
     {
         return role switch
         {
             PartyRole.Member => Loc.GetString("partyRole-Member"),
             PartyRole.Leader => Loc.GetString("partyRole-Leader"),
             _ => Loc.GetString("partyRole-Unknown")
+        };
+    }
+
+    private Color? GetRoleColor(PartyRole role)
+    {
+        return role switch
+        {
+            PartyRole.Member => new Color(52, 101, 131),
+            PartyRole.Leader => new Color(146, 122, 25),
+            _ => null
         };
     }
 

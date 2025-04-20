@@ -1,8 +1,10 @@
 <PanelContainer xmlns="https://spacestation14.io" MinSize="200 50">
     <BoxContainer Orientation="Vertical">
-        <BoxContainer Name="TopBox" Orientation="Horizontal" VerticalExpand="True" Margin ="5 0">
-            <Label Name="UserNameLabel" Align="Left" HorizontalExpand="True"/>
-            <Label Name="PartyRoleLabel" Align="Right"/>
+        <BoxContainer Name="TopBox" Orientation="Horizontal" VerticalExpand="True">
+            <Label Name="UserNameLabel" Align="Left" HorizontalExpand="True" Margin="5 0"/>
+            <PanelContainer Name="PartyRolePanel">
+                <Label Name="PartyRoleLabel" Align="Right" Margin="5 0"/>
+            </PanelContainer>
         </BoxContainer>
         <BoxContainer Name="BottomBox" Orientation="Horizontal" VerticalExpand="True" Access="Public" Margin ="5 0">
             <TextureRect Name="ConnectionStatusIcon" HorizontalAlignment="Center" VerticalAlignment="Center" StyleClasses="Circle"/>

@@ -18,6 +18,8 @@ public sealed partial class PartyMenu : DefaultWindow
         Update();
 
         _partyManager.OnCurrentPartyUpdated += Update;
+
+        
     }
 
     protected override void Opened()
