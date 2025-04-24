@@ -5,6 +5,7 @@
   name: bagel recipe
   result: FoodBagel
   recipeTags: [Bagel]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -15,6 +16,7 @@
   name: poppyseed bagel recipe
   result: FoodBagelPoppy
   recipeTags: [Bagel]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -26,6 +28,7 @@
   name: cotton bagel recipe
   result: FoodBagelCotton
   recipeTags: [Bagel]
+  color: "#A0522D"
   instrumentType: oven
   time: 5
   solids:
@@ -38,6 +41,7 @@
   name: appendix burger recipe
   result: FoodBurgerAppendix
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -49,6 +53,7 @@
   name: bacon burger recipe
   result: FoodBurgerBacon
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -61,6 +66,7 @@
   name: baseball burger recipe
   result: FoodBurgerBaseball
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -72,6 +78,7 @@
   name: bearger recipe
   result: FoodBurgerBear
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -83,6 +90,7 @@
   name: big bite burger recipe
   result: FoodBurgerBig
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -97,6 +105,7 @@
   name: brain burger recipe
   result: FoodBurgerBrain
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -108,6 +117,7 @@
   name: cat burger recipe
   result: FoodBurgerCat
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -120,6 +130,7 @@
   name: cheeseburger recipe
   result: FoodBurgerCheese
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -132,6 +143,7 @@
   name: chicken sandwich recipe
   result: FoodBurgerChicken
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   reagents:
@@ -145,6 +157,7 @@
   name: clownburger recipe
   result: FoodBurgerClown
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -156,6 +169,7 @@
   name: corgi burger recipe
   result: FoodBurgerCorgi
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -167,6 +181,7 @@
   name: crab burger recipe
   result: FoodBurgerCrab
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -178,6 +193,7 @@
   name: crazy hamburger recipe
   result: FoodBurgerCrazy
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -196,6 +212,7 @@
   name: duck sandwich recipe
   result: FoodBurgerDuck
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -208,6 +225,7 @@
   name: empowered burger recipe
   result: FoodBurgerEmpowered
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -219,6 +237,7 @@
   name: fillet-o-carp burger recipe
   result: FoodBurgerCarp
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -231,6 +250,7 @@
   name: five alarm burger recipe
   result: FoodBurgerFive
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -243,6 +263,7 @@
   name: ghost burger recipe
   result: FoodBurgerGhost
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -254,6 +275,7 @@
   name: human burger recipe
   result: FoodBurgerHuman
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -265,6 +287,7 @@
   name: jelly burger recipe
   result: FoodBurgerJelly
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -276,6 +299,7 @@
   name: McGuffin recipe
   result: FoodBurgerMcguffin
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -288,6 +312,7 @@
   name: BBQ rib sandwich recipe
   result: FoodBurgerMcrib
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -300,6 +325,7 @@
   name: mime burger recipe
   result: FoodBurgerMime
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -311,6 +337,7 @@
   name: plain burger recipe
   result: FoodBurgerPlain
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -322,6 +349,7 @@
   name: rat burger recipe
   result: FoodBurgerRat
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -333,6 +361,7 @@
   name: roburger recipe
   result: FoodBurgerRobot
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -345,6 +374,7 @@
   name: soylent burger recipe
   result: FoodBurgerSoy
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -357,6 +387,7 @@
   name: spell burger recipe
   result: FoodBurgerSpell
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -368,6 +399,7 @@
   name: super bite burger recipe
   result: FoodBurgerSuper
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 25
   reagents:
@@ -384,6 +416,7 @@
   name: tofu burger recipe
   result: FoodBurgerTofu
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -395,6 +428,7 @@
   name: xenoburger recipe
   result: FoodBurgerXeno
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -406,6 +440,7 @@
   name: mothroachburger recipe
   result: FoodBurgerMothRoach
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -419,6 +454,7 @@
   name: bun recipe
   result: FoodBreadBun
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -429,6 +465,7 @@
   name: banana bread recipe
   result: FoodBreadBanana
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -440,6 +477,7 @@
   name: cornbread recipe
   result: FoodBreadCorn
   recipeTags: [Bread]
+  color: "#FFFF00"
   instrumentType: oven
   time: 10
   solids:
@@ -450,6 +488,7 @@
   name: cream cheese bread recipe
   result: FoodBreadCreamcheese
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -463,6 +502,7 @@
   name: meat bread recipe
   result: FoodBreadMeat
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -475,6 +515,7 @@
   name: mimana bread recipe
   result: FoodBreadMimana
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -488,6 +529,7 @@
   name: plain bread recipe
   result: FoodBreadPlain
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -498,6 +540,7 @@
   name: cotton bread recipe
   result: FoodBreadCotton
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -508,6 +551,7 @@
   name: sausage bread recipe
   result: FoodBreadSausage
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -519,6 +563,7 @@
   name: spider meat bread recipe
   result: FoodBreadMeatSpider
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -531,6 +576,7 @@
   name: tofu bread recipe
   result: FoodBreadTofu
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -542,6 +588,7 @@
   name: xeno meat bread recipe
   result: FoodBreadMeatXeno
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -554,6 +601,7 @@
   name: bread dog recipe
   result: MobBreadDog
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -568,6 +616,7 @@
   name: baguette recipe
   result: FoodBreadBaguette
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
