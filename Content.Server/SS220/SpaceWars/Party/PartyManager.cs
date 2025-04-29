@@ -206,6 +206,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         SetCurrentParty(user, party);
         DirtyParty(party);
 
+        var chatMesage = Loc.GetString("partymanager-user-join-party-mesage", ("user", user.Name));
+        ChatMessageToParty(chatMesage, party, PartyChatMessageType.Info);
+
         PartyDataUpdated?.Invoke(party);
     }
 
@@ -216,6 +219,8 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public void RemoveUserFromParty(NetUserId user, ServerPartyData party)
     {
+        var userInfo = party.GetUserInfo(user);
+
         if (!party.RemoveMember(user))
             return;
 
@@ -223,6 +228,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             SetCurrentParty(session, null);
 
         DirtyParty(party);
+
+        if (userInfo != null)
+        {
+            var chatMessage = Loc.GetString("partymanager-user-left-party-message", ("user", userInfo.Name));
+            ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+        }
 
         PartyDataUpdated?.Invoke(party);
     }

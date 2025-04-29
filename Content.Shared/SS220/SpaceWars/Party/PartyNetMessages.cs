@@ -105,3 +105,11 @@ public sealed class UpdateInvitesInfoMessage(List<SendedInviteState> sendedInvit
     public readonly List<IncomingInviteState> IncomingInvites = incomingInvites;
 }
 #endregion
+
+#region Chat
+[Serializable, NetSerializable]
+public sealed class ReceivePartyChatMessage(string message) : EntityEventArgs
+{
+    public readonly string Message = message;
+}
+#endregion

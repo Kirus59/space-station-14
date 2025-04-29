@@ -21,6 +21,7 @@ public sealed partial class PartySystem : SharedPartySystem
         SubscribeNetworkEvent<ClosePartyMenuMessage>(OnClosePartyMenuMessage);
 
         InviteInitialize();
+        ChatInitialize();
     }
 
     private void OnSetCurrentParty(SetCurrentPartyMessage message)
