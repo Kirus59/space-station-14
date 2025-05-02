@@ -41,12 +41,13 @@ public sealed class DefibrillatorSystem : EntitySystem
     [Dependency] private readonly DoAfterSystem _doAfter = default!;
     [Dependency] private readonly ElectrocutionSystem _electrocution = default!;
     [Dependency] private readonly EuiManager _euiManager = default!;
+    [Dependency] private readonly ISharedPlayerManager _player = default!;
     [Dependency] private readonly ItemToggleSystem _toggle = default!;
-    [Dependency] private readonly RottingSystem _rotting = default!;
     [Dependency] private readonly MobStateSystem _mobState = default!;
     [Dependency] private readonly MobThresholdSystem _mobThreshold = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
     [Dependency] private readonly PowerCellSystem _powerCell = default!;
+    [Dependency] private readonly RottingSystem _rotting = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
     [Dependency] private readonly SharedMindSystem _mind = default!;
     [Dependency] private readonly UseDelaySystem _useDelay = default!;
@@ -80,11 +81,11 @@ public sealed class DefibrillatorSystem : EntitySystem
         if (!CanZap(uid, target, args.User, component))
             return;
         // SS220 NewDefib begin
-        if (_inventory.TryGetSlotEntity(target, "outerClothing", out var item) && item != null) 
+        if (_inventory.TryGetSlotEntity(target, "outerClothing", out var item) && item != null)
         {
              _popup.PopupEntity(Loc.GetString("loc-defib-outer-popup"), target, args.User);
             return;
-        } 
+        }
         // SS220 NewDefib end
         args.Handled = true;
         Zap(uid, target, args.User, component);
@@ -255,26 +256,18 @@ public sealed class DefibrillatorSystem : EntitySystem
                 TryComp<DamageableComponent>(target, out var damageableComponent) &&
                 damageableComponent.TotalDamage < threshold)
             {
-                //SS220 LimitationRevive - start
-                if (TryComp<LimitationReviveComponent>(target, out var compLimitRevive))
-                {
-                    compLimitRevive.IsAlreadyDead = false;
-                    compLimitRevive.IsDamageTaken = false;
-                }
-                //SS220 LimitationRevive - end
-
                 _mobState.ChangeMobState(target, MobState.Critical, mob, uid);
                 dead = false;
             }
 
             if (_mind.TryGetMind(target, out _, out var mind) &&
-                mind.Session is { } playerSession)
+                _player.TryGetSessionById(mind.UserId, out var playerSession))
             {
                 session = playerSession;
                 // notify them they're being revived.
                 if (mind.CurrentEntity != target)
                 {
-                    _euiManager.OpenEui(new ReturnToBodyEui(mind, _mind), session);
+                    _euiManager.OpenEui(new ReturnToBodyEui(mind, _mind, _player), session);
                 }
             }
             else
