@@ -111,3 +111,6 @@ public record struct SendedInviteState(uint Id, string TargetName, InviteStatus 
 
 [Serializable, NetSerializable]
 public record struct IncomingInviteState(uint Id, string SenderName, InviteStatus Status);
+
+[Serializable, NetSerializable]
+public record struct PartySettingsState(uint MaxMembers);

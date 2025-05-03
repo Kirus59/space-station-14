@@ -316,9 +316,11 @@ public sealed class ServerPartyData : SharedPartyData
 {
     public NetUserId? Leader => GetLeader();
     public Dictionary<NetUserId, PartyUserInfo> Members = new();
+    public PartySettings Settings;
 
-    public ServerPartyData(uint id) : base(id)
+    public ServerPartyData(uint id, PartySettings? settings = null) : base(id)
     {
+        Settings = settings ?? new PartySettings();
     }
 
     public NetUserId? GetLeader()
@@ -332,20 +334,38 @@ public sealed class ServerPartyData : SharedPartyData
         return null;
     }
 
-    public bool AddMember(ICommonSession session, PartyRole role)
+    public bool AddMember(ICommonSession session, PartyRole role, [NotNullWhen(false)] out string? failReason, bool force = false)
     {
         var connected = session.Status == SessionStatus.Connected || session.Status == SessionStatus.InGame;
-        return AddMember(session.UserId, role, session.Name, connected);
+        return AddMember(session.UserId, role, session.Name, connected, out failReason, force);
     }
 
-    public bool AddMember(NetUserId userId, PartyRole role, string name, bool connected)
+    public bool AddMember(NetUserId userId, PartyRole role, string name, bool connected, [NotNullWhen(false)] out string? failReason, bool force = false)
     {
-        if (ContainsUser(userId) ||
-            (role == PartyRole.Leader && Leader != null))
+        failReason = null;
+        if (ContainsUser(userId))
+        {
+            failReason = "User is already a member of the party";
             return false;
+        }
+
+        if (!force)
+        {
+            if (role == PartyRole.Leader && Leader != null)
+            {
+                failReason = "The party already has a leader";
+                return false;
+            }
+
+            if (Members.Count >= Settings.MaxMembers)
+            {
+                failReason = "The party has reached the limit of members";
+                return false;
+            }
+        }
 
         var userInfo = new PartyUserInfo(GetFreeUserId(), role, name, connected);
-        Members.Add(userId, userInfo);
+        Members.Add(userId, userInfo);s
         return true;
     }
 
@@ -392,5 +412,23 @@ public sealed class ServerPartyData : SharedPartyData
             id++;
 
         return id;
+    }
+}
+
+public sealed class PartySettings
+{
+    public uint MaxMembers = 20;
+
+    public PartySettingsState GetState()
+    {
+        return new PartySettingsState()
+        {
+            MaxMembers = MaxMembers
+        };
+    }
+
+    public void SetState(PartySettingsState state)
+    {
+        MaxMembers = state.MaxMembers;
     }
 }
