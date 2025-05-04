@@ -130,4 +130,9 @@ public sealed partial class CCVars220
     /// </summary>
     public static readonly CVarDef<int> MaxLanguagesInOneMessage =
         CVarDef.Create("chat.max_languages_in_one_message", 3, CVar.SERVER);
+
+    #region Party
+    public static readonly CVarDef<uint> PartyMembersLimit =
+        CVarDef.Create("party.members_limit", (uint)10, CVar.SERVER);
+    #endregion
 }

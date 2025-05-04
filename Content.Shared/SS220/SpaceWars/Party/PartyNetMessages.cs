@@ -43,6 +43,14 @@ public sealed class OpenPartyMenuMessage() : EntityEventArgs { }
 [Serializable, NetSerializable]
 public sealed class ClosePartyMenuMessage() : EntityEventArgs { }
 
+#region Settings
+[Serializable, NetSerializable]
+public sealed class SetPartySettingsRequestMessage(PartySettingsState state) : EntityEventArgs
+{
+    public readonly PartySettingsState State = state;
+}
+#endregion
+
 #region Invite
 [Serializable, NetSerializable]
 public sealed class CreatedNewInviteMessage(SendedInviteState state) : EntityEventArgs

@@ -62,4 +62,8 @@ public partial interface IPartyManager : ISharedPartyManager
 
     void ClosePartyMenu(ICommonSession session);
     #endregion
+
+    #region Settings
+    void SetSettings(ServerPartyData partyData, PartySettingsState state);
+    #endregion
 }

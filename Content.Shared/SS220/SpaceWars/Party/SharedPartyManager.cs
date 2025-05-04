@@ -29,7 +29,11 @@ public abstract class SharedPartyData
 }
 
 [Serializable, NetSerializable]
-public record struct ClientPartyDataState(uint Id, PartyUserInfo LocalUserInfo, List<PartyUserInfo> Members, bool Disbanded);
+public record struct ClientPartyDataState(uint Id,
+    PartyUserInfo LocalUserInfo,
+    List<PartyUserInfo> Members,
+    PartySettingsState SettingsState,
+    bool Disbanded);
 
 [Serializable, NetSerializable]
 [Access(typeof(SharedPartyManager), Other = AccessPermissions.Read)]

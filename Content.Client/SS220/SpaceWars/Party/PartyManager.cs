@@ -2,6 +2,7 @@
 using Content.Client.SS220.SpaceWars.Party.Systems;
 using Content.Client.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
@@ -39,7 +40,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
         else
         {
-            var party = new ClientPartyData(state.Value.Id, state.Value.LocalUserInfo, state.Value.Members);
+            var party = new ClientPartyData(state.Value);
             _currentParty = party;
         }
 
@@ -48,21 +49,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public void UpdateCurrentParty(ClientPartyDataState state)
     {
-        if (_currentParty == null)
+        if (_currentParty == null || state.Id != _currentParty.Id)
             return;
 
-        UpdatePartyState(_currentParty, state);
+        _currentParty.UpdateState(state);
         OnCurrentPartyUpdated?.Invoke();
-    }
-
-    private void UpdatePartyState(ClientPartyData party, ClientPartyDataState state)
-    {
-        if (state.Id != party.Id)
-            return;
-
-        party.LocalUserInfo = state.LocalUserInfo;
-        party.Members = state.Members;
-        party.Disbanded = state.Disbanded;
     }
 
     public void SendCreatePartyRequest()
@@ -97,10 +88,36 @@ public sealed class ClientPartyData : SharedPartyData
 {
     public PartyUserInfo LocalUserInfo;
     public List<PartyUserInfo> Members;
+    public PartySettings Settings;
 
-    public ClientPartyData(uint id, PartyUserInfo localUserInfo, List<PartyUserInfo> members) : base(id)
+    public ClientPartyData(uint id, PartyUserInfo localUserInfo, List<PartyUserInfo> members, PartySettingsState state) : base(id)
     {
         LocalUserInfo = localUserInfo;
         Members = members;
+        Settings = new PartySettings(state);
+    }
+
+    public ClientPartyData(ClientPartyDataState state) : this(state.Id, state.LocalUserInfo, state.Members, state.SettingsState) { }
+
+    public void UpdateState(ClientPartyDataState state)
+    {
+        LocalUserInfo = state.LocalUserInfo;
+        Members = state.Members;
+        Settings.UpdateState(state.SettingsState);
+    }
+}
+
+public sealed class PartySettings()
+{
+    public uint MaxMembers;
+
+    public PartySettings(PartySettingsState state) : this()
+    {
+        UpdateState(state);
+    }
+
+    public void UpdateState(PartySettingsState state)
+    {
+        MaxMembers = state.MaxMembers;
     }
 }

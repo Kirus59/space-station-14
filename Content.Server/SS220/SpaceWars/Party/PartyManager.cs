@@ -7,12 +7,15 @@ using System.Diagnostics.CodeAnalysis;
 using Content.Server.SS220.SpaceWars.Party.Systems;
 using System.Linq;
 using Robust.Shared.Network;
+using Robust.Shared.Configuration;
+using Content.Shared.SS220.CCVars;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 {
     [Dependency] private readonly IPlayerManager _playerManager = default!;
+    [Dependency] private readonly IConfigurationManager _cfg = default!;
 
     private PartySystem? _partySystem = default!;
 
@@ -27,6 +30,8 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         base.Initialize();
 
         _playerManager.PlayerStatusChanged += OnPlayerStatusChanged;
+
+        _cfg.OnValueChanged(CCVars220.PartyMembersLimit, OnMembersLimitChanged, true);
     }
 
     private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs e)
@@ -200,7 +205,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (!IsUserAvaliable(user))
             return;
 
-        if (!party.AddMember(user, role))
+        if (!party.AddMember(user, role, out var failReason))
             return;
 
         SetCurrentParty(user, party);
@@ -266,7 +271,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             throw new ArgumentException($"{client.Name} is not the member of this party");
 
         var membersList = party.Members.Select(x => x.Value).ToList();
-        return new ClientPartyDataState(party.Id, localUserInfo, membersList, party.Disbanded);
+        return new ClientPartyDataState(party.Id, localUserInfo, membersList, party.Settings.GetState(), party.Disbanded);
     }
 
     private void SetCurrentParty(ICommonSession session, ServerPartyData? party)
@@ -308,6 +313,37 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public void ClosePartyMenu(ICommonSession session)
     {
         _partySystem?.ClosePartyMenu(session);
+    }
+    #endregion
+
+    #region Settings
+    private uint _membersLimit = int.MaxValue;
+
+    private void OnMembersLimitChanged(uint value)
+    {
+        _membersLimit = value;
+        ResetSettings();
+    }
+
+    private void ResetSettings()
+    {
+        foreach (var party in _parties)
+            ResetSettings(party);
+    }
+
+    private void ResetSettings(ServerPartyData party)
+    {
+        var state = party.Settings.GetState();
+        SetSettings(party, state);
+    }
+
+    public void SetSettings(ServerPartyData party, PartySettingsState state)
+    {
+        var settings = party.Settings;
+        settings.MaxMembers = Math.Min(state.MaxMembers, _membersLimit);
+        DirtyParty(party);
+
+        PartyDataUpdated?.Invoke(party);
     }
     #endregion
 }
@@ -365,7 +401,7 @@ public sealed class ServerPartyData : SharedPartyData
         }
 
         var userInfo = new PartyUserInfo(GetFreeUserId(), role, name, connected);
-        Members.Add(userId, userInfo);s
+        Members.Add(userId, userInfo);
         return true;
     }
 
@@ -425,10 +461,5 @@ public sealed class PartySettings
         {
             MaxMembers = MaxMembers
         };
-    }
-
-    public void SetState(PartySettingsState state)
-    {
-        MaxMembers = state.MaxMembers;
     }
 }
