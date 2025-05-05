@@ -31,6 +31,7 @@
   name: garlic bread slice recipe
   result: FoodBreadGarlicSlice
   recipeTags: [Slice]
+  color: "#9a6e61"
   instrumentType: microwave
   time: 5
   solids:
@@ -43,6 +44,7 @@
   name: jelly toast recipe
   result: FoodBreadJellySlice
   recipeTags: [Slice]
+  color: "#a0522d"
   instrumentType: microwave
   time: 5
   solids:
@@ -54,6 +56,7 @@
   name: moldy bread slice recipe
   result: FoodBreadMoldySlice
   recipeTags: [Slice]
+  color: "#9a6e61"
   instrumentType: microwave
   time: 5
   solids:
@@ -65,6 +68,7 @@
   name: two slice recipe
   result: FoodBreadTwoSlice
   recipeTags: [Slice]
+  color: "#9a6e61"
   instrumentType: microwave
   time: 5
   reagents:
@@ -77,6 +81,7 @@
   name: onion rings recipe
   result: FoodOnionRings
   recipeTags: [Slice]
+  color: "#FAFAD2"
   instrumentType: microwave
   time: 15
   solids:
@@ -89,6 +94,7 @@
   name: boiled spaghetti recipe
   result: FoodNoodlesBoiled
   recipeTags: [Italian]
+  color: "#FFFACD"
   instrumentType: microwave
   time: 15
   reagents:
@@ -103,6 +109,7 @@
   name: pasta tomato recipe
   result: FoodNoodles
   recipeTags: [Italian]
+  color: "#FFFACD"
   instrumentType: microwave
   time: 10
   solids:
@@ -114,6 +121,7 @@
   name: spaghetti & meatballs recipe
   result: FoodNoodlesMeatball
   recipeTags: [Italian]
+  color: "#FFFACD"
   instrumentType: microwave
   time: 10
   solids:
@@ -125,6 +133,7 @@
   name: butter noodles recipe
   result: FoodNoodlesButter
   recipeTags: [Italian]
+  color: "#FFFACD"
   instrumentType: microwave
   time: 10
   solids:
@@ -136,6 +145,7 @@
   name: chow mein recipe
   result: FoodNoodlesChowmein
   recipeTags: [Italian]
+  color: "#FFD700"
   instrumentType: microwave
   time: 10
   solids:
@@ -150,6 +160,7 @@
   name: oatmeal recipe
   result: FoodOatmeal
   recipeTags: [Italian]
+  color: "#DEB887"
   instrumentType: microwave
   time: 15
   reagents:
@@ -163,6 +174,7 @@
   name: boiled rice recipe
   result: FoodRiceBoiled
   recipeTags: [Italian]
+  color: "#FFFAFA"
   instrumentType: microwave
   time: 15
   reagents:
@@ -176,6 +188,7 @@
   name: rice pudding recipe
   result: FoodRicePudding
   recipeTags: [Italian]
+  color: "#FAEBD7"
   instrumentType: microwave
   time: 15
   reagents:
@@ -190,6 +203,7 @@
   name: rice and pork recipe
   result: FoodRicePork
   recipeTags: [Italian]
+  color: "#FFA500"
   instrumentType: microwave
   time: 15
   solids:
@@ -201,6 +215,7 @@
   name: black-eyed gumbo recipe
   result: FoodRiceGumbo
   recipeTags: [Italian]
+  color: "#FF8C00"
   instrumentType: microwave
   time: 15
   solids:
@@ -213,6 +228,7 @@
   name: egg-fried rice recipe
   result: FoodRiceEgg
   recipeTags: [Italian]
+  color: "#FFD700"
   instrumentType: microwave
   time: 15
   solids:
@@ -225,6 +241,7 @@
   name: copypasta recipe
   result: FoodNoodlesCopy
   recipeTags: [Italian]
+  color: "#FF6347"
   instrumentType: microwave
   time: 10
   solids:
@@ -237,6 +254,7 @@
   name: bisque recipe
   result: FoodSoupBisque
   recipeTags: [Soup]
+  color: "#FFD700"
   instrumentType: microwave
   time: 10
   reagents:
@@ -252,6 +270,7 @@
   name: meatball soup recipe
   result: FoodSoupMeatball
   recipeTags: [Soup]
+  color: "#FF4500"
   instrumentType: microwave
   time: 10
   reagents:
@@ -267,6 +286,7 @@
   name: nettle soup recipe
   result: FoodSoupNettle
   recipeTags: [Soup]
+  color: "#556B2F"
   instrumentType: microwave
   time: 10
   reagents:
@@ -282,6 +302,7 @@
   name: eyeball soup recipe
   result: FoodSoupEyeball
   recipeTags: [Soup]
+  color: "#556B2F"
   instrumentType: microwave
   time: 10
   reagents:
@@ -297,6 +318,7 @@
   name: amanita jelly recipe
   result: FoodJellyAmanita
   recipeTags: [Soup]
+  color: "#E0FFFF"
   instrumentType: microwave
   time: 10
   reagents:
@@ -310,6 +332,7 @@
   name: onion soup recipe
   result: FoodSoupOnion
   recipeTags: [Soup]
+  color: "#A0522D"
   instrumentType: microwave
   time: 10
   reagents:
@@ -324,6 +347,7 @@
   name: mushroom soup recipe
   result: FoodSoupMushroom
   recipeTags: [Soup]
+  color: "#808000"
   instrumentType: microwave
   time: 10
   reagents:
@@ -338,6 +362,7 @@
   name: stew recipe
   result: FoodSoupStew
   recipeTags: [Soup]
+  color: "#8B4513"
   instrumentType: microwave
   time: 10
   reagents:
@@ -356,6 +381,7 @@
   name: tomato soup recipe
   result: FoodSoupTomato
   recipeTags: [Soup]
+  color: "#CD5C5C"
   instrumentType: microwave
   time: 10
   reagents:
@@ -369,6 +395,7 @@
   name: tomato blood soup recipe
   result: FoodSoupTomatoBlood
   recipeTags: [Soup]
+  color: "#FF4500"
   instrumentType: microwave
   time: 10
   reagents:
@@ -382,6 +409,7 @@
   name: wing fang chu recipe
   result: FoodSoupWingFangChu
   recipeTags: [Soup]
+  color: "#FF4500"
   instrumentType: microwave
   time: 10
   reagents:
@@ -395,6 +423,7 @@
   name: wing fang chu recipe
   result: FoodSoupWingFangChu
   recipeTags: [Soup]
+  color: "#FF4500"
   instrumentType: microwave
   time: 10
   reagents:
@@ -408,6 +437,7 @@
   name: vegetable soup recipe
   result: FoodSoupVegetable
   recipeTags: [Soup]
+  color: "#90EE90"
   instrumentType: microwave
   time: 10
   reagents:
@@ -424,6 +454,7 @@
   name: clown tears soup recipe
   result: FoodSoupClown
   recipeTags: [Soup]
+  color: "#FF0000"
   instrumentType: microwave
   time: 10
   reagents:
@@ -438,6 +469,7 @@
   name: clown's tears recipe
   result: FoodSoupClown
   recipeTags: [Soup]
+  color: "#FF0000"
   instrumentType: microwave
   time: 15
   solids:
@@ -451,6 +483,7 @@
   name: chili con carnival recipe
   result: FoodSoupChiliClown
   recipeTags: [Soup]
+  color: "#A0522D"
   instrumentType: microwave
   time: 30
   solids:
@@ -466,6 +499,7 @@
   name: monkeys delight recipe
   result: FoodSoupMonkey
   recipeTags: [Soup]
+  color: "#A9A9A9"
   instrumentType: microwave
   time: 10
   reagents:
@@ -482,6 +516,7 @@
   name: bungo soup recipe
   result: FoodSoupBungo
   recipeTags: [Soup]
+  color: "#8B4513"
   instrumentType: microwave
   time: 10
   reagents:
@@ -496,6 +531,7 @@
   name: boiled snail recipe
   result: FoodMeatSnailCooked
   recipeTags: [Soup]
+  color: "#BDB76B"
   instrumentType: microwave
   time: 5
   reagents:
@@ -508,6 +544,7 @@
   name: escargot recipe
   result: FoodSoupEscargot
   recipeTags: [Soup]
+  color: "#FFDEAD"
   instrumentType: microwave
   time: 10
   reagents:
@@ -523,6 +560,7 @@
   name: hot chili recipe
   result: FoodSoupChiliHot
   recipeTags: [Soup]
+  color: "#FF0000"
   instrumentType: microwave
   time: 20
   solids:
@@ -537,6 +575,7 @@
   name: cold chili recipe
   result: FoodSoupChiliCold
   recipeTags: [Soup]
+  color: "#FF0000"
   instrumentType: microwave
   time: 5
   reagents:
@@ -549,6 +588,7 @@
   name: Borsch recipe
   result: FoodSoupBeet
   recipeTags: [Soup]
+  color: "#B22222"
   instrumentType: microwave
   time: 10
   reagents:
@@ -565,6 +605,7 @@
   name: Shchi recipe
   result: FoodSoupShchi
   recipeTags: [Soup]
+  color: "#DAA520"
   instrumentType: microwave
   time: 10
   reagents:
@@ -581,6 +622,7 @@
   name: slime soup recipe
   result: FoodSoupSlime
   recipeTags: [Soup]
+  color: "#008000"
   instrumentType: microwave
   time: 10
   reagents:
@@ -597,6 +639,7 @@
   name: cuban carp recipe
   result: FoodMealCubancarp
   recipeTags: [Other]
+  color: "DarkSeaGreen"
   instrumentType: microwave
   time: 15
   solids:
@@ -610,6 +653,7 @@
   name: sashimi recipe
   result: FoodMealSashimi
   recipeTags: [Other]
+  color: "#FFA500"
   instrumentType: microwave
   time: 15
   reagents:
@@ -622,6 +666,7 @@
   name: salty sweet misocola soup recipe
   result: DisgustingSweptSoup
   recipeTags: [Other]
+  color: "#FFE4B5"
   instrumentType: microwave
   time: 15
   reagents:
@@ -634,6 +679,7 @@
   name: space fries recipe
   result: FoodMealFries
   recipeTags: [Other]
+  color: "#FFA500"
   instrumentType: microwave #TODO: Implement deep fryer
   time: 15
   reagents:
@@ -646,6 +692,7 @@
   name: cheesy fries recipe
   result: FoodMealFriesCheesy
   recipeTags: [Other]
+  color: "#FFA500"
   instrumentType: microwave
   time: 15
   reagents:
@@ -659,6 +706,7 @@
   name: carrot fries recipe
   result: FoodMealFriesCarrot
   recipeTags: [Other]
+  color: "#FF4500"
   instrumentType: microwave
   time: 15
   reagents:
@@ -671,6 +719,7 @@
   name: popcorn recipe
   result: FoodSnackPopcorn
   recipeTags: [Other]
+  color: "#FFFFFF"
   instrumentType: microwave
   time: 5
   solids:
@@ -681,6 +730,7 @@
   name: Salami recipe
   result: FoodMeatSalami
   recipeTags: [Other]
+  color: "#8B0000"
   instrumentType: microwave
   time: 30
   reagents:
@@ -694,6 +744,7 @@
   name: nachos recipe
   result: FoodMealNachos
   recipeTags: [Other]
+  color: "#FFD700"
   instrumentType: microwave
   time: 10
   reagents:
@@ -707,6 +758,7 @@
   name: nachos cheesy recipe
   result: FoodMealNachosCheesy
   recipeTags: [Other]
+  color: "#FFD700"
   instrumentType: microwave
   time: 15
   reagents:
@@ -721,6 +773,7 @@
   name: nachos cuban recipe
   result: FoodMealNachosCuban
   recipeTags: [Other]
+  color: "#FFA500"
   instrumentType: microwave
   time: 15
   reagents:
@@ -735,6 +788,7 @@
   name: pelmeni recipe
   result: FoodPelmeniBowl
   recipeTags: [Other]
+  color: "#D2B48C"
   instrumentType: microwave
   time: 10
   reagents:
@@ -749,6 +803,7 @@
   name: queso recipe
   result: FoodMealQueso
   recipeTags: [Other]
+  color: "#F5FFFA"
   instrumentType: microwave
   time: 15
   reagents:
@@ -762,6 +817,7 @@
   name: corn in butter recipe
   result: FoodMealCornInButter
   recipeTags: [Other]
+  color: "#FFFF00"
   instrumentType: microwave
   time: 10
   solids:
@@ -774,6 +830,7 @@
   name: pea soup recipe
   result: FoodSoupPea
   recipeTags: [Other]
+  color: "#6B8E23"
   instrumentType: microwave
   time: 10
   solids:
@@ -788,6 +845,7 @@
   name: warm donk pocket recipe
   result: FoodDonkpocketWarm
   recipeTags: [Donkpocket]
+  color: "#FF00FF"
   instrumentType: microwave
   time: 5
   solids:
@@ -798,6 +856,7 @@
   name: warm dank pocket recipe
   result: FoodDonkpocketDankWarm
   recipeTags: [Donkpocket]
+  color: "#FF00FF"
   instrumentType: microwave
   time: 5
   solids:
@@ -808,6 +867,7 @@
   name: warm spicy donk-pocket recipe
   result: FoodDonkpocketSpicyWarm
   recipeTags: [Donkpocket]
+  color: "#FF00FF"
   instrumentType: microwave
   time: 5
   solids:
@@ -818,6 +878,7 @@
   name: warm teriyaki-pocket recipe
   result: FoodDonkpocketTeriyakiWarm
   recipeTags: [Donkpocket]
+  color: "#FF00FF"
   instrumentType: microwave
   time: 5
   solids:
@@ -828,6 +889,7 @@
   name: warm pizza-pocket recipe
   result: FoodDonkpocketPizzaWarm
   recipeTags: [Donkpocket]
+  color: "#32CD32"
   instrumentType: microwave
   time: 5
   solids:
@@ -838,6 +900,7 @@
   name: warm honk-pocket recipe
   result: FoodDonkpocketHonkWarm
   recipeTags: [Donkpocket]
+  color: "#32CD32"
   instrumentType: microwave
   time: 5
   solids:
@@ -848,6 +911,7 @@
   name: warm berry-pocket recipe
   result: FoodDonkpocketBerryWarm
   recipeTags: [Donkpocket]
+  color: "#32CD32"
   instrumentType: microwave
   time: 5
   solids:
@@ -858,6 +922,7 @@
   name: warm stonk-pocket recipe
   result: FoodDonkpocketStonkWarm
   recipeTags: [Donkpocket]
+  color: "#32CD32"
   instrumentType: microwave
   time: 5
   solids:
@@ -868,6 +933,7 @@
   name: warm carp-pocket recipe
   result: FoodDonkpocketCarpWarm
   recipeTags: [Donkpocket]
+  color: "#32CD32"
   instrumentType: microwave
   time: 5
   solids:
@@ -878,6 +944,7 @@
   name: warm gondola-pocket recipe
   result: FoodDonkpocketGondolaWarm
   recipeTags: [Donkpocket]
+  color: "#32CD32"
   instrumentType: microwave
   time: 5
   solids:
@@ -890,6 +957,7 @@
   name: herb salad recipe
   result: FoodSaladHerb
   recipeTags: [Salad]
+  color: "#228B22"
   instrumentType: microwave
   time: 5
   solids:
@@ -902,6 +970,7 @@
   name: valid salad recipe
   result: FoodSaladValid
   recipeTags: [Salad]
+  color: "#228B22"
   instrumentType: microwave
   time: 5
   solids:
@@ -915,6 +984,7 @@
   name: coleslaw recipe
   result: FoodSaladColeslaw
   recipeTags: [Salad]
+  color: "#E0FFFF"
   instrumentType: microwave
   time: 5
   reagents:
@@ -929,6 +999,7 @@
   name: caesar salad recipe
   result: FoodSaladCaesar
   recipeTags: [Salad]
+  color: "#7FFF00"
   instrumentType: microwave
   time: 5
   reagents:
@@ -945,6 +1016,7 @@
   name: citrus salad recipe
   result: FoodSaladCitrus
   recipeTags: [Salad]
+  color: "#FFA500"
   instrumentType: microwave
   time: 5
   solids:
@@ -958,6 +1030,7 @@
   name: kimchi salad recipe
   result: FoodSaladKimchi
   recipeTags: [Salad]
+  color: "#FF4500"
   instrumentType: microwave
   time: 5
   reagents:
@@ -973,6 +1046,7 @@
   name: fruit salad recipe
   result: FoodSaladFruit
   recipeTags: [Salad]
+  color: "#FF4500"
   instrumentType: microwave
   time: 5
   solids:
@@ -987,6 +1061,7 @@
   name: jungle salad recipe
   result: FoodSaladJungle
   recipeTags: [Salad]
+  color: "#7CFC00"
   instrumentType: microwave
   time: 5
   solids:
@@ -1001,6 +1076,7 @@
   name: watermelon fruit bowl recipe
   result: FoodSaladWatermelonFruitBowl
   recipeTags: [Salad]
+  color: "#B22222"
   instrumentType: microwave
   time: 5
   solids:
@@ -1016,6 +1092,7 @@
   name: Okroshka recipe
   result: FoodSoupOkroshka
   recipeTags: [Salad]
+  color: "#FFEFD5"
   instrumentType: microwave
   time: 10
   solids:
@@ -1030,6 +1107,7 @@
   name: Okroshka witch kvass recipe
   result: FoodSoupOkroshkaKvass
   recipeTags: [Salad]
+  color: "#8B4513"
   instrumentType: microwave
   time: 10
   reagents:
@@ -1046,6 +1124,7 @@
   name: Vinaigrette recipe
   result: FoodSaladVinaigrette
   recipeTags: [Salad]
+  color: "#DC143C"
   instrumentType: microwave
   time: 10
   solids:
@@ -1063,6 +1142,7 @@
   name: dried tea leaves recipe
   result: LeavesTeaDried
   recipeTags: [Notfood]
+  color: "#556B2F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1074,6 +1154,7 @@
   name: dried tobacco leaves recipe
   result: LeavesTobaccoDried
   recipeTags: [Notfood]
+  color: "#556B2F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1084,6 +1165,7 @@
   name: dried cannabis leaves recipe
   result: LeavesCannabisDried
   recipeTags: [Notfood]
+  color: "#556B2F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1094,6 +1176,7 @@
   name: dried rainbow cannabis leaves recipe
   result: LeavesCannabisRainbowDried
   recipeTags: [Notfood]
+  color: "#556B2F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1104,6 +1187,7 @@
   name: baked banana peel recipe
   result: TrashBakedBananaPeel
   recipeTags: [Notfood]
+  color: "#FFD700"
   instrumentType: microwave
   time: 5
   solids:
@@ -1114,6 +1198,7 @@
   name: cannabis butter recipe
   result: FoodCannabisButter
   recipeTags: [Notfood]
+  color: "#556B2F"
   instrumentType: microwave
   time: 15
   solids:
@@ -1125,6 +1210,7 @@
   name: cannabis brownie recipe
   result: FoodBakedCannabisBrownieBatch
   recipeTags: [Notfood]
+  color: "#556B2F"
   instrumentType: microwave
   time: 25
   reagents:
@@ -1141,6 +1227,7 @@
   name: aloe cream recipe
   result: AloeCream
   recipeTags: [Medical]
+  color: "#006400"
   instrumentType: microwave
   time: 10
   solids:
@@ -1151,6 +1238,7 @@
   name: medicated suture recipe
   result: MedicatedSuture
   recipeTags: [Medical]
+  color: "#E0FFFF"
   instrumentType: microwave
   time: 10
   solids:
@@ -1166,6 +1254,7 @@
   name: regenerative mesh recipe
   result: RegenerativeMesh
   recipeTags: [Medical]
+  color: "#E0FFFF"
   instrumentType: microwave
   time: 10
   solids:
@@ -1182,6 +1271,7 @@
   name: inert meat anomaly recipe
   result: FoodMeatAnomaly
   recipeTags: [Anomaly]
+  color: "#CD5C5C"
   instrumentType: microwave
   time: 5
   solids:
@@ -1192,6 +1282,7 @@
   name: meat anomaly recipe
   result: FoodMeatAnomaly
   recipeTags: [Anomaly]
+  color: "#CD5C5C"
   instrumentType: microwave
   time: 5
   solids:
@@ -1202,6 +1293,7 @@
   name: cooked meat anomaly recipe
   result: FoodMeatAnomalyCooked
   recipeTags: [Anomaly]
+  color: "#CD5C5C"
   instrumentType: microwave
   time: 5
   solids:
@@ -1213,6 +1305,7 @@
   name: caramelka
   result: CaramelFood
   recipeTags: [Caramel]
+  color: "#FF7F50"
   instrumentType: microwave
   time: 15
   reagents:
@@ -1224,6 +1317,7 @@
   name: red caramelka
   result: RedCaramelCaneFood
   recipeTags: [Caramel]
+  color: "#B22222"
   instrumentType: microwave
   time: 15
   reagents:
@@ -1236,6 +1330,7 @@
   name: green caramelka
   result: GreenCaramelCaneFood
   recipeTags: [Caramel]
+  color: "#008000"
   instrumentType: microwave
   time: 15
   reagents:
@@ -1248,6 +1343,7 @@
   name: greenred caramelka
   result: CaramelCaneGreenRedFood
   recipeTags: [Caramel]
+  color: "#D2691E"
   instrumentType: microwave
   time: 15
   reagents:
@@ -1261,6 +1357,7 @@
   name: double caramelka
   result: DoubleCaramelCaneFood
   recipeTags: [Caramel]
+  color: "#FF7F50"
   instrumentType: microwave
   time: 20
   reagents:
@@ -1276,6 +1373,7 @@
   name: taco shell recipe
   result: FoodTacoShell
   recipeTags: [Taco]
+  color: "#FFD700"
   instrumentType: microwave
   time: 5
   solids:
@@ -1286,6 +1384,7 @@
   name: beef taco recipe
   result: FoodTacoBeef
   recipeTags: [Taco]
+  color: "#CD853F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1298,6 +1397,7 @@
   name: chicken taco recipe
   result: FoodTacoChicken
   recipeTags: [Taco]
+  color: "#CD853F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1310,6 +1410,7 @@
   name: fish taco recipe
   result: FoodTacoFish
   recipeTags: [Taco]
+  color: "#CD853F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1324,6 +1425,7 @@
   name: rat taco recipe
   result: FoodTacoRat
   recipeTags: [Taco]
+  color: "#CD853F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1336,6 +1438,7 @@
   name: beef taco supreme recipe
   result: FoodTacoBeefSupreme
   recipeTags: [Taco]
+  color: "#CD853F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1351,6 +1454,7 @@
   name: beef taco supreme recipe
   result: FoodTacoChickenSupreme
   recipeTags: [Taco]
+  color: "#CD853F"
   instrumentType: microwave
   time: 10
   solids:
@@ -1366,6 +1470,7 @@
   id: RecipeBaguetteSword
   name: baguette sword recipe
   result: WeaponBaguette
+  color: "#CD853F"
   instrumentType: microwave
   secretRecipe: true
   time: 15
@@ -1380,6 +1485,7 @@
   id: RecipeThrowingCroissant
   name: throwing croissant recipe
   result: WeaponCroissant
+  color: "#CD853F"
   instrumentType: microwave
   secretRecipe: true
   time: 5

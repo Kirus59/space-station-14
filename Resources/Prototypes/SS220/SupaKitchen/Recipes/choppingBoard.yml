@@ -2,6 +2,7 @@
   id: RecipeShawarmaRaw
   name: Shawarma recipe
   result: FoodRawShawarma
+  color: "#FFDEAD"
   instrumentType: choppingBoard
   time: 5
   reagents:
@@ -17,6 +18,7 @@
   id: RecipeFoodBakedChevreChaud
   name: chevre chaud recipe
   result: FoodRawChevreChaud
+  color: "#FFD700"
   instrumentType: choppingBoard
   time: 5
   solids:
@@ -27,6 +29,7 @@
   id: RecipeFoodBakedChevreChaudCotton
   name: cotton chevre chaud recipe
   result: FoodRawChevreChaudCotton
+  color: "#FFD700"
   instrumentType: choppingBoard
   time: 5
   solids:
@@ -37,6 +40,7 @@
   id: RecipeRibs
   name: BBQ ribs recipe
   result: FoodRawMealRibs
+  color: "#B22222"
   instrumentType: choppingBoard
   time: 5
   reagents:
@@ -49,6 +53,7 @@
   id: RecipeEnchiladas
   name: enchiladas recipe
   result: FoodMealEnchiladas
+  color: "#FFD700"
   instrumentType: choppingBoard
   time: 5
   solids:

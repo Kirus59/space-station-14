@@ -2,6 +2,7 @@
   id: RecipeBunTest
   name: bun recipe
   result: FoodBreadBun
+  color: "#FFDAB9"
   instrumentType: microwave
   time: 5
   solids:

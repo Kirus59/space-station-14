@@ -5,6 +5,7 @@
   name: bagel recipe
   result: FoodBagel
   recipeTags: [Bagel]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -15,6 +16,7 @@
   name: poppyseed bagel recipe
   result: FoodBagelPoppy
   recipeTags: [Bagel]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -26,6 +28,7 @@
   name: cotton bagel recipe
   result: FoodBagelCotton
   recipeTags: [Bagel]
+  color: "#A0522D"
   instrumentType: oven
   time: 5
   solids:
@@ -38,6 +41,7 @@
   name: appendix burger recipe
   result: FoodBurgerAppendix
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -49,6 +53,7 @@
   name: bacon burger recipe
   result: FoodBurgerBacon
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -61,6 +66,7 @@
   name: baseball burger recipe
   result: FoodBurgerBaseball
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -72,6 +78,7 @@
   name: bearger recipe
   result: FoodBurgerBear
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -83,6 +90,7 @@
   name: big bite burger recipe
   result: FoodBurgerBig
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -97,6 +105,7 @@
   name: brain burger recipe
   result: FoodBurgerBrain
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -108,6 +117,7 @@
   name: cat burger recipe
   result: FoodBurgerCat
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -120,6 +130,7 @@
   name: cheeseburger recipe
   result: FoodBurgerCheese
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -132,6 +143,7 @@
   name: chicken sandwich recipe
   result: FoodBurgerChicken
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   reagents:
@@ -145,6 +157,7 @@
   name: clownburger recipe
   result: FoodBurgerClown
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -156,6 +169,7 @@
   name: corgi burger recipe
   result: FoodBurgerCorgi
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -167,6 +181,7 @@
   name: crab burger recipe
   result: FoodBurgerCrab
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -178,6 +193,7 @@
   name: crazy hamburger recipe
   result: FoodBurgerCrazy
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -196,6 +212,7 @@
   name: duck sandwich recipe
   result: FoodBurgerDuck
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -208,6 +225,7 @@
   name: empowered burger recipe
   result: FoodBurgerEmpowered
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -219,6 +237,7 @@
   name: fillet-o-carp burger recipe
   result: FoodBurgerCarp
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -231,6 +250,7 @@
   name: five alarm burger recipe
   result: FoodBurgerFive
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -243,6 +263,7 @@
   name: ghost burger recipe
   result: FoodBurgerGhost
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -254,6 +275,7 @@
   name: human burger recipe
   result: FoodBurgerHuman
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -265,6 +287,7 @@
   name: jelly burger recipe
   result: FoodBurgerJelly
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -276,6 +299,7 @@
   name: McGuffin recipe
   result: FoodBurgerMcguffin
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -288,6 +312,7 @@
   name: BBQ rib sandwich recipe
   result: FoodBurgerMcrib
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -300,6 +325,7 @@
   name: mime burger recipe
   result: FoodBurgerMime
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -311,6 +337,7 @@
   name: plain burger recipe
   result: FoodBurgerPlain
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -322,6 +349,7 @@
   name: rat burger recipe
   result: FoodBurgerRat
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -333,6 +361,7 @@
   name: roburger recipe
   result: FoodBurgerRobot
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -345,6 +374,7 @@
   name: soylent burger recipe
   result: FoodBurgerSoy
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -357,6 +387,7 @@
   name: spell burger recipe
   result: FoodBurgerSpell
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -368,6 +399,7 @@
   name: super bite burger recipe
   result: FoodBurgerSuper
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 25
   reagents:
@@ -384,6 +416,7 @@
   name: tofu burger recipe
   result: FoodBurgerTofu
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -395,6 +428,7 @@
   name: xenoburger recipe
   result: FoodBurgerXeno
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -406,6 +440,7 @@
   name: mothroachburger recipe
   result: FoodBurgerMothRoach
   recipeTags: [Burger]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -419,6 +454,7 @@
   name: bun recipe
   result: FoodBreadBun
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   solids:
@@ -429,6 +465,7 @@
   name: banana bread recipe
   result: FoodBreadBanana
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -440,6 +477,7 @@
   name: cornbread recipe
   result: FoodBreadCorn
   recipeTags: [Bread]
+  color: "#FFFF00"
   instrumentType: oven
   time: 10
   solids:
@@ -450,6 +488,7 @@
   name: cream cheese bread recipe
   result: FoodBreadCreamcheese
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -463,6 +502,7 @@
   name: meat bread recipe
   result: FoodBreadMeat
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -475,6 +515,7 @@
   name: mimana bread recipe
   result: FoodBreadMimana
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -488,6 +529,7 @@
   name: plain bread recipe
   result: FoodBreadPlain
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -498,6 +540,7 @@
   name: cotton bread recipe
   result: FoodBreadCotton
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 10
   solids:
@@ -508,6 +551,7 @@
   name: sausage bread recipe
   result: FoodBreadSausage
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -519,6 +563,7 @@
   name: spider meat bread recipe
   result: FoodBreadMeatSpider
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -531,6 +576,7 @@
   name: tofu bread recipe
   result: FoodBreadTofu
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -542,6 +588,7 @@
   name: xeno meat bread recipe
   result: FoodBreadMeatXeno
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -554,6 +601,7 @@
   name: bread dog recipe
   result: MobBreadDog
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -568,6 +616,7 @@
   name: baguette recipe
   result: FoodBreadBaguette
   recipeTags: [Bread]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -581,6 +630,7 @@
   name: baguette recipe
   result: FoodBreadBaguetteCotton
   recipeTags: [Bread]
+  color: "#E0FFFF"
   instrumentType: oven
   time: 15
   reagents:
@@ -596,6 +646,7 @@
   name: margherita pizza recipe
   result: FoodPizzaMargherita
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -608,6 +659,7 @@
   name: mushroom pizza recipe
   result: FoodPizzaMushroom
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 25
   solids:
@@ -619,6 +671,7 @@
   name: meat pizza recipe
   result: FoodPizzaMeat
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -632,6 +685,7 @@
   name: vegetable pizza recipe
   result: FoodPizzaVegetable
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -646,6 +700,7 @@
   name: Hawaiian pizza recipe
   result: FoodPizzaPineapple
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -658,6 +713,7 @@
   name: dank pizza recipe
   result: FoodPizzaDank
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -671,6 +727,7 @@
   name: donk-pocket pizza recipe
   result: FoodPizzaDonkpocket
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -684,6 +741,7 @@
   name: spicy rock pizza recipe
   result: FoodPizzaUranium
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -697,6 +755,7 @@
   name: cotton pizza recipe
   result: FoodPizzaCotton
   recipeTags: [Pizza]
+  color: "#CD853F"
   instrumentType: oven
   time: 30
   solids:
@@ -708,6 +767,7 @@
   name: spicy pizza recipe
   result: SpicyPizzaFood
   recipeTags: [Pizza]
+  color: "#E0FFFF"
   instrumentType: oven
   time: 30
   reagents:
@@ -725,6 +785,7 @@
   name: cookie recipe
   result: FoodBakedCookie
   recipeTags: [Cookie]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   reagents:
@@ -739,6 +800,7 @@
   name: sugar cookie recipe
   result: FoodBakedCookieSugar
   recipeTags: [Cookie]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   reagents:
@@ -752,6 +814,7 @@
   name: raisin cookie recipe
   result: FoodBakedCookieRaisin
   recipeTags: [Cookie]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   reagents:
@@ -765,6 +828,7 @@
   name: oatmeal cookie recipe
   result: FoodBakedCookieOatmeal
   recipeTags: [Cookie]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   reagents:
@@ -777,6 +841,7 @@
   id: RecipeWaffles
   name: waffle recipe
   result: FoodBakedWaffle
+  color: "#A0522D"
   instrumentType: oven
   time: 10
   reagents:
@@ -789,6 +854,7 @@
   id: RecipeWaffleSoy
   name: soy waffle recipe
   result: FoodBakedWaffleSoy
+  color: "#A0522D"
   instrumentType: oven
   time: 10
   reagents:
@@ -804,6 +870,7 @@
   name: chocolate chip pancake recipe
   result: FoodBakedPancakeCc
   recipeTags: [Cookie]
+  color: "#8B4513"
   instrumentType: oven
   time: 5
   reagents:
@@ -817,6 +884,7 @@
   id: RecipePancake
   name: pancake recipe
   result: FoodBakedPancake
+  color: "#A0522D"
   instrumentType: oven
   time: 5
   reagents:
@@ -828,6 +896,7 @@
   id: RecipeBlueberryPancake
   name: blueberry pancake recipe
   result: FoodBakedPancakeBb
+  color: "#00008B"
   instrumentType: oven
   time: 5
   reagents:
@@ -844,6 +913,7 @@
   name: amanita pie recipe
   result: FoodPieAmanita
   recipeTags: [Pie]
+  color: "#FF0000"
   instrumentType: oven
   time: 15
   solids:
@@ -856,6 +926,7 @@
   name: apple pie
   result: FoodPieApple
   recipeTags: [Pie]
+  color: "#F4A460"
   instrumentType: oven
   time: 15
   solids:
@@ -868,6 +939,7 @@
   name: baklava recipe
   result: FoodPieBaklava
   recipeTags: [Pie]
+  color: "#7FFF00"
   instrumentType: oven
   time: 15
   solids:
@@ -880,6 +952,7 @@
   name: banana cream pie
   result: FoodPieBananaCream
   recipeTags: [Pie]
+  color: "#FFFACD"
   instrumentType: oven
   time: 15
   solids:
@@ -892,6 +965,7 @@
   name: berry clafoutis recipe
   result: FoodPieClafoutis
   recipeTags: [Pie]
+  color: "#8B008B"
   instrumentType: oven
   time: 15
   solids:
@@ -904,6 +978,7 @@
   name: cherry pie recipe
   result: FoodPieCherry
   recipeTags: [Pie]
+  color: "#FF0000"
   instrumentType: oven
   time: 15
   solids:
@@ -916,6 +991,7 @@
   name: frosty pie recipe
   result: FoodPieFrosty
   recipeTags: [Pie]
+  color: "#FFFACD"
   instrumentType: oven
   time: 15
   solids:
@@ -928,6 +1004,7 @@
   name: meat pie recipe
   result: FoodPieMeat
   recipeTags: [Pie]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -940,6 +1017,7 @@
   name: pumpkin pie recipe
   result: FoodPiePumpkin
   recipeTags: [Pie]
+  color: "#FF8C00"
   instrumentType: oven
   time: 15
   solids:
@@ -952,6 +1030,7 @@
   name: xeno pie recipe
   result: FoodPieXeno
   recipeTags: [Pie]
+  color: "#C71585"
   instrumentType: oven
   time: 15
   solids:
@@ -966,6 +1045,7 @@
   name: chocolate lava tart recipe
   result: FoodTartCoco
   recipeTags: [Tart]
+  color: "#8B4513"
   instrumentType: oven
   time: 15
   reagents:
@@ -981,6 +1061,7 @@
   name: golden apple streusel tart recipe
   result: FoodTartGapple
   recipeTags: [Tart]
+  color: "#FFD700"
   instrumentType: oven
   time: 15
   reagents:
@@ -997,6 +1078,7 @@
   name: grape tart recipe
   result: FoodTartGrape
   recipeTags: [Tart]
+  color: "#ADFF2F"
   instrumentType: oven
   time: 15
   reagents:
@@ -1011,6 +1093,7 @@
   name: mime tart recipe
   result: FoodTartMime
   recipeTags: [Tart]
+  color: "#FFFFFF"
   instrumentType: oven
   time: 15
   reagents:
@@ -1028,6 +1111,7 @@
   name: apple cake recipe
   result: FoodCakeApple
   recipeTags: [Cake]
+  color: "#F4A460"
   instrumentType: oven
   time: 5
   solids:
@@ -1039,6 +1123,7 @@
   name: carrot cake recipe
   result: FoodCakeCarrot
   recipeTags: [Cake]
+  color: "#FF8C00"
   instrumentType: oven
   time: 5
   solids:
@@ -1050,6 +1135,7 @@
   name: lemon cake recipe
   result: FoodCakeLemon
   recipeTags: [Cake]
+  color: "#FFD700"
   instrumentType: oven
   time: 5
   solids:
@@ -1061,6 +1147,7 @@
   name: lemoon cake recipe
   result: FoodCakeLemoon
   recipeTags: [Cake]
+  color: "#FFD700"
   instrumentType: oven
   time: 5
   solids:
@@ -1073,6 +1160,7 @@
   name: orange cake recipe
   result: FoodCakeOrange
   recipeTags: [Cake]
+  color: "#FFA500"
   instrumentType: oven
   time: 5
   solids:
@@ -1084,6 +1172,7 @@
   name: blueberry cake recipe
   result: FoodCakeBlueberry
   recipeTags: [Cake]
+  color: "#00008B"
   instrumentType: oven
   time: 5
   solids:
@@ -1095,6 +1184,7 @@
   name: lime cake recipe
   result: FoodCakeLime
   recipeTags: [Cake]
+  color: "#32CD32"
   instrumentType: oven
   time: 5
   solids:
@@ -1106,6 +1196,7 @@
   name: cheese cake recipe
   result: FoodCakeCheese
   recipeTags: [Cake]
+  color: "#FFFACD"
   instrumentType: oven
   time: 5
   reagents:
@@ -1119,6 +1210,7 @@
   name: pumpkin cake recipe
   result: FoodCakePumpkin
   recipeTags: [Cake]
+  color: "#A0522D"
   instrumentType: oven
   time: 5
   solids:
@@ -1130,6 +1222,7 @@
   name: clown cake recipe
   result: FoodCakeClown
   recipeTags: [Cake]
+  color: "#A0522D"
   instrumentType: oven
   time: 5
   solids:
@@ -1141,6 +1234,7 @@
   name: cake recipe
   result: FoodCakePlain
   recipeTags: [Cake]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -1151,6 +1245,7 @@
   name: birthday cake recipe
   result: FoodCakeBirthday
   recipeTags: [Cake]
+  color: "#CD853F"
   instrumentType: oven
   time: 5
   reagents:
@@ -1163,6 +1258,7 @@
   name: chocolate cake recipe
   result: FoodCakeChocolate
   recipeTags: [Cake]
+  color: "#D2691E"
   instrumentType: oven
   time: 5
   solids:
@@ -1174,6 +1270,7 @@
   name: brain cake recipe
   result: FoodCakeBrain
   recipeTags: [Cake]
+  color: "#FA8072"
   instrumentType: oven
   time: 15
   solids:
@@ -1185,6 +1282,7 @@
   name: slime cake recipe
   result: FoodCakeSlime
   recipeTags: [Cake]
+  color: "#00FF00"
   instrumentType: oven
   time: 5
   reagents:
@@ -1197,6 +1295,7 @@
   name: cat cake recipe
   result: MobCatCake
   recipeTags: [Cake]
+  color: "#A9A9A9"
   instrumentType: oven
   time: 15
   reagents:
@@ -1214,6 +1313,7 @@
   name: muffin recipe
   result: FoodBakedMuffin
   recipeTags: [Muffin]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -1227,6 +1327,7 @@
   name: chocolate muffin recipe
   result: FoodBakedMuffinChocolate
   recipeTags: [Muffin]
+  color: "#8B4513"
   instrumentType: oven
   time: 15
   solids:
@@ -1241,6 +1342,7 @@
   name: berry muffin recipe
   result: FoodBakedMuffinBerry
   recipeTags: [Muffin]
+  color: "#8B008B"
   instrumentType: oven
   time: 15
   solids:
@@ -1255,6 +1357,7 @@
   name: banana muffin recipe
   result: FoodBakedMuffinBanana
   recipeTags: [Muffin]
+  color: "#FFD700"
   instrumentType: oven
   time: 15
   solids:
@@ -1269,6 +1372,7 @@
   name: cherry muffin recipe
   result: FoodBakedMuffinCherry
   recipeTags: [Muffin]
+  color: "#FF0000"
   instrumentType: oven
   time: 15
   solids:
@@ -1285,6 +1389,7 @@
   name: loaded baked potato recipe
   result: FoodMealPotatoLoaded
   recipeTags: [Other]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   solids:
@@ -1296,6 +1401,7 @@
   name: dumplings recipe
   result: FoodBakedDumplings
   recipeTags: [Other]
+  color: "#F5F5DC"
   instrumentType: oven
   time: 15
   reagents:
@@ -1309,6 +1415,7 @@
   name: brownie recipe
   result: FoodBakedBrownieBatch
   recipeTags: [Other]
+  color: "#8B4513"
   instrumentType: oven
   time: 25
   reagents:
@@ -1324,6 +1431,7 @@
   name: croissant recipe
   result: FoodBakedCroissant
   recipeTags: [Other]
+  color: "#A0522D"
   instrumentType: oven
   time: 5
   solids:
@@ -1335,6 +1443,7 @@
   name: cotton croissant recipe
   result: FoodBakedCroissantCotton
   recipeTags: [Other]
+  color: "#FFFAFA"
   instrumentType: oven
   time: 5
   solids:
@@ -1346,6 +1455,7 @@
   name: Cheburek recipe
   result: FoodCheburek
   recipeTags: [Other]
+  color: "#CD853F"
   instrumentType: oven
   time: 15
   reagents:
@@ -1361,6 +1471,7 @@
   name: suppermatter recipe
   result: FoodCakeSuppermatter
   recipeTags: [Suppermatter]
+  color: "#C71585"
   instrumentType: oven
   time: 30
   solids:
