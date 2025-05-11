@@ -44,10 +44,10 @@ public sealed partial class PartySystem : SharedPartySystem
         _partyManager.PartyMenu?.Close();
     }
 
-    public void SendCreatePartyRequest()
+    public void SendCreatePartyRequest(PartySettingsState? settings = null)
     {
-        var request = new CreatePartyRequestMessage();
-        RaiseNetworkEvent(request);
+        var ev = new CreatePartyRequestMessage(settings);
+        RaiseNetworkEvent(ev);
     }
 
     public void SendDisbandPartyRequest()

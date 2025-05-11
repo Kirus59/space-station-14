@@ -69,13 +69,13 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     }
 
     /// <inheritdoc/>
-    public bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, bool force = false)
+    public bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, PartySettingsState? settings = null, bool force = false)
     {
         reason = null;
 
         try
         {
-            CreateParty(leader, force);
+            CreateParty(leader, settings, force);
             return true;
         }
         catch (Exception e)
@@ -86,7 +86,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     }
 
     /// <inheritdoc/>
-    public ServerPartyData? CreateParty(ICommonSession leader, bool force = false)
+    public ServerPartyData? CreateParty(ICommonSession leader, PartySettingsState? settings = null, bool force = false)
     {
         if (force)
             MakeUserAvaliable(leader.UserId);
@@ -96,6 +96,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         var party = new ServerPartyData(GetFreePartyId());
         _parties.Add(party);
+
+        settings ??= new PartySettingsState();
+        SetSettings(party, settings.Value);
 
         AddUserToParty(leader, party, PartyRole.Leader);
         return party;

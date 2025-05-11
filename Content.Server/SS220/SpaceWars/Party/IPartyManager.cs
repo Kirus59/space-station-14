@@ -17,10 +17,10 @@ public partial interface IPartyManager : ISharedPartyManager
     void SetPartySystem(PartySystem partySystem);
 
     /// <inheritdoc/>
-    bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, bool force = false);
+    bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, PartySettingsState? settings = null, bool force = false);
 
     /// <inheritdoc/>
-    ServerPartyData? CreateParty(ICommonSession leader, bool force = false);
+    ServerPartyData? CreateParty(ICommonSession leader, PartySettingsState? settings = null, bool force = false);
 
     /// <inheritdoc/>
     void DisbandParty(ServerPartyData party);

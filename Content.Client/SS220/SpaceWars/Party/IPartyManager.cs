@@ -21,7 +21,7 @@ public partial interface IPartyManager : ISharedPartyManager
 
     void UpdateCurrentParty(ClientPartyDataState state);
 
-    void SendCreatePartyRequest();
+    void SendCreatePartyRequest(PartySettingsState? settings = null);
 
     void SendDisbandPartyRequest();
 

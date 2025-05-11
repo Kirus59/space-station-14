@@ -21,3 +21,8 @@ ui-InvitedInPartyWindow-DenyButton = Отклонить
 
 ui-IncomingInvite-AcceptButton = Принять
 ui-IncomingInvite-DenyButton = Отклонить
+
+ui-CreatePartyWindow-CreateButton = Создать
+ui-CreatePartyWindow-CancelButton = Отмена
+
+ui-PartySettings-LineEdit-MaxMembers = Максимум участников

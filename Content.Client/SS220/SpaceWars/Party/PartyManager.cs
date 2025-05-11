@@ -56,9 +56,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         OnCurrentPartyUpdated?.Invoke();
     }
 
-    public void SendCreatePartyRequest()
+    public void SendCreatePartyRequest(PartySettingsState? settings = null)
     {
-        _partySystem?.SendCreatePartyRequest();
+        _partySystem?.SendCreatePartyRequest(settings);
     }
 
     public void SendDisbandPartyRequest()

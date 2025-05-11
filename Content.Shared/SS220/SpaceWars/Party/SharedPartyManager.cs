@@ -1,4 +1,6 @@
 
+using Content.Shared.SS220.CCVars;
+using Robust.Shared.Configuration;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
@@ -117,4 +119,13 @@ public record struct SendedInviteState(uint Id, string TargetName, InviteStatus 
 public record struct IncomingInviteState(uint Id, string SenderName, InviteStatus Status);
 
 [Serializable, NetSerializable]
-public record struct PartySettingsState(uint MaxMembers);
+public record struct PartySettingsState
+{
+    public uint MaxMembers;
+
+    public PartySettingsState()
+    {
+        var cfg = IoCManager.Resolve<IConfigurationManager>();
+        MaxMembers = cfg.GetCVar(CCVars220.PartyMembersLimit);
+    }
+}

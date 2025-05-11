@@ -19,8 +19,10 @@ namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 public sealed partial class MainTab : Control
 {
     [Dependency] private readonly IPartyManager _partyManager = default!;
+    [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
 
     private InviteInPartyWindow _inviteWindow = new InviteInPartyWindow();
+    private CreatePartyWindow _createPartyWindow = new CreatePartyWindow();
 
     private Dictionary<string, PartyUserInfoPanel> _userPanels = new();
 
@@ -137,7 +139,8 @@ public sealed partial class MainTab : Control
         button.Text = Loc.GetString("ui-PartyMenu-MainTab-CreatePartyButton");
         button.OnPressed += _ =>
         {
-            _partyManager.SendCreatePartyRequest();
+            var pos = _userInterfaceManager.MousePositionScaled.Position;
+            _createPartyWindow.Open(pos);
         };
         return button;
     }
