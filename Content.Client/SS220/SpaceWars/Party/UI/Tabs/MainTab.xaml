@@ -4,9 +4,12 @@
     <BoxContainer Orientation="Vertical">
         <BoxContainer Orientation="Horizontal" VerticalExpand="True">
             <PanelContainer Name="MembersPanel" Margin="5 5 5 5" MinSize="280 150">
-                <ScrollContainer HScrollEnabled="False" VerticalExpand="True">
-                    <BoxContainer Name="MembersContainer" Orientation="Vertical"/>
-                </ScrollContainer>
+                <BoxContainer Orientation="Vertical" VerticalExpand="True">
+                    <ScrollContainer HScrollEnabled="False" VerticalExpand="True">
+                        <BoxContainer Name="MembersContainer" Orientation="Vertical"/>
+                    </ScrollContainer>
+                    <RichTextLabel Name="MaxMembersLabel" Margin="5"/>
+                </BoxContainer>
             </PanelContainer>
             <PanelContainer Name="ChatPanel" HorizontalExpand="True" Margin="5 5 5 5" MinSize="200 150">
                 <ScrollContainer HScrollEnabled="False" VerticalExpand="True">

@@ -5,6 +5,7 @@ ui-PartyMenu-MainTab-DisbandPartyButton  = Расформировать пати
 ui-PartyMenu-MainTab-LeavePartyButton = Покинуть пати
 ui-PartyMenu-MainTab-InviteInPartyButton = Пригласить
 ui-PartyMenu-MainTab-KickButton-Tooltip = Исключить из пати
+ui-PartyMenu-MainTab-MaxMembers-Label = Всего участников: {$count}/{$max}
 
 ui-PartyUserInfo-Connected = В сети
 ui-PartyUserInfo-Disconnected = Не в сети

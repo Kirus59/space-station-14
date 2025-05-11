@@ -1,0 +1,4 @@
+<PanelContainer xmlns="https://spacestation14.io">
+    <BoxContainer Name="SettingsBox"  Orientation="Vertical" HorizontalExpand="True" VerticalExpand="True">
+    </BoxContainer>
+</PanelContainer>

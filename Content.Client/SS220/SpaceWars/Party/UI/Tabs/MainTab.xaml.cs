@@ -70,6 +70,14 @@ public sealed partial class MainTab : Control
                     panelsToRemove.Remove(member.Name);
                 }
             }
+
+            var membersCount = members.Count();
+            var maxMembers = currentParty.Settings.MaxMembers;
+            MaxMembersLabel.SetMessage(Loc.GetString("ui-PartyMenu-MainTab-MaxMembers-Label", ("count", membersCount), ("max", maxMembers)));
+        }
+        else
+        {
+            MaxMembersLabel.SetMessage(string.Empty);
         }
 
         foreach (var key in panelsToRemove)
