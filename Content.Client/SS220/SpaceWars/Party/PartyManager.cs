@@ -76,6 +76,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         _partySystem?.SendKickFromPartyRequest(partyUserId);
     }
 
+    public void SetSettingsRequest(PartySettingsState settingsState)
+    {
+        _partySystem?.SetSettingsRequest(settingsState);
+    }
+
     #region PartyMenuUI
     public void SetPartyMenu(PartyMenu? partyMenu)
     {

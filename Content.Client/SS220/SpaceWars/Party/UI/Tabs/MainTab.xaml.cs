@@ -21,9 +21,6 @@ public sealed partial class MainTab : Control
     [Dependency] private readonly IPartyManager _partyManager = default!;
     [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
 
-    private InviteInPartyWindow _inviteWindow = new InviteInPartyWindow();
-    private CreatePartyWindow _createPartyWindow = new CreatePartyWindow();
-
     private Dictionary<string, PartyUserInfoPanel> _userPanels = new();
 
     public MainTab()
@@ -125,6 +122,7 @@ public sealed partial class MainTab : Control
         {
             ButtonContainer.AddChild(NewDisbandPartyButton());
             ButtonContainer.AddChild(NewInviteInPartyButton());
+            ButtonContainer.AddChild(NewSettingsButton());
         }
         else
         {
@@ -140,7 +138,7 @@ public sealed partial class MainTab : Control
         button.OnPressed += _ =>
         {
             var pos = _userInterfaceManager.MousePositionScaled.Position;
-            _createPartyWindow.Open(pos);
+            new CreatePartyWindow().Open(pos);
         };
         return button;
     }
@@ -177,7 +175,20 @@ public sealed partial class MainTab : Control
         button.Text = Loc.GetString("ui-PartyMenu-MainTab-InviteInPartyButton");
         button.OnPressed += _ =>
         {
-            _inviteWindow.OpenCentered();
+            var pos = _userInterfaceManager.MousePositionScaled.Position;
+            new InviteInPartyWindow().Open(pos);
+        };
+        return button;
+    }
+
+    private Button NewSettingsButton()
+    {
+        var button = new Button();
+        button.Text = Loc.GetString("ui-PartyMenu-MainTab-SettingsButton");
+        button.OnPressed += _ =>
+        {
+            var pos = _userInterfaceManager.MousePositionScaled.Position;
+            new PartySettingsWindow().Open(pos);
         };
         return button;
     }

@@ -208,7 +208,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (!IsUserAvaliable(user))
             return;
 
-        if (!party.AddMember(user, role, out var failReason))
+        if (!party.AddMember(user, role, out var failReason, force))
             return;
 
         SetCurrentParty(user, party);
@@ -343,7 +343,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public void SetSettings(ServerPartyData party, PartySettingsState state)
     {
         var settings = party.Settings;
-        settings.MaxMembers = Math.Min(state.MaxMembers, _membersLimit);
+        settings.MaxMembers = Math.Clamp(state.MaxMembers, (uint)party.Members.Count, _membersLimit);
         DirtyParty(party);
 
         PartyDataUpdated?.Invoke(party);

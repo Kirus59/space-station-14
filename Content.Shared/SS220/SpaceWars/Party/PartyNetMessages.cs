@@ -5,9 +5,9 @@ using Robust.Shared.Serialization;
 namespace Content.Shared.SS220.SpaceWars.Party;
 
 [Serializable, NetSerializable]
-public sealed class CreatePartyRequestMessage(PartySettingsState? settings = null) : EntityEventArgs
+public sealed class CreatePartyRequestMessage(PartySettingsState? settingsState = null) : EntityEventArgs
 {
-    public readonly PartySettingsState? Settings = settings;
+    public readonly PartySettingsState? SettingsState = settingsState;
 }
 
 [Serializable, NetSerializable]

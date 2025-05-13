@@ -1,4 +1,5 @@
 
+using Content.Client.Pinpointer.UI;
 using Content.Shared.SS220.SpaceWars.Party;
 using Content.Shared.SS220.SpaceWars.Party.Systems;
 
@@ -65,6 +66,12 @@ public sealed partial class PartySystem : SharedPartySystem
     public void SendKickFromPartyRequest(uint partyUserId)
     {
         var ev = new KickFromPartyRequestMessage(partyUserId);
+        RaiseNetworkEvent(ev);
+    }
+
+    public void SetSettingsRequest(PartySettingsState settingsState)
+    {
+        var ev = new SetPartySettingsRequestMessage(settingsState);
         RaiseNetworkEvent(ev);
     }
 

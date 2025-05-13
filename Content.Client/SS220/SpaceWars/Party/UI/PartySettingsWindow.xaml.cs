@@ -5,22 +5,21 @@ using Robust.Client.UserInterface.XAML;
 namespace Content.Client.SS220.SpaceWars.Party.UI;
 
 [GenerateTypedNameReferences]
-public sealed partial class CreatePartyWindow : DefaultWindow
+public sealed partial class PartySettingsWindow : DefaultWindow
 {
     [Dependency] private readonly IPartyManager _partyManager = default!;
 
-    public CreatePartyWindow()
+    public PartySettingsWindow()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        CreateButton.OnPressed += _ =>
+        AcceptButton.OnPressed += _ =>
         {
-            var state = SettingsPanel.GetSettingsState();
-            _partyManager.SendCreatePartyRequest(state);
+            var settings = SettingsPanel.GetSettingsState();
+            _partyManager.SetSettingsRequest(settings);
             Close();
         };
-        CancelButton.OnPressed += _ => Close();
 
         OnOpen += SettingsPanel.Update;
     }

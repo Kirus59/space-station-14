@@ -4,6 +4,7 @@ ui-PartyMenu-MainTab-CreatePartyButton = Создать пати
 ui-PartyMenu-MainTab-DisbandPartyButton  = Расформировать пати
 ui-PartyMenu-MainTab-LeavePartyButton = Покинуть пати
 ui-PartyMenu-MainTab-InviteInPartyButton = Пригласить
+ui-PartyMenu-MainTab-SettingsButton = Настройки
 ui-PartyMenu-MainTab-KickButton-Tooltip = Исключить из пати
 ui-PartyMenu-MainTab-MaxMembers-Label = Всего участников: {$count}/{$max}
 
@@ -26,3 +27,5 @@ ui-CreatePartyWindow-CreateButton = Создать
 ui-CreatePartyWindow-CancelButton = Отмена
 
 ui-PartySettings-LineEdit-MaxMembers = Максимум участников
+
+ui-PartySettingsWindow-AcceptButton = Принять

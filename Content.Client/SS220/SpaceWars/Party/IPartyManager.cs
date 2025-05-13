@@ -29,6 +29,8 @@ public partial interface IPartyManager : ISharedPartyManager
 
     void SendKickFromPartyRequest(uint partyUserId);
 
+    void SetSettingsRequest(PartySettingsState settingsState);
+
     #region PartyMenuUI
     void SetPartyMenu(PartyMenu? partyMenu);
     #endregion
