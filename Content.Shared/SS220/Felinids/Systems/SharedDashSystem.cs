@@ -41,26 +41,26 @@ public sealed class SharedDashSystem : EntitySystem
 
     private void OnDashToggle(EntityUid uid, DashComponent component, ref ToggleActionEvent args)
     {
-        if (args.Handled || component.IsBoosted)
+        if (args.Handled || component.Active)
             return;
 
         args.Handled = true;
 
         if (TryComp<HungerComponent>(uid, out var hunger)
-            && hunger.CurrentThreshold is HungerThreshold.Peckish)
+            && hunger.CurrentThreshold < component.HungerThreshold)
         {
             _popup.PopupClient(Loc.GetString("popup-dash-no-hunger"), uid, PopupType.Small);
             return;
         }
 
         if (TryComp<ThirstComponent>(uid, out var thirst)
-            && thirst.CurrentThirstThreshold == ThirstThreshold.Parched)
+            && thirst.CurrentThirstThreshold < component.ThirstThreshold)
         {
             _popup.PopupClient(Loc.GetString("popup-dash-no-thirst"), uid, PopupType.Small);
             return;
         }
 
-        component.IsBoosted = true;
+        component.Active = true;
         _speedModifier.RefreshMovementSpeedModifiers(uid);
 
         Timer.Spawn(component.DashTime * 1000, () =>
@@ -69,19 +69,19 @@ public sealed class SharedDashSystem : EntitySystem
                 return;
 
             if (TryComp<DashComponent>(uid, out var comp))
-                comp.IsBoosted = false;
+                comp.Active = false;
             _speedModifier.RefreshMovementSpeedModifiers(uid);
 
             if (hunger != null)
-                _hunger.SetHunger(uid, hunger.LastAuthoritativeHungerValue - hunger.Thresholds[HungerThreshold.Overfed] * 0.2f, hunger);
+                _hunger.SetHunger(uid, hunger.LastAuthoritativeHungerValue - hunger.Thresholds[HungerThreshold.Overfed] * component.DashPrice, hunger);
             if (thirst != null)
-                _thirst.SetThirst(uid, thirst, thirst.CurrentThirst - thirst.ThirstThresholds[ThirstThreshold.OverHydrated] * 0.2f);
+                _thirst.SetThirst(uid, thirst, thirst.CurrentThirst - thirst.ThirstThresholds[ThirstThreshold.OverHydrated] * component.DashPrice);
         });
     }
 
     private void OnRefreshSpeed(EntityUid uid, DashComponent component, RefreshMovementSpeedModifiersEvent args)
     {
-        if (component.IsBoosted)
-            args.ModifySpeed(1.3f);
+        if (component.Active)
+            args.ModifySpeed(component.DashSpeed);
     }
 }
