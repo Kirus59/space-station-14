@@ -4,61 +4,58 @@ using Content.Shared.Nutrition.Components;
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 
-namespace Content.Shared.Wagging;
+namespace Content.Shared.SS220.Felinids.Components;
 
 [RegisterComponent, NetworkedComponent]
-public sealed partial class DashComponent : Component
+public sealed partial class SpeedUpComponent : Component
 {
     /// <summary>
-    ///     Dash duration in seconds.
+    ///     SpeedUp duration in seconds.
     /// </summary>
     [DataField]
-    public int DashTime = 10;
+    public float Duration = 10f;
 
     /// <summary>
-    ///     The hunger threshold for using the dash ability.
+    ///     The hunger threshold for using the SpeedUp ability.
     /// </summary>
     [DataField]
     public HungerThreshold HungerThreshold = HungerThreshold.Peckish;
 
     /// <summary>
-    ///     The thirst threshold for using the dash ability.
+    ///     The thirst threshold for using the SpeedUp ability.
     /// </summary>
     [DataField]
     public ThirstThreshold ThirstThreshold = ThirstThreshold.Thirsty;
 
     /// <summary>
-    ///      The cost of a dash in thirst and hunger. A percentage of the maximum value.
+    ///      The cost of a SpeedUp in hunger. A percentage of the maximum value.
     /// </summary>
     [DataField]
-    public float DashPrice = 0.2f;
+    public float HungerCost = 0.2f;
 
     /// <summary>
-    ///     Dash speed modifier.
+    ///      The cost of a SpeedUp in thirst. A percentage of the maximum value.
     /// </summary>
     [DataField]
-    public float DashSpeed = 1.3f;
+    public float ThirstCost = 0.2f;
 
     /// <summary>
-    ///     is need to stop dash action?
+    ///     SpeedUp recharge time in seconds.
     /// </summary>
     [DataField]
-    public bool NeedToStop = false;
+    public float Cooldown = 420f;
 
-    /// <summary>
-    ///     Dash end time.
-    /// </summary>
+    [DataField]
+    public float SpeedModifier = 1.3f;
+
     [DataField, ViewVariables(VVAccess.ReadOnly)]
     public TimeSpan EndTime;
 
-    /// <summary>
-    ///     Is dash active?
-    /// </summary>
     [DataField, ViewVariables(VVAccess.ReadOnly)]
     public bool Active = false;
 
     [DataField, ViewVariables(VVAccess.ReadOnly)]
-    public EntProtoId Action = "ActionToggleDash";
+    public EntProtoId Action = "ActionToggleSpeedUp";
 
     [DataField, ViewVariables(VVAccess.ReadOnly)]
     public EntityUid? ActionEntity;
