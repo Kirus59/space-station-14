@@ -16,13 +16,13 @@ public sealed partial class DashComponent : Component
     public int DashTime = 10;
 
     /// <summary>
-    ///     The hunger threshold for using the running ability.
+    ///     The hunger threshold for using the dash ability.
     /// </summary>
     [DataField]
     public HungerThreshold HungerThreshold = HungerThreshold.Peckish;
 
     /// <summary>
-    ///     The thirst threshold for using the running ability.
+    ///     The thirst threshold for using the dash ability.
     /// </summary>
     [DataField]
     public ThirstThreshold ThirstThreshold = ThirstThreshold.Thirsty;
@@ -34,10 +34,22 @@ public sealed partial class DashComponent : Component
     public float DashPrice = 0.2f;
 
     /// <summary>
-    ///     Dash Speed Modifier
+    ///     Dash speed modifier.
     /// </summary>
     [DataField]
     public float DashSpeed = 1.3f;
+
+    /// <summary>
+    ///     is need to stop dash action?
+    /// </summary>
+    [DataField]
+    public bool NeedToStop = false;
+
+    /// <summary>
+    ///     Dash end time.
+    /// </summary>
+    [DataField, ViewVariables(VVAccess.ReadOnly)]
+    public TimeSpan EndTime;
 
     /// <summary>
     ///     Is dash active?

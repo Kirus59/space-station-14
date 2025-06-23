@@ -1,6 +1,8 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
 using Content.Shared.Actions;
+using Content.Shared.Mobs;
+using Content.Shared.Mobs.Components;
 using Content.Shared.Movement.Systems;
 using Content.Shared.Nutrition.Components;
 using Content.Shared.Nutrition.EntitySystems;
@@ -18,6 +20,7 @@ public sealed class SharedDashSystem : EntitySystem
     [Dependency] private readonly HungerSystem _hunger = default!;
     [Dependency] private readonly ThirstSystem _thirst = default!;
     [Dependency] private readonly SharedPopupSystem _popup = default!;
+    [Dependency] private readonly IGameTiming _gameTiming = default!;
 
     public override void Initialize()
     {
@@ -39,49 +42,65 @@ public sealed class SharedDashSystem : EntitySystem
         _actions.RemoveAction(uid, component.ActionEntity);
     }
 
-    private void OnDashToggle(EntityUid uid, DashComponent component, ref ToggleActionEvent args)
+    public override void Update(float frameTime)
     {
-        if (args.Handled || component.Active)
-            return;
+        var query = EntityQueryEnumerator<DashComponent>();
+        while (query.MoveNext(out var uid, out var dashComp))
+        {
+            if (!dashComp.NeedToStop
+                && dashComp.Active
+                && dashComp.EndTime <= _gameTiming.CurTime)
+                dashComp.NeedToStop = true;
 
+            if (!dashComp.NeedToStop
+                && dashComp.Active
+                && TryComp<MobStateComponent>(uid, out var mobState)
+                && mobState.CurrentState >= MobState.Critical)
+                dashComp.NeedToStop = true;
+
+            if (dashComp.NeedToStop)
+            {
+                dashComp.Active = false;
+                dashComp.NeedToStop = false;
+                _speedModifier.RefreshMovementSpeedModifiers(uid);
+                if (TryComp<HungerComponent>(uid, out var hunger))
+                    _hunger.SetHunger(uid, hunger.LastAuthoritativeHungerValue - hunger.Thresholds[HungerThreshold.Overfed] * dashComp.DashPrice, hunger);
+                if (TryComp<ThirstComponent>(uid, out var thirst))
+                    _thirst.SetThirst(uid, thirst, thirst.CurrentThirst - thirst.ThirstThresholds[ThirstThreshold.OverHydrated] * dashComp.DashPrice);
+            }
+        }
+    }
+
+    private void OnDashToggle(EntityUid uid, DashComponent dashComp, ref ToggleActionEvent args)
+    {
+        if (args.Handled || dashComp.Active || dashComp.NeedToStop)
+            return;
         args.Handled = true;
 
         if (TryComp<HungerComponent>(uid, out var hunger)
-            && hunger.CurrentThreshold < component.HungerThreshold)
+            && hunger.CurrentThreshold < dashComp.HungerThreshold)
         {
             _popup.PopupClient(Loc.GetString("popup-dash-no-hunger"), uid, PopupType.Small);
+            _actions.ClearCooldown(dashComp.ActionEntity);
             return;
         }
 
         if (TryComp<ThirstComponent>(uid, out var thirst)
-            && thirst.CurrentThirstThreshold < component.ThirstThreshold)
+            && thirst.CurrentThirstThreshold < dashComp.ThirstThreshold)
         {
             _popup.PopupClient(Loc.GetString("popup-dash-no-thirst"), uid, PopupType.Small);
+            _actions.ClearCooldown(dashComp.ActionEntity);
             return;
         }
 
-        component.Active = true;
+        dashComp.Active = true;
         _speedModifier.RefreshMovementSpeedModifiers(uid);
-
-        Timer.Spawn(component.DashTime * 1000, () =>
-        {
-            if (!uid.Valid)
-                return;
-
-            if (TryComp<DashComponent>(uid, out var comp))
-                comp.Active = false;
-            _speedModifier.RefreshMovementSpeedModifiers(uid);
-
-            if (hunger != null)
-                _hunger.SetHunger(uid, hunger.LastAuthoritativeHungerValue - hunger.Thresholds[HungerThreshold.Overfed] * component.DashPrice, hunger);
-            if (thirst != null)
-                _thirst.SetThirst(uid, thirst, thirst.CurrentThirst - thirst.ThirstThresholds[ThirstThreshold.OverHydrated] * component.DashPrice);
-        });
+        dashComp.EndTime = _gameTiming.CurTime + TimeSpan.FromSeconds(dashComp.DashTime);
     }
 
-    private void OnRefreshSpeed(EntityUid uid, DashComponent component, RefreshMovementSpeedModifiersEvent args)
+    private void OnRefreshSpeed(EntityUid uid, DashComponent dashComp, RefreshMovementSpeedModifiersEvent args)
     {
-        if (component.Active)
-            args.ModifySpeed(component.DashSpeed);
+        if (dashComp.Active)
+            args.ModifySpeed(dashComp.DashSpeed);
     }
 }
