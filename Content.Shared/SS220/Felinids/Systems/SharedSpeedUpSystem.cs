@@ -8,7 +8,7 @@ using Content.Shared.Nutrition.Components;
 using Content.Shared.Nutrition.EntitySystems;
 using Content.Shared.Popups;
 using Content.Shared.SS220.Felinids.Components;
-using Content.Shared.Toggleable;
+using Content.Shared.SS220.Felinids.Events;
 using Robust.Shared.Timing;
 
 namespace Content.Shared.SS220.Felinids.Systems;
@@ -28,7 +28,7 @@ public sealed class SharedSpeedUpSystem : EntitySystem
 
         SubscribeLocalEvent<SpeedUpComponent, MapInitEvent>(OnSpeedUpMapInit);
         SubscribeLocalEvent<SpeedUpComponent, ComponentShutdown>(OnSpeedUpShutdown);
-        SubscribeLocalEvent<SpeedUpComponent, ToggleActionEvent>(OnSpeedUpToggle);
+        SubscribeLocalEvent<SpeedUpComponent, SpeedUpActionEvent>(OnSpeedUpToggle);
         SubscribeLocalEvent<SpeedUpComponent, RefreshMovementSpeedModifiersEvent>(OnRefreshSpeed);
     }
 
@@ -52,6 +52,12 @@ public sealed class SharedSpeedUpSystem : EntitySystem
 
             if (!ContinueSpeedUp((uid, speedUpComp)))
                 EndSpeedUp((uid, speedUpComp));
+
+            if (speedUpComp.ToCooldown)
+            {
+                _actions.SetCooldown(speedUpComp.ActionEntity, TimeSpan.FromSeconds(speedUpComp.Cooldown));
+                speedUpComp.ToCooldown = false;
+            }
         }
     }
 
@@ -87,9 +93,9 @@ public sealed class SharedSpeedUpSystem : EntitySystem
         return true;
     }
 
-    private void OnSpeedUpToggle(EntityUid uid, SpeedUpComponent speedUpComp, ref ToggleActionEvent args)
+    private void OnSpeedUpToggle(EntityUid uid, SpeedUpComponent speedUpComp, ref SpeedUpActionEvent args)
     {
-        if (args.Handled || speedUpComp.Active)
+        if (args.Handled || speedUpComp.Active || speedUpComp.ToCooldown)
             return;
         args.Handled = true;
 
@@ -108,9 +114,9 @@ public sealed class SharedSpeedUpSystem : EntitySystem
         }
 
         speedUpComp.Active = true;
+        speedUpComp.ToCooldown = true;
         _speedModifier.RefreshMovementSpeedModifiers(uid);
         speedUpComp.EndTime = _gameTiming.CurTime + TimeSpan.FromSeconds(speedUpComp.Duration);
-        _actions.SetCooldown(speedUpComp.ActionEntity, TimeSpan.FromSeconds(speedUpComp.Cooldown));
     }
 
     private void OnRefreshSpeed(EntityUid uid, SpeedUpComponent speedUpComp, RefreshMovementSpeedModifiersEvent args)

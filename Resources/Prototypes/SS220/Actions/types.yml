@@ -84,14 +84,14 @@
       event: !type:ToggleActionEvent
 
 - type: entity
-  id: ActionToggleSpeedUp
-  name: action-name-toggle-speedup
-  description: action-description-toggle-speedup
+  id: ActionSpeedUp
+  name: action-name-speedup
+  description: action-description-speedup
   components:
     - type: Action
       icon: { sprite: SS220/Mobs/Customization/Tajaran/tajaran_parts.rsi, state: tajaran_tail_icon }
       iconOn: { sprite: SS220/Mobs/Customization/Tajaran/tajaran_parts.rsi, state: tajaran_tail_icon }
       itemIconStyle: NoItem
-      useDelay: 1
+      # useDelay: 1
     - type: InstantAction
-      event: !type:ToggleActionEvent
+      event: !type:SpeedUpActionEvent

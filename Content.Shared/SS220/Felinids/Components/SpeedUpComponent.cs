@@ -55,8 +55,10 @@ public sealed partial class SpeedUpComponent : Component
     public bool Active = false;
 
     [DataField, ViewVariables(VVAccess.ReadOnly)]
-    public EntProtoId Action = "ActionToggleSpeedUp";
+    public EntProtoId Action = "ActionSpeedUp";
 
     [DataField, ViewVariables(VVAccess.ReadOnly)]
     public EntityUid? ActionEntity;
+
+    public bool ToCooldown = false;
 }
