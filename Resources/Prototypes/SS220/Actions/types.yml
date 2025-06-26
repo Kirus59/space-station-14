@@ -92,6 +92,5 @@
       icon: { sprite: SS220/Mobs/Customization/Tajaran/tajaran_parts.rsi, state: tajaran_tail_icon }
       iconOn: { sprite: SS220/Mobs/Customization/Tajaran/tajaran_parts.rsi, state: tajaran_tail_icon }
       itemIconStyle: NoItem
-      # useDelay: 1
     - type: InstantAction
       event: !type:SpeedUpActionEvent
