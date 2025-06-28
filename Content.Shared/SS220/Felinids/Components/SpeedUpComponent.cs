@@ -59,6 +59,4 @@ public sealed partial class SpeedUpComponent : Component
 
     [DataField, ViewVariables(VVAccess.ReadOnly)]
     public EntityUid? ActionEntity;
-
-    public bool ToCooldown = false;
 }

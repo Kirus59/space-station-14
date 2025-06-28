@@ -52,12 +52,6 @@ public sealed class SharedSpeedUpSystem : EntitySystem
 
             if (!ContinueSpeedUp((uid, speedUpComp)))
                 EndSpeedUp((uid, speedUpComp));
-
-            if (speedUpComp.ToCooldown)
-            {
-                _actions.SetCooldown(speedUpComp.ActionEntity, TimeSpan.FromSeconds(speedUpComp.Cooldown));
-                speedUpComp.ToCooldown = false;
-            }
         }
     }
 
@@ -95,9 +89,8 @@ public sealed class SharedSpeedUpSystem : EntitySystem
 
     private void OnSpeedUpToggle(EntityUid uid, SpeedUpComponent speedUpComp, ref SpeedUpActionEvent args)
     {
-        if (args.Handled || speedUpComp.Active || speedUpComp.ToCooldown)
+        if (args.Handled || speedUpComp.Active)
             return;
-        args.Handled = true;
 
         if (TryComp<HungerComponent>(uid, out var hunger)
             && hunger.CurrentThreshold < speedUpComp.HungerThreshold)
@@ -113,8 +106,8 @@ public sealed class SharedSpeedUpSystem : EntitySystem
             return;
         }
 
+        args.Handled = true;
         speedUpComp.Active = true;
-        speedUpComp.ToCooldown = true;
         _speedModifier.RefreshMovementSpeedModifiers(uid);
         speedUpComp.EndTime = _gameTiming.CurTime + TimeSpan.FromSeconds(speedUpComp.Duration);
     }
