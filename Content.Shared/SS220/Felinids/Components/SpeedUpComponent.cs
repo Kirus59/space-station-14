@@ -39,12 +39,6 @@ public sealed partial class SpeedUpComponent : Component
     [DataField]
     public float ThirstCost = 0.2f;
 
-    /// <summary>
-    ///     SpeedUp recharge time in seconds.
-    /// </summary>
-    [DataField]
-    public float Cooldown = 420f;
-
     [DataField]
     public float SpeedModifier = 1.3f;
 
