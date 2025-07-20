@@ -20,6 +20,23 @@
         - NukeOpsUplink
         - LoneOpsUplink
 
+- type: listing
+  id: UplinkOrigami
+  name: uplink-origami-name
+  description: uplink-origami-desc
+  icon: { sprite: Objects/Storage/boxes.rsi, state: box }
+  productEntity: BoxOrigamiKit
+  cost:
+    Telecrystal: 4
+  categories:
+  - UplinkWeaponry
+  conditions:
+  - !type:StoreWhitelistCondition
+    blacklist:
+      tags:
+      - NukeOpsUplink
+      - LoneOpsUplink
+
 # Implants
 
 - type: listing
@@ -239,26 +256,6 @@
   categories:
   - UplinkWearables
 
-# READD-VEHICLES
-- type: listing
-  id: UplinkSyndicateSegwayCrate
-  name: uplink-syndicate-segway-crate-name
-  description: uplink-syndicate-segway-crate-desc
-  icon: { sprite: /Textures/Objects/Vehicles/syndicatesegway.rsi, state: icon }
-  productEntity: CrateFunSyndicateSegway
-  discountCategory: usualDiscounts
-  discountDownTo:
-    Telecrystal: 2
-  cost:
-    Telecrystal: 5
-  categories:
-  - UplinkDeception
-  conditions:
-  - !type:BuyerWhitelistCondition
-    blacklist:
-      components:
-      - SurplusBundle
-
 #SS220 SpicyUPD begin
 - type: listing
   id: UplinkSpicyPizza
@@ -333,5 +330,19 @@
   productEntity: PinpointerUplink
   cost:
     Telecrystal: 4
+  categories:
+  - UplinkDisruption
+
+- type: listing
+  id: UplinkDetectorAi
+  name: uplink-detector-ai
+  description: uplink-detector-ai-desc
+  icon: { sprite: Objects/Tools/multitool.rsi, state: icon }
+  productEntity: MultitoolSyndie
+  discountCategory: usualDiscounts
+  discountDownTo:
+    Telecrystal: 1
+  cost:
+    Telecrystal: 2
   categories:
   - UplinkDisruption
