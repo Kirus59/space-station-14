@@ -21,9 +21,53 @@ public sealed partial class PartyManager
     public Dictionary<uint, IncomingPartyInvite> IncomingInvites => _incomingInvites;
     private Dictionary<uint, IncomingPartyInvite> _incomingInvites = new();
 
+    public void InviteInitialize()
+    {
+        SubscribeNetMessage<InviteInPartyFailMessage>(OnInviteFail);
+        SubscribeNetMessage<CreatedNewInviteMessage>(OnCreatedNewInvite);
+        SubscribeNetMessage<InviteReceivedMessage>(OnInviteReceived);
+        SubscribeNetMessage<UpdateSendedInviteMessage>(OnUpdateSendedInvite);
+        SubscribeNetMessage<UpdateIncomingInviteMessage>(OnUpdateIncomingInvite);
+        SubscribeNetMessage<UpdateInvitesInfoMessage>(OnUpdateInvitesInfo);
+    }
+
+    private void OnInviteFail(InviteInPartyFailMessage message)
+    {
+        SendInviteFail(message.Reason);
+    }
+
+    private void OnCreatedNewInvite(CreatedNewInviteMessage message)
+    {
+        var invite = new SendedPartyInvite(message.State);
+        AddSendedInvite(invite);
+    }
+
+    private void OnInviteReceived(InviteReceivedMessage message)
+    {
+        var invite = new IncomingPartyInvite(message.State);
+        AddIncomingInvite(invite);
+    }
+
+    private void OnUpdateSendedInvite(UpdateSendedInviteMessage message)
+    {
+        UpdateSendedInvite(message.State);
+    }
+
+    private void OnUpdateIncomingInvite(UpdateIncomingInviteMessage message)
+    {
+        UpdateIncomingInvite(message.State);
+    }
+
+    private void OnUpdateInvitesInfo(UpdateInvitesInfoMessage message)
+    {
+        UpdateSendedInvitesInfo(message.SendedInvites);
+        UpdateIncomingInvitesInfo(message.IncomingInvites);
+    }
+
     public void SendInvite(string username)
     {
-        _partySystem?.SendInvite(username);
+        var msg = new InviteInPartyRequestMessage(username);
+        SendNetMessage(msg);
     }
 
     public void SendInviteFail(string reason)
@@ -33,17 +77,20 @@ public sealed partial class PartyManager
 
     public void AcceptInvite(uint inviteId)
     {
-        _partySystem?.AcceptInvite(inviteId);
+        var msg = new AcceptInviteMessage(inviteId);
+        SendNetMessage(msg);
     }
 
     public void DenyInvite(uint inviteId)
     {
-        _partySystem?.DenyInvite(inviteId);
+        var msg = new AcceptInviteMessage(inviteId);
+        SendNetMessage(msg);
     }
 
     public void DeleteInvite(uint inviteId)
     {
-        _partySystem?.DeleteInvite(inviteId);
+        var msg = new DeleteInviteMessage(inviteId);
+        SendNetMessage(msg);
     }
 
     public void UpdateSendedInvitesInfo(List<SendedInviteState> sendedInvites)

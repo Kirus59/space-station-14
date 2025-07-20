@@ -1,3 +1,4 @@
+using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
 
@@ -13,17 +14,23 @@ public sealed partial class PartyManager
             if (!_playerManager.TryGetSessionById(user, out var session))
                 continue;
 
-            _partySystem?.SendPartyChatMessage(message, session);
+            SendPartyChatMessage(message, session);
         }
     }
 
     public void ChatMessageToUser(string message, ICommonSession session, PartyChatMessageType messageType = PartyChatMessageType.None)
     {
         message = SanitizePartyChatMessage(message, messageType);
-        _partySystem?.SendPartyChatMessage(message, session);
+        SendPartyChatMessage(message, session);
     }
 
-    private string SanitizePartyChatMessage(string message, PartyChatMessageType messageType)
+    public void SendPartyChatMessage(string message, ICommonSession session)
+    {
+        var msg = new ReceivePartyChatMessage(message);
+        SendNetMessage(msg, session);
+    }
+
+    private static string SanitizePartyChatMessage(string message, PartyChatMessageType messageType)
     {
         var msg = new FormattedMessage();
 

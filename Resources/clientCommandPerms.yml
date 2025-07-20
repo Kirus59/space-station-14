@@ -40,6 +40,7 @@
     - replay_load
     - saveconfig
     - chatwindow
+    - partymenu # SS220_SpaceWars party
 
 - Flags: DEBUG
   Commands:

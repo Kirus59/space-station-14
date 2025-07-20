@@ -4,7 +4,6 @@ using Robust.Server.Player;
 using Robust.Shared.Player;
 using Robust.Shared.Enums;
 using System.Diagnostics.CodeAnalysis;
-using Content.Server.SS220.SpaceWars.Party.Systems;
 using System.Linq;
 using Robust.Shared.Network;
 using Robust.Shared.Configuration;
@@ -16,8 +15,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 {
     [Dependency] private readonly IPlayerManager _playerManager = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
-
-    private PartySystem? _partySystem = default!;
+    [Dependency] private readonly INetManager _net = default!;
 
     public event Action<ServerPartyData>? PartyDataUpdated;
     public event Action<ServerPartyData>? PartyDisbanding;
@@ -32,6 +30,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         _playerManager.PlayerStatusChanged += OnPlayerStatusChanged;
 
         _cfg.OnValueChanged(CCVars220.PartyMembersLimit, OnMembersLimitChanged, true);
+
+        SubscribeNetMessage<CreatePartyRequestMessage>(OnCreatePartyRequest);
+        SubscribeNetMessage<DisbandPartyRequestMessage>(OnDisbandPartyRequest);
+        SubscribeNetMessage<LeavePartyRequestMessage>(OnLeavePartyMessage);
+        SubscribeNetMessage<KickFromPartyRequestMessage>(OnKickFromPartyRequest);
+        SubscribeNetMessage<SetPartySettingsRequestMessage>(OnSetSettingsRequest);
     }
 
     private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs e)
@@ -41,6 +45,51 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         if (e.NewStatus is SessionStatus.Connected)
             UpdateClientInfo(e.Session);
+    }
+
+    private void OnCreatePartyRequest(CreatePartyRequestMessage message, ICommonSession sender)
+    {
+        TryCreateParty(sender, out var reason, settings: message.SettingsState);
+    }
+
+    private void OnDisbandPartyRequest(DisbandPartyRequestMessage message, ICommonSession sender)
+    {
+        var party = GetPartyByLeader(sender);
+        if (party == null)
+            return;
+
+        DisbandParty(party);
+    }
+
+    private void OnLeavePartyMessage(LeavePartyRequestMessage message, ICommonSession sender)
+    {
+        var party = GetPartyByMember(sender);
+        if (party == null)
+            return;
+
+        RemoveUserFromParty(sender, party);
+    }
+
+    private void OnKickFromPartyRequest(KickFromPartyRequestMessage message, ICommonSession sender)
+    {
+        var party = GetPartyByLeader(sender);
+        if (party == null)
+            return;
+
+        var user = party.GetUserByPartyUserId(message.PartyUserId);
+        if (user == null)
+            return;
+
+        RemoveUserFromParty(user.Value, party);
+    }
+
+    private void OnSetSettingsRequest(SetPartySettingsRequestMessage message, ICommonSession sender)
+    {
+        var party = GetPartyByLeader(sender);
+        if (party == null)
+            return;
+
+        SetSettings(party, message.State);
     }
 
     private void UpdateUserConnected(ICommonSession session, bool connected)
@@ -61,11 +110,6 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         var curParty = GetPartyByMember(session);
         SetCurrentParty(session, curParty);
         UpdateInvitesInfo(session);
-    }
-
-    public void SetPartySystem(PartySystem partySystem)
-    {
-        _partySystem = partySystem;
     }
 
     /// <inheritdoc/>
@@ -283,7 +327,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (party != null)
             state = GetClientPartyState(party, session);
 
-        _partySystem?.SetCurrentParty(state, session);
+        SetCurrentParty(state, session);
     }
 
     private void DirtyParty(ServerPartyData party)
@@ -294,7 +338,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
                 continue;
 
             var state = GetClientPartyState(party, session);
-            _partySystem?.UpdatePartyData(state, session);
+            UpdatePartyData(state, session);
         }
     }
 
@@ -307,17 +351,37 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         return id;
     }
 
-    #region PartyMenuUI
-    public void OpenPartyMenu(ICommonSession session)
+    public void UpdatePartyData(ClientPartyDataState party, ICommonSession session)
     {
-        _partySystem?.OpenPartyMenu(session);
+        var ev = new UpdateCurrentPartyMessage(party);
+        SendNetMessage(ev, session);
     }
 
-    public void ClosePartyMenu(ICommonSession session)
+    public void SetCurrentParty(ClientPartyDataState? state, ICommonSession session)
     {
-        _partySystem?.ClosePartyMenu(session);
+        var ev = new SetCurrentPartyMessage(state);
+        SendNetMessage(ev, session);
     }
-    #endregion
+
+    private void SendNetMessage(PartyMessage message)
+    {
+        var msg = new PartyNetMessage
+        {
+            Message = message
+        };
+
+        _net.ServerSendToAll(msg);
+    }
+
+    private void SendNetMessage(PartyMessage message, ICommonSession session)
+    {
+        var msg = new PartyNetMessage
+        {
+            Message = message
+        };
+
+        _net.ServerSendMessage(msg, session.Channel);
+    }
 
     #region Settings
     private uint _membersLimit = int.MaxValue;

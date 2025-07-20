@@ -93,7 +93,7 @@ namespace Content.Server.IoC
 
             IoCManager.Register<DiscordLink>();
             IoCManager.Register<DiscordChatLink>();
-            IoCManager.Register<IPartyManager, PartyManager>(); // SS220 SpaceWars Party
+            IoCManager.Register<IPartyManager, PartyManager>(); // SS220_SpaceWars Party
         }
     }
 }

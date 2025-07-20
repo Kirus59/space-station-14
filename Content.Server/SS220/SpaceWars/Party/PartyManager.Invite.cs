@@ -11,6 +11,38 @@ public sealed partial class PartyManager
 {
     private Dictionary<uint, ServerPartyInvite> _invites = new();
 
+    public void InviteInitialize()
+    {
+        SubscribeNetMessage<InviteInPartyRequestMessage>(OnInviteInPartyRequest);
+        SubscribeNetMessage<AcceptInviteMessage>(OnAcceptInvite);
+        SubscribeNetMessage<DenyInviteMessage>(OnDenyInvite);
+        SubscribeNetMessage<DeleteInviteMessage>(OnDeleteInvite);
+    }
+
+    private void OnInviteInPartyRequest(InviteInPartyRequestMessage message, ICommonSession sender)
+    {
+        if (TrySendInvite(sender, message.Username, out var failReason))
+            return;
+
+        var msg = new InviteInPartyFailMessage(failReason);
+        SendNetMessage(msg, sender);
+    }
+
+    private void OnAcceptInvite(AcceptInviteMessage message, ICommonSession sender)
+    {
+        AcceptInvite(message.InviteId, sender);
+    }
+
+    private void OnDenyInvite(DenyInviteMessage message, ICommonSession sender)
+    {
+        DenyInvite(message.InviteId, sender);
+    }
+
+    private void OnDeleteInvite(DeleteInviteMessage message, ICommonSession sender)
+    {
+        DeleteInvite(message.InviteId, sender);
+    }
+
     public void AcceptInvite(uint inviteId, ICommonSession target)
     {
         if (!_invites.TryGetValue(inviteId, out var invite))
@@ -84,12 +116,6 @@ public sealed partial class PartyManager
         return true;
     }
 
-    public void SendInvite(ServerPartyInvite invite)
-    {
-        invite.Status = InviteStatus.Sended;
-        _partySystem?.SendInvite(invite);
-    }
-
     private bool TryGetInvite(NetUserId sender, NetUserId target, [NotNullWhen(true)] out ServerPartyInvite? invite)
     {
         invite = null;
@@ -138,12 +164,58 @@ public sealed partial class PartyManager
     {
         var sendedInvites = _invites.Values.Where(i => i.Sender == session.UserId).Select(i => i.GetSendedInviteState()).ToList();
         var incomingInvites = _invites.Values.Where(i => i.Target == session.UserId).Select(i => i.GetIncomingInviteState()).ToList();
-        _partySystem?.UpdateInvitesInfo(sendedInvites, incomingInvites, session);
+        UpdateInvitesInfo(sendedInvites, incomingInvites, session);
     }
 
-    private void DirtyInvite(ServerPartyInvite invite)
+    public void UpdateInvitesInfo(List<SendedInviteState> sendedInvites, List<IncomingInviteState> incomingInvites, ICommonSession session)
     {
-        _partySystem?.DirtyInvite(invite);
+        var msg = new UpdateInvitesInfoMessage(sendedInvites, incomingInvites);
+        SendNetMessage(msg, session);
+    }
+
+    public void SendInvite(ServerPartyInvite invite)
+    {
+        invite.Status = InviteStatus.Sended;
+        if (_playerManager.TryGetSessionById(invite.Target, out var target))
+        {
+            var state = invite.GetIncomingInviteState();
+            var msg = new InviteReceivedMessage(state);
+            SendNetMessage(msg, target);
+        }
+
+        if (_playerManager.TryGetSessionById(invite.Sender, out var sender))
+        {
+            var state = invite.GetSendedInviteState();
+            var msg = new CreatedNewInviteMessage(state);
+            SendNetMessage(msg, sender);
+        }
+    }
+
+    public void DirtyInvite(ServerPartyInvite invite)
+    {
+        if (_playerManager.TryGetSessionById(invite.Sender, out var sender))
+        {
+            var state = invite.GetSendedInviteState();
+            UpdateSendedInvite(state, sender);
+        }
+
+        if (_playerManager.TryGetSessionById(invite.Target, out var target))
+        {
+            var state = invite.GetIncomingInviteState();
+            UpdateIncomingInvite(state, target);
+        }
+    }
+
+    public void UpdateSendedInvite(SendedInviteState state, ICommonSession session)
+    {
+        var msg = new UpdateSendedInviteMessage(state);
+        SendNetMessage(msg, session);
+    }
+
+    public void UpdateIncomingInvite(IncomingInviteState state, ICommonSession session)
+    {
+        var msg = new UpdateIncomingInviteMessage(state);
+        SendNetMessage(msg, session);
     }
 }
 

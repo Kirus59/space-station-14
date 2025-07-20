@@ -86,7 +86,7 @@ namespace Content.Client.Entry
         [Dependency] private readonly TitleWindowManager _titleWindowManager = default!;
         [Dependency] private readonly TTSManager _ttsManager = default!; // SS220 TTS
         [Dependency] private readonly IEntitySystemManager _entitySystemManager = default!;
-        [Dependency] private readonly IPartyManager _partyManager = default!; // SS220 SpaceWars Party
+        [Dependency] private readonly IPartyManager _partyManager = default!; // SS220_SpaceWars Party
 
         public override void Init()
         {
@@ -189,7 +189,7 @@ namespace Content.Client.Entry
             _discordPlayerInfoManager.Initialize(); // SS220 tier info
             _titleWindowManager.Initialize();
             _ttsManager.Initialize(); // SS220 TTS
-            _partyManager.Initialize(); // SS220 SpaceWars Party
+            _partyManager.Initialize(); // SS220_SpaceWars Party
 
             _baseClient.RunLevelChanged += (_, args) =>
             {

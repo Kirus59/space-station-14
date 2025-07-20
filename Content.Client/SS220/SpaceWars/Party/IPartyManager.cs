@@ -1,5 +1,4 @@
 
-using Content.Client.SS220.SpaceWars.Party.Systems;
 using Content.Client.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
 
@@ -14,8 +13,6 @@ public partial interface IPartyManager : ISharedPartyManager
     ClientPartyData? CurrentParty { get; }
 
     PartyUserInfo? LocalPartyUserInfo { get; }
-
-    void SetPartySystem(PartySystem partySystem);
 
     void SetCurrentParty(ClientPartyDataState? state);
 

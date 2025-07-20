@@ -1,14 +1,15 @@
 
-using Content.Client.SS220.SpaceWars.Party.Systems;
 using Content.Client.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Robust.Client.Player;
+using Robust.Shared.Network;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 {
-    private PartySystem? _partySystem;
+    [Dependency] private readonly INetManager _net = default!;
+    [Dependency] private readonly IPlayerManager _player = default!;
 
     public event Action? OnCurrentPartyUpdated;
 
@@ -25,11 +26,35 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         base.Initialize();
 
         SetPartyMenu(new PartyMenu());
+
+        SubscribeNetMessage<SetCurrentPartyMessage>(OnSetCurrentParty);
+        SubscribeNetMessage<UpdateCurrentPartyMessage>(OnUpdatePartyDataInfo);
+
+        InviteInitialize();
+        ChatInitialize();
     }
 
-    public void SetPartySystem(PartySystem partySystem)
+    private void OnSetCurrentParty(SetCurrentPartyMessage message)
     {
-        _partySystem = partySystem;
+        SetCurrentParty(message.State);
+    }
+
+    private void OnUpdatePartyDataInfo(UpdateCurrentPartyMessage message)
+    {
+        UpdateCurrentParty(message.State);
+    }
+
+    private void SendNetMessage(PartyMessage message)
+    {
+        if (_player.LocalSession is { } session)
+            message.Sender = session.UserId;
+
+        var msg = new PartyNetMessage
+        {
+            Message = message,
+        };
+
+        _net.ClientSendMessage(msg);
     }
 
     public void SetCurrentParty(ClientPartyDataState? state)
@@ -58,27 +83,38 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public void SendCreatePartyRequest(PartySettingsState? settings = null)
     {
-        _partySystem?.SendCreatePartyRequest(settings);
+        var msg = new CreatePartyRequestMessage(settings);
+        SendNetMessage(msg);
     }
 
     public void SendDisbandPartyRequest()
     {
-        _partySystem?.SendDisbandPartyRequest();
+        var msg = new DisbandPartyRequestMessage();
+        SendNetMessage(msg);
     }
 
     public void SendLeavePartyRequest()
     {
-        _partySystem?.SendLeavePartyRequest();
+        var msg = new LeavePartyRequestMessage();
+        SendNetMessage(msg);
     }
 
     public void SendKickFromPartyRequest(uint partyUserId)
     {
-        _partySystem?.SendKickFromPartyRequest(partyUserId);
+        var msg = new KickFromPartyRequestMessage(partyUserId);
+        SendNetMessage(msg);
     }
 
     public void SetSettingsRequest(PartySettingsState settingsState)
     {
-        _partySystem?.SetSettingsRequest(settingsState);
+        var msg = new SetPartySettingsRequestMessage(settingsState);
+        SendNetMessage(msg);
+    }
+
+    public void SendInviteRequest(string username)
+    {
+        var msg = new InviteInPartyRequestMessage(username);
+        SendNetMessage(msg);
     }
 
     #region PartyMenuUI

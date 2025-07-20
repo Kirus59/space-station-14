@@ -71,7 +71,7 @@ namespace Content.Client.IoC
             collection.Register<SharedPlayerRateLimitManager, PlayerRateLimitManager>();
             collection.Register<TitleWindowManager>();
             collection.Register<TTSManager>(); // SS220 TTS
-            collection.Register<IPartyManager, PartyManager>(); // SS220 SpaseWars Party
+            collection.Register<IPartyManager, PartyManager>(); // SS220_SpaceWars Party
         }
     }
 }

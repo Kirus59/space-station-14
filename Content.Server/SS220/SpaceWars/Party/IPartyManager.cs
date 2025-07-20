@@ -1,5 +1,4 @@
 
-using Content.Server.SS220.SpaceWars.Party.Systems;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
@@ -13,8 +12,6 @@ public partial interface IPartyManager : ISharedPartyManager
     event Action<ServerPartyData>? PartyDisbanding;
 
     List<ServerPartyData> Parties { get; }
-
-    void SetPartySystem(PartySystem partySystem);
 
     /// <inheritdoc/>
     bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, PartySettingsState? settings = null, bool force = false);
@@ -56,12 +53,6 @@ public partial interface IPartyManager : ISharedPartyManager
     void RemoveUserFromParty(ICommonSession user, ServerPartyData party);
 
     void RemoveUserFromParty(NetUserId user, ServerPartyData party);
-
-    #region PartyMenuUI
-    void OpenPartyMenu(ICommonSession session);
-
-    void ClosePartyMenu(ICommonSession session);
-    #endregion
 
     #region Settings
     void SetSettings(ServerPartyData partyData, PartySettingsState state);

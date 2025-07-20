@@ -1,19 +1,88 @@
 
 using Content.Shared.SS220.CCVars;
+using Lidgren.Network;
 using Robust.Shared.Configuration;
+using Robust.Shared.Network;
+using Robust.Shared.Player;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
 public abstract partial class SharedPartyManager : ISharedPartyManager
 {
+    [Dependency] private readonly INetManager _net = default!;
     protected ISawmill _sawmill = default!;
+
+    private readonly Dictionary<Type, NetSub> _netSubs = [];
 
     public virtual void Initialize()
     {
         IoCManager.InjectDependencies(this);
 
         _sawmill = Logger.GetSawmill("PartyManager");
+
+        _net.RegisterNetMessage<PartyNetMessage>(OnReceiveNetMessage);
+    }
+
+    private void OnReceiveNetMessage(PartyNetMessage msg)
+    {
+        if (msg.Message is not { } message)
+            return;
+
+        var type = message.GetType();
+        if (!_netSubs.TryGetValue(type, out var subscribe))
+            return;
+
+        subscribe.Invoke(message);
+    }
+
+    protected void SubscribeNetMessage<T>(Action<T> callback) where T : PartyMessage
+    {
+        var type = typeof(T);
+        if (_netSubs.ContainsKey(type))
+            throw new Exception($"already exist a subscription for an element with type: {type}");
+
+        _netSubs.Add(type, new NetSubscription<T>(callback));
+    }
+
+    protected void SubscribeNetMessage<T>(Action<T, ICommonSession> callback) where T : PartyMessage
+    {
+        var type = typeof(T);
+        if (_netSubs.ContainsKey(type))
+            throw new Exception($"already exist a subscription for an element with type: {type}");
+
+        _netSubs.Add(type, new NetSubscription<T, ICommonSession>(callback));
+    }
+
+    private abstract class NetSub
+    {
+        public abstract void Invoke(PartyMessage message);
+    }
+
+    private sealed class NetSubscription<T>(Action<T> callback) : NetSub where T : PartyMessage
+    {
+        public Action<T> Callback = callback;
+
+        public override void Invoke(PartyMessage message)
+        {
+            Callback.Invoke((T)message);
+        }
+    }
+
+    private sealed class NetSubscription<TMsg, TSession>(Action<TMsg, TSession> callback) : NetSub
+        where TMsg : PartyMessage
+        where TSession : ICommonSession
+    {
+        public Action<TMsg, TSession> Callback = callback;
+
+        public override void Invoke(PartyMessage message)
+        {
+            var playerMng = IoCManager.Resolve<ISharedPlayerManager>();
+            if (!playerMng.TryGetSessionById(message.Sender, out var session))
+                return;
+
+            Callback.Invoke((TMsg)message, (TSession)session);
+        }
     }
 }
 
