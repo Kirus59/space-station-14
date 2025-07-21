@@ -26,8 +26,6 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
         _partyManager.OnSendedInviteRemoved += _ => Populate();
         _partyManager.OnSendedInviteUpdated += _ => Populate();
 
-        _partyManager.OnSendInviteFail += reason => AddFailReason(reason, TimeSpan.FromSeconds(10));
-
         Populate();
     }
 
@@ -51,17 +49,30 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
         }
     }
 
-    public void SendInvite()
+    public async void SendInvite()
     {
         var text = InputLine.Text;
         if (string.IsNullOrEmpty(text))
             return;
 
-        _partyManager.SendInvite(text);
+        var responce = await _partyManager.SendInvite(text);
+        if (responce.Timeout)
+        {
+            AddFailReason("Истекло время ожидания ответа");
+            return;
+        }
+
+        if (!responce.Success)
+        {
+            AddFailReason(responce.Text);
+            return;
+        }
     }
 
-    private void AddFailReason(string reason, TimeSpan? showTime)
+    private void AddFailReason(string reason, TimeSpan? showTime = null)
     {
+        showTime ??= TimeSpan.FromSeconds(10);
+
         var msg = new FormattedMessage();
         msg.PushColor(Color.Red);
         msg.AddText(reason);
@@ -69,8 +80,7 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
 
         FailReasonLabel.SetMessage(msg);
 
-        if (showTime != null)
-            RemoveFailReason((int)showTime.Value.TotalMilliseconds);
+        RemoveFailReason((int)showTime.Value.TotalMilliseconds);
     }
 
     private async void RemoveFailReason(int delay)

@@ -5,21 +5,25 @@ using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Serialization;
+using System.Threading.Tasks;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
 public abstract partial class SharedPartyManager : ISharedPartyManager
 {
     [Dependency] private readonly INetManager _net = default!;
-    protected ISawmill _sawmill = default!;
+    [Dependency] private readonly IDynamicTypeFactory _dynamicTypeFactory = default!;
+
+    protected ISawmill Sawmill = default!;
 
     private readonly Dictionary<Type, NetSub> _netSubs = [];
+    private event Action<PartyResponceMessage>? OnResponceMsg;
 
     public virtual void Initialize()
     {
         IoCManager.InjectDependencies(this);
 
-        _sawmill = Logger.GetSawmill("PartyManager");
+        Sawmill = Logger.GetSawmill("PartyManager");
 
         _net.RegisterNetMessage<PartyNetMessage>(OnReceiveNetMessage);
     }
@@ -29,11 +33,23 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
         if (msg.Message is not { } message)
             return;
 
-        var type = message.GetType();
-        if (!_netSubs.TryGetValue(type, out var subscribe))
-            return;
+        InvokeSubscription(message);
 
-        subscribe.Invoke(message);
+        switch (message)
+        {
+            case PartyResponceMessage responce:
+                OnResponceMsg?.Invoke(responce);
+                break;
+        }
+
+        void InvokeSubscription(PartyMessage message)
+        {
+            var type = message.GetType();
+            if (!_netSubs.TryGetValue(type, out var subscribe))
+                return;
+
+            subscribe.Invoke(message);
+        }
     }
 
     protected void SubscribeNetMessage<T>(Action<T> callback) where T : PartyMessage
@@ -52,6 +68,36 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
             throw new Exception($"already exist a subscription for an element with type: {type}");
 
         _netSubs.Add(type, new NetSubscription<T, ICommonSession>(callback));
+    }
+
+    protected async Task<T> WaitResponce<T>(TimeSpan? timeout = null) where T : PartyResponceMessage, new()
+    {
+        var tcs = new TaskCompletionSource<T>();
+
+        void OnResponce(PartyResponceMessage responce)
+        {
+            if (responce is T result)
+                tcs.SetResult(result);
+        }
+
+        OnResponceMsg += OnResponce;
+
+        timeout ??= TimeSpan.FromSeconds(4);
+        var delayTask = Task.Delay(timeout.Value);
+
+        var completedTask = await Task.WhenAny(tcs.Task, delayTask);
+
+        T result;
+        if (completedTask == tcs.Task)
+            result = await tcs.Task;
+        else
+        {
+            result = _dynamicTypeFactory.CreateInstance<T>();
+            result.Timeout = true;
+        }
+
+        OnResponceMsg -= OnResponce;
+        return result;
     }
 
     private abstract class NetSub

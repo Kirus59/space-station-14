@@ -26,7 +26,7 @@ public sealed partial class PartyManager
 
     public void SendPartyChatMessage(string message, ICommonSession session)
     {
-        var msg = new ReceivePartyChatMessage(message);
+        var msg = new PartyChatMessage(message);
         SendNetMessage(msg, session);
     }
 

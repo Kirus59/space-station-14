@@ -1,5 +1,6 @@
 
 using Content.Shared.SS220.SpaceWars.Party;
+using System.Threading.Tasks;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
@@ -13,8 +14,6 @@ public sealed partial class PartyManager
     public event Action<IncomingPartyInvite>? OnIncomingInviteRemoved;
     public event Action<IncomingPartyInvite>? OnIncomingInviteUpdated;
 
-    public event Action<string>? OnSendInviteFail;
-
     public Dictionary<uint, SendedPartyInvite> SendedInvites => _sendedInvites;
     private Dictionary<uint, SendedPartyInvite> _sendedInvites = new();
 
@@ -23,17 +22,11 @@ public sealed partial class PartyManager
 
     public void InviteInitialize()
     {
-        SubscribeNetMessage<InviteInPartyFailMessage>(OnInviteFail);
         SubscribeNetMessage<CreatedNewInviteMessage>(OnCreatedNewInvite);
         SubscribeNetMessage<InviteReceivedMessage>(OnInviteReceived);
         SubscribeNetMessage<UpdateSendedInviteMessage>(OnUpdateSendedInvite);
         SubscribeNetMessage<UpdateIncomingInviteMessage>(OnUpdateIncomingInvite);
         SubscribeNetMessage<UpdateInvitesInfoMessage>(OnUpdateInvitesInfo);
-    }
-
-    private void OnInviteFail(InviteInPartyFailMessage message)
-    {
-        SendInviteFail(message.Reason);
     }
 
     private void OnCreatedNewInvite(CreatedNewInviteMessage message)
@@ -64,15 +57,13 @@ public sealed partial class PartyManager
         UpdateIncomingInvitesInfo(message.IncomingInvites);
     }
 
-    public void SendInvite(string username)
+    public async Task<InviteInPartyResponceMessage> SendInvite(string username)
     {
         var msg = new InviteInPartyRequestMessage(username);
         SendNetMessage(msg);
-    }
 
-    public void SendInviteFail(string reason)
-    {
-        OnSendInviteFail?.Invoke(reason);
+        var responce = await WaitResponce<InviteInPartyResponceMessage>();
+        return responce;
     }
 
     public void AcceptInvite(uint inviteId)

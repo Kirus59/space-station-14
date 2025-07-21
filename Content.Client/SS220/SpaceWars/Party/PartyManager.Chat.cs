@@ -10,10 +10,10 @@ public sealed partial class PartyManager
 
     public void ChatInitialize()
     {
-        SubscribeNetMessage<ReceivePartyChatMessage>(OnReceiveChatMessage);
+        SubscribeNetMessage<PartyChatMessage>(OnReceiveChatMessage);
     }
 
-    private void OnReceiveChatMessage(ReceivePartyChatMessage message)
+    private void OnReceiveChatMessage(PartyChatMessage message)
     {
         OnChatMessageReceived?.Invoke(message.Message);
     }

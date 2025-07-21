@@ -36,6 +36,8 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         SubscribeNetMessage<LeavePartyRequestMessage>(OnLeavePartyMessage);
         SubscribeNetMessage<KickFromPartyRequestMessage>(OnKickFromPartyRequest);
         SubscribeNetMessage<SetPartySettingsRequestMessage>(OnSetSettingsRequest);
+
+        InviteInitialize();
     }
 
     private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs e)

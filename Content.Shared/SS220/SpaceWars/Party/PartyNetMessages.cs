@@ -43,6 +43,12 @@ public abstract class PartyMessage
 }
 
 [Serializable, NetSerializable]
+public abstract class PartyResponceMessage : PartyMessage
+{
+    public bool Timeout = false;
+}
+
+[Serializable, NetSerializable]
 public sealed class CreatePartyRequestMessage(PartySettingsState? settingsState = null) : PartyMessage
 {
     public readonly PartySettingsState? SettingsState = settingsState;
@@ -122,9 +128,10 @@ public sealed class InviteInPartyRequestMessage(string username) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class InviteInPartyFailMessage(string reason) :   PartyMessage
+public sealed class InviteInPartyResponceMessage() : PartyResponceMessage
 {
-    public readonly string Reason = reason;
+    public bool Success = false;
+    public string Text = string.Empty;
 }
 
 [Serializable, NetSerializable]
@@ -149,7 +156,7 @@ public sealed class UpdateInvitesInfoMessage(List<SendedInviteState> sendedInvit
 
 #region Chat
 [Serializable, NetSerializable]
-public sealed class ReceivePartyChatMessage(string message) : PartyMessage
+public sealed class PartyChatMessage(string message) : PartyMessage
 {
     public readonly string Message = message;
 }

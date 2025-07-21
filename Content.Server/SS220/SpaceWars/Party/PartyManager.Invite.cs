@@ -21,11 +21,15 @@ public sealed partial class PartyManager
 
     private void OnInviteInPartyRequest(InviteInPartyRequestMessage message, ICommonSession sender)
     {
-        if (TrySendInvite(sender, message.Username, out var failReason))
-            return;
+        var success = TrySendInvite(sender, message.Username, out var failReason);
 
-        var msg = new InviteInPartyFailMessage(failReason);
-        SendNetMessage(msg, sender);
+        var responce = new InviteInPartyResponceMessage
+        {
+            Success = success,
+            Text = failReason ?? string.Empty,
+        };
+
+        SendNetMessage(responce, sender);
     }
 
     private void OnAcceptInvite(AcceptInviteMessage message, ICommonSession sender)
