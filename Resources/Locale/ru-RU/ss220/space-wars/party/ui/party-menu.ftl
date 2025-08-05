@@ -7,6 +7,7 @@ ui-PartyMenu-MainTab-InviteInPartyButton = Пригласить
 ui-PartyMenu-MainTab-SettingsButton = Настройки
 ui-PartyMenu-MainTab-KickButton-Tooltip = Исключить из пати
 ui-PartyMenu-MainTab-MaxMembers-Label = Всего участников: {$count}/{$max}
+ui-PartyMenu-MainTab-NotMemberLable = [font size=14][bold][color=yellow]Вы не состоите в пати![/color][/bold][/font]
 
 ui-PartyUserInfo-Connected = В сети
 ui-PartyUserInfo-Disconnected = Не в сети

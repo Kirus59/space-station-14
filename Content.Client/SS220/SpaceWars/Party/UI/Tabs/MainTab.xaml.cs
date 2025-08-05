@@ -1,4 +1,5 @@
 
+using Content.Client.Message;
 using Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 using Content.Client.SS220.UserInterface.Utility;
 using Content.Client.Stylesheets;
@@ -30,8 +31,6 @@ public sealed partial class MainTab : Control
 
         _partyManager.OnChatMessageReceived += AddChatMessage;
 
-        MembersPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(32, 32, 40) };
-        ChatPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(32, 32, 40) };
         MembersContainer.OnResized += UpdateMembers;
         Update();
     }
@@ -41,9 +40,10 @@ public sealed partial class MainTab : Control
         UpdateMembers();
         UpdateChat();
         UpdateButtons();
+        UpdateNotMemberOverlay();
     }
 
-    public void UpdateMembers()
+    private void UpdateMembers()
     {
         var panelsToRemove = _userPanels.Keys.ToList();
 
@@ -89,7 +89,7 @@ public sealed partial class MainTab : Control
     }
 
     #region Chat
-    public void UpdateChat()
+    private void UpdateChat()
     {
         if (_partyManager.CurrentParty is null)
             ChatBox.RemoveAllChildren();
@@ -110,7 +110,7 @@ public sealed partial class MainTab : Control
     }
     #endregion
 
-    public void UpdateButtons()
+    private void UpdateButtons()
     {
         ButtonContainer.RemoveAllChildren();
 
@@ -214,4 +214,11 @@ public sealed partial class MainTab : Control
         return button;
     }
     #endregion
+
+    private void UpdateNotMemberOverlay()
+    {
+        var visible = _partyManager.CurrentParty is null;
+        NotMemberOverlay.Visible = visible;
+        NotMemberLabel.Visible = visible;
+    }
 }

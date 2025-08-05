@@ -1,22 +1,37 @@
 <tabs:MainTab xmlns="https://spacestation14.io"
               xmlns:tabs="clr-namespace:Content.Client.SS220.SpaceWars.Party.UI.Tabs"
+              xmlns:gfx="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client"
               MinSize="550 200">
     <BoxContainer Orientation="Vertical">
-        <BoxContainer Orientation="Horizontal" VerticalExpand="True">
-            <PanelContainer Name="MembersPanel" Margin="5 5 5 5" MinSize="280 150">
-                <BoxContainer Orientation="Vertical" VerticalExpand="True">
+        <Control VerticalExpand="True" Margin="0 0 0 5">
+            <BoxContainer Orientation="Horizontal" VerticalExpand="True">
+                <PanelContainer Name="MembersPanel" Margin="5 5 5 0" MinSize="280 150">
+                    <PanelContainer.PanelOverride>
+                        <gfx:StyleBoxFlat BackgroundColor="#202028" />
+                    </PanelContainer.PanelOverride>
+                    <BoxContainer Orientation="Vertical" VerticalExpand="True">
+                        <ScrollContainer HScrollEnabled="False" VerticalExpand="True">
+                            <BoxContainer Name="MembersContainer" Orientation="Vertical"/>
+                        </ScrollContainer>
+                        <RichTextLabel Name="MaxMembersLabel" Margin="5"/>
+                    </BoxContainer>
+                </PanelContainer>
+                <PanelContainer Name="ChatPanel" HorizontalExpand="True" Margin="5 5 5 0" MinSize="200 150">
+                    <PanelContainer.PanelOverride>
+                        <gfx:StyleBoxFlat BackgroundColor="#202028" />
+                    </PanelContainer.PanelOverride>
                     <ScrollContainer HScrollEnabled="False" VerticalExpand="True">
-                        <BoxContainer Name="MembersContainer" Orientation="Vertical"/>
+                        <BoxContainer Name="ChatBox" Orientation="Vertical"/>
                     </ScrollContainer>
-                    <RichTextLabel Name="MaxMembersLabel" Margin="5"/>
-                </BoxContainer>
+                </PanelContainer>
+            </BoxContainer>
+            <PanelContainer Name="NotMemberOverlay" MouseFilter="Stop">
+                <PanelContainer.PanelOverride>
+                    <gfx:StyleBoxFlat BackgroundColor="#121214e6" />
+                </PanelContainer.PanelOverride>
             </PanelContainer>
-            <PanelContainer Name="ChatPanel" HorizontalExpand="True" Margin="5 5 5 5" MinSize="200 150">
-                <ScrollContainer HScrollEnabled="False" VerticalExpand="True">
-                    <BoxContainer Name="ChatBox" Orientation="Vertical"/>
-                </ScrollContainer>
-            </PanelContainer>
-        </BoxContainer>
+            <RichTextLabel Name="NotMemberLabel" Text="{Loc 'ui-PartyMenu-MainTab-NotMemberLable'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Control>
         <BoxContainer Orientation="Horizontal" Name="ButtonContainer" MinSize="20 20" Margin="5 0 0 0">
         </BoxContainer>
     </BoxContainer>
