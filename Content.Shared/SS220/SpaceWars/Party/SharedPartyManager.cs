@@ -217,10 +217,7 @@ public enum PartyRole
 public enum InviteStatus
 {
     None,
-    Error,
     Deleted,
-    TargetNotFound,
-    TargetIsSender,
     Sended,
 
     Accepted,
@@ -236,7 +233,7 @@ public record struct IncomingInviteState(uint Id, string SenderName, InviteStatu
 [Serializable, NetSerializable]
 public record struct PartySettingsState
 {
-    public uint MaxMembers;
+    public int MaxMembers;
 
     public PartySettingsState()
     {

@@ -152,6 +152,12 @@ public sealed class UpdateInvitesInfoMessage(List<SendedInviteState> sendedInvit
     public readonly List<SendedInviteState> SendedInvites = sendedInvites;
     public readonly List<IncomingInviteState> IncomingInvites = incomingInvites;
 }
+
+[Serializable, NetSerializable]
+public sealed class SetReceiveInvitesStatusMessage(bool receiveInvites) : PartyMessage
+{
+    public readonly bool ReceiveInvites = receiveInvites;
+}
 #endregion
 
 #region Chat

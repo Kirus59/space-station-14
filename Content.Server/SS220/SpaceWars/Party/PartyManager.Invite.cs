@@ -1,4 +1,5 @@
 
+using Content.Shared.SS220.CCVars;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
@@ -10,6 +11,7 @@ namespace Content.Server.SS220.SpaceWars.Party;
 public sealed partial class PartyManager
 {
     private Dictionary<uint, ServerPartyInvite> _invites = new();
+    private HashSet<ICommonSession> _doesntReceiveInvites = new();
 
     public void InviteInitialize()
     {
@@ -17,6 +19,7 @@ public sealed partial class PartyManager
         SubscribeNetMessage<AcceptInviteMessage>(OnAcceptInvite);
         SubscribeNetMessage<DenyInviteMessage>(OnDenyInvite);
         SubscribeNetMessage<DeleteInviteMessage>(OnDeleteInvite);
+        SubscribeNetMessage<SetReceiveInvitesStatusMessage>(OnSetReceiveInvitesStatus);
     }
 
     private void OnInviteInPartyRequest(InviteInPartyRequestMessage message, ICommonSession sender)
@@ -47,6 +50,14 @@ public sealed partial class PartyManager
         DeleteInvite(message.InviteId, sender);
     }
 
+    private void OnSetReceiveInvitesStatus(SetReceiveInvitesStatusMessage message, ICommonSession sender)
+    {
+        if (message.ReceiveInvites)
+            _doesntReceiveInvites.Remove(sender);
+        else
+            _doesntReceiveInvites.Add(sender);
+    }
+
     public void AcceptInvite(uint inviteId, ICommonSession target)
     {
         if (!_invites.TryGetValue(inviteId, out var invite))
@@ -75,7 +86,6 @@ public sealed partial class PartyManager
 
         invite.Status = InviteStatus.Denied;
         DirtyInvite(invite);
-        _invites.Remove(invite.Id);
     }
 
     public void DeleteInvite(uint inviteId, ICommonSession session)
@@ -110,14 +120,40 @@ public sealed partial class PartyManager
     public bool TrySendInvite(ICommonSession sender, ICommonSession target, [NotNullWhen(false)] out string? failReason)
     {
         failReason = null;
-        if (!TryCreateNewInvite(sender.UserId, target.UserId, out var invite))
+        if (_doesntReceiveInvites.Contains(target))
+        {
+            failReason = Loc.GetString("partymanager-invite-failreason-user-doesnt-receive-invites", ("user", target.Name));
+            return false;
+        }
+
+        var invitesLimit = _cfg.GetCVar(CCVars220.PartyInvitesLimit);
+        if (GetSendedInvites(sender.UserId).Count() > invitesLimit)
+        {
+            failReason = Loc.GetString("partymanager-invite-failreason-reached-invited-limit");
+            return false;
+        }
+
+        if (TryGetInvite(sender.UserId, target.UserId, out _))
         {
             failReason = Loc.GetString("partymanager-invite-failreason-user-already-invited", ("user", target.Name));
             return false;
         }
 
-        SendInvite(invite);
+        var invite = CreateNewInvite(sender, target);
+        invite.Status = InviteStatus.Sended;
+        var incomingState = invite.GetIncomingInviteState();
+        SendNetMessage(new InviteReceivedMessage(incomingState), target);
+
+        var sendedState = invite.GetSendedInviteState();
+        SendNetMessage(new CreatedNewInviteMessage(sendedState), sender);
+
         return true;
+    }
+
+    public void SendInvite(ICommonSession sender, ICommonSession target)
+    {
+        if (!TrySendInvite(sender, target, out var reason))
+            throw new Exception($"Failed to send invite from {sender} to {target} by reason: {reason}");
     }
 
     private bool TryGetInvite(NetUserId sender, NetUserId target, [NotNullWhen(true)] out ServerPartyInvite? invite)
@@ -133,22 +169,16 @@ public sealed partial class PartyManager
         return false;
     }
 
-    private bool TryCreateNewInvite(NetUserId sender, NetUserId target, [NotNullWhen(true)] out ServerPartyInvite? invite, InviteStatus status = InviteStatus.None)
+    private IEnumerable<ServerPartyInvite> GetSendedInvites(NetUserId sender)
     {
-        invite = null;
-        if (TryGetInvite(sender, target, out _))
-            return false;
-
-        if (!_playerManager.TryGetSessionById(sender, out var senderSession) ||
-            !_playerManager.TryGetSessionById(target, out var targetSession))
-            return false;
-
-        invite = CreateNewInvite(senderSession, targetSession, status);
-        return true;
+        return _invites.Values.Where(i => i.Sender == sender);
     }
 
     private ServerPartyInvite CreateNewInvite(ICommonSession sender, ICommonSession target, InviteStatus status = InviteStatus.None)
     {
+        if (TryGetInvite(sender.UserId, target.UserId, out _))
+            throw new Exception($"Invite from {sender} to {target} is already exist!");
+
         var id = GenerateInviteId();
         var invite = new ServerPartyInvite(id, sender.UserId, target.UserId, sender.Name, target.Name, status);
         _invites.Add(id, invite);
@@ -175,24 +205,6 @@ public sealed partial class PartyManager
     {
         var msg = new UpdateInvitesInfoMessage(sendedInvites, incomingInvites);
         SendNetMessage(msg, session);
-    }
-
-    public void SendInvite(ServerPartyInvite invite)
-    {
-        invite.Status = InviteStatus.Sended;
-        if (_playerManager.TryGetSessionById(invite.Target, out var target))
-        {
-            var state = invite.GetIncomingInviteState();
-            var msg = new InviteReceivedMessage(state);
-            SendNetMessage(msg, target);
-        }
-
-        if (_playerManager.TryGetSessionById(invite.Sender, out var sender))
-        {
-            var state = invite.GetSendedInviteState();
-            var msg = new CreatedNewInviteMessage(state);
-            SendNetMessage(msg, sender);
-        }
     }
 
     public void DirtyInvite(ServerPartyInvite invite)

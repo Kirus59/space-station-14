@@ -150,7 +150,7 @@ public sealed class ClientPartyData : SharedPartyData
 
 public sealed class PartySettings()
 {
-    public uint MaxMembers;
+    public int MaxMembers;
 
     public PartySettings(PartySettingsState state) : this()
     {

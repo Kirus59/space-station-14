@@ -386,9 +386,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     }
 
     #region Settings
-    private uint _membersLimit = int.MaxValue;
+    private int _membersLimit = int.MaxValue;
 
-    private void OnMembersLimitChanged(uint value)
+    private void OnMembersLimitChanged(int value)
     {
         _membersLimit = value;
         ResetSettings();
@@ -409,7 +409,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public void SetSettings(ServerPartyData party, PartySettingsState state)
     {
         var settings = party.Settings;
-        settings.MaxMembers = Math.Clamp(state.MaxMembers, (uint)party.Members.Count, _membersLimit);
+        settings.MaxMembers = Math.Clamp(state.MaxMembers, party.Members.Count, _membersLimit);
         DirtyParty(party);
 
         PartyDataUpdated?.Invoke(party);
@@ -522,7 +522,7 @@ public sealed class ServerPartyData : SharedPartyData
 
 public sealed class PartySettings
 {
-    public uint MaxMembers = 20;
+    public int MaxMembers = 10;
 
     public PartySettingsState GetState()
     {

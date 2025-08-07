@@ -25,6 +25,8 @@ public partial interface IPartyManager
 
     void DeleteInvite(uint inviteId);
 
+    void SetReceiveInvitesStatus(bool receiveInvites);
+
     void UpdateSendedInvitesInfo(List<SendedInviteState> sendedInvites);
 
     void UpdateIncomingInvitesInfo(List<IncomingInviteState> incomingInvites);

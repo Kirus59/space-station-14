@@ -132,7 +132,10 @@ public sealed partial class CCVars220
         CVarDef.Create("chat.max_languages_in_one_message", 3, CVar.SERVER);
 
     #region Party
-    public static readonly CVarDef<uint> PartyMembersLimit =
-        CVarDef.Create("party.members_limit", (uint)10, CVar.SERVER);
+    public static readonly CVarDef<int> PartyMembersLimit =
+        CVarDef.Create("party.members_limit", 10, CVar.SERVER);
+
+    public static readonly CVarDef<int> PartyInvitesLimit =
+        CVarDef.Create("party.invites_limit", 5, CVar.SERVER | CVar.REPLICATED);
     #endregion
 }

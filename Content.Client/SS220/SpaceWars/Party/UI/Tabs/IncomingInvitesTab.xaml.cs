@@ -19,12 +19,20 @@ public sealed partial class IncomingInvitesTab : Control
         InvitesPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(32, 32, 40) };
         _partyManager.OnIncomingInviteAdded += _ => Populate();
         _partyManager.OnIncomingInviteRemoved += _ => Populate();
+        ReceiveInvitesCheckbox.OnToggled += button =>
+        {
+            _partyManager.SetReceiveInvitesStatus(button.Pressed);
+        };
+
+        Populate();
     }
 
     public void Populate()
     {
         InvitesContainer.RemoveAllChildren();
         var invites = _partyManager.IncomingInvites;
+
+        InvitesLabel.Text = Loc.GetString("ui-InviteInPartyWindow-InvitesLabel", ("count", invites.Count));
         if (invites.Count <= 0)
             return;
 

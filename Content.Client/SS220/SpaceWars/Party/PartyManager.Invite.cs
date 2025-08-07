@@ -74,13 +74,19 @@ public sealed partial class PartyManager
 
     public void DenyInvite(uint inviteId)
     {
-        var msg = new AcceptInviteMessage(inviteId);
+        var msg = new DenyInviteMessage(inviteId);
         SendNetMessage(msg);
     }
 
     public void DeleteInvite(uint inviteId)
     {
         var msg = new DeleteInviteMessage(inviteId);
+        SendNetMessage(msg);
+    }
+
+    public void SetReceiveInvitesStatus(bool receiveInvites)
+    {
+        var msg = new SetReceiveInvitesStatusMessage(receiveInvites);
         SendNetMessage(msg);
     }
 
@@ -206,17 +212,35 @@ public sealed partial class PartyManager
         OnIncomingInviteRemoved?.Invoke(invite);
     }
 
+    public void RemoveInvite(SharedPartyInvite invite)
+    {
+        switch (invite)
+        {
+            case SendedPartyInvite sended:
+                RemoveSendedInvite(sended);
+                break;
+
+            case IncomingPartyInvite incoming:
+                RemoveIncomingInvite(incoming);
+                break;
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
     private void CheckInviteStatus(SharedPartyInvite invite)
     {
         switch (invite.Status)
         {
             case InviteStatus.Deleted:
             case InviteStatus.Accepted:
+                RemoveInvite(invite);
+                break;
+
             case InviteStatus.Denied:
-                if (invite is SendedPartyInvite sendedInvite)
-                    RemoveSendedInvite(sendedInvite);
-                else if (invite is IncomingPartyInvite incomingInvite)
-                    RemoveIncomingInvite(incomingInvite);
+                if (invite is IncomingPartyInvite)
+                    RemoveInvite(invite);
                 break;
         }
     }

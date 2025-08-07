@@ -18,5 +18,5 @@ public partial interface IPartyManager
 
     bool TrySendInvite(ICommonSession sender, ICommonSession target, [NotNullWhen(false)] out string? failReason);
 
-    void SendInvite(ServerPartyInvite invite);
+    void SendInvite(ICommonSession sender, ICommonSession receiver);
 }

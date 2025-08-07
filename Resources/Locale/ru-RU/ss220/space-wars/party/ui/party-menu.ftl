@@ -14,8 +14,10 @@ ui-PartyUserInfo-Disconnected = Не в сети
 
 ui-InviteInPartyWindow-Placeholder = Введите ckey игрока, которого хотите пригласить
 ui-InviteInPartyWindow-sended-invites-count = Отправлено приглашений: { $count }/{ $limit }
+ui-InviteInPartyWindow-InvitesLabel = Приглашения: {$count}
 ui-InviteInPartyWindow-InviteButton = Пригласить
 ui-InviteInPartyWindow-CancelButton = Отмена
+ui-InviteInPartyWindow-ReceiveInvitesCheckbox = Получать приглашения
 
 ui-InvitedInPartyWindow-SenderLabel = { $sender } приглашает вас в пати!
 ui-InvitedInPartyWindow-AcceptButton = Принять
