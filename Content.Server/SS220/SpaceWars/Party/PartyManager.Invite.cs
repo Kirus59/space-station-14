@@ -72,7 +72,10 @@ public sealed partial class PartyManager
 
         invite.Status = InviteStatus.Accepted;
         DirtyInvite(invite);
-        TryAddUserToParty(invite.Target, party, out _);
+
+        if (!TryAddUserToParty(invite.Target, party, out var reason, PartyRole.Member, force: true))
+            Sawmill.Warning($"Failed to accept party invite with id: \"{inviteId}\"; by reason: \"{reason}\"");
+
         _invites.Remove(invite.Id);
     }
 

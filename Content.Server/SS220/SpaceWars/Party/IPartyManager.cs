@@ -48,8 +48,6 @@ public partial interface IPartyManager : ISharedPartyManager
         PartyRole role = PartyRole.Member,
         bool force = false);
 
-    void AddUserToParty(ICommonSession user, ServerPartyData party, PartyRole role = PartyRole.Member, bool force = false);
-
     void RemoveUserFromParty(ICommonSession user, ServerPartyData party);
 
     void RemoveUserFromParty(NetUserId user, ServerPartyData party);
