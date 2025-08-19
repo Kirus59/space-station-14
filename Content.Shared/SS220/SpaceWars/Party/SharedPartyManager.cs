@@ -1,10 +1,10 @@
 
 using Content.Shared.SS220.CCVars;
-using Lidgren.Network;
 using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Serialization;
+using Robust.Shared.Utility;
 using System.Threading.Tasks;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
@@ -16,7 +16,7 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
 
     protected ISawmill Sawmill = default!;
 
-    private readonly Dictionary<Type, NetSub> _netSubs = [];
+    private readonly Dictionary<Type, INetSubscription> _netSubs = [];
     private event Action<PartyResponceMessage>? OnResponceMsg;
 
     public virtual void Initialize()
@@ -33,7 +33,7 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
         if (msg.Message is not { } message)
             return;
 
-        InvokeSubscription(message);
+        TryInvokeSubscription(message);
 
         switch (message)
         {
@@ -42,13 +42,14 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
                 break;
         }
 
-        void InvokeSubscription(PartyMessage message)
+        bool TryInvokeSubscription(PartyMessage message)
         {
             var type = message.GetType();
             if (!_netSubs.TryGetValue(type, out var subscribe))
-                return;
+                return false;
 
             subscribe.Invoke(message);
+            return true;
         }
     }
 
@@ -56,7 +57,7 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
     {
         var type = typeof(T);
         if (_netSubs.ContainsKey(type))
-            throw new Exception($"already exist a subscription for an element with type: {type}");
+            throw new Exception($"Already exist a subscription for an element with type: {type}");
 
         _netSubs.Add(type, new NetSubscription<T>(callback));
     }
@@ -65,7 +66,7 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
     {
         var type = typeof(T);
         if (_netSubs.ContainsKey(type))
-            throw new Exception($"already exist a subscription for an element with type: {type}");
+            throw new Exception($"Already exist a subscription for an element with type: {type}");
 
         _netSubs.Add(type, new NetSubscription<T, ICommonSession>(callback));
     }
@@ -100,32 +101,43 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
         return result;
     }
 
-    private abstract class NetSub
+    private interface INetSubscription
     {
-        public abstract void Invoke(PartyMessage message);
+        void Invoke(PartyMessage message);
     }
 
-    private sealed class NetSubscription<T>(Action<T> callback) : NetSub where T : PartyMessage
+    private sealed class NetSubscription<T>(Action<T> callback) : INetSubscription where T : PartyMessage
     {
         public Action<T> Callback = callback;
 
-        public override void Invoke(PartyMessage message)
+        public void Invoke(PartyMessage message)
         {
             Callback.Invoke((T)message);
         }
     }
 
-    private sealed class NetSubscription<TMsg, TSession>(Action<TMsg, TSession> callback) : NetSub
+    private sealed class NetSubscription<TMsg, TSession>(Action<TMsg, TSession> callback) : INetSubscription
         where TMsg : PartyMessage
         where TSession : ICommonSession
     {
         public Action<TMsg, TSession> Callback = callback;
 
-        public override void Invoke(PartyMessage message)
+        public void Invoke(PartyMessage message)
         {
+            if (message.Sender is null)
+            {
+                DebugTools.Assert($"Failed to invoke a callback for \"{message.GetType()}\" by reason: " +
+                    $"The field \"{nameof(PartyMessage.Sender)}\" of \"{message.GetType()}\" must not be null.");
+                return;
+            }
+
             var playerMng = IoCManager.Resolve<ISharedPlayerManager>();
             if (!playerMng.TryGetSessionById(message.Sender, out var session))
+            {
+                DebugTools.Assert($"Failed to invoke a callback for \"{message.GetType()}\" by reason: " +
+                    $"Doesn't found a \"{nameof(ICommonSession)}\" for \"{nameof(NetUserId)}\" with id: \"{message.Sender.Value.UserId}\"");
                 return;
+            }
 
             Callback.Invoke((TMsg)message, (TSession)session);
         }
@@ -133,16 +145,11 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
 }
 
 [Serializable, NetSerializable]
-public abstract class SharedPartyData
+public abstract class SharedPartyData(uint id)
 {
-    public readonly uint Id;
+    public readonly uint Id = id;
 
     public bool Disbanded = false;
-
-    public SharedPartyData(uint id)
-    {
-        Id = id;
-    }
 }
 
 [Serializable, NetSerializable]
@@ -171,27 +178,32 @@ public sealed class PartyUserInfo
 }
 
 [Serializable, NetSerializable]
-public abstract class SharedPartyInvite
+public abstract class SharedPartyInvite(uint id, InviteStatus status = InviteStatus.None)
 {
-    public readonly uint Id;
+    public readonly uint Id = id;
 
-    public InviteStatus Status;
+    public InviteStatus Status = status;
 
-    public SharedPartyInvite(uint id, InviteStatus status = InviteStatus.None)
+    public override bool Equals(object? obj)
     {
-        Id = id;
-        Status = status;
+        if (obj is null)
+            return false;
+
+        return GetHashCode() == obj.GetHashCode();
     }
 
-    public bool Equals(SharedPartyInvite invite)
+    public override int GetHashCode()
     {
-        return Id == invite.Id;
+        return Id.GetHashCode();
     }
 
     public static bool Equals(SharedPartyInvite? invite1, SharedPartyInvite? invite2)
     {
-        if (invite1 is null) return invite2 is null;
-        if (invite2 is null) return invite1 is null;
+        if (ReferenceEquals(invite1, invite2))
+            return true;
+
+        if (invite1 is null)
+            return false;
 
         return invite1.Equals(invite2);
     }

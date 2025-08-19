@@ -14,10 +14,6 @@ public partial interface IPartyManager : ISharedPartyManager
 
     PartyUserInfo? LocalPartyUserInfo { get; }
 
-    void SetCurrentParty(ClientPartyDataState? state);
-
-    void UpdateCurrentParty(ClientPartyDataState state);
-
     void SendCreatePartyRequest(PartySettingsState? settings = null);
 
     void SendDisbandPartyRequest();

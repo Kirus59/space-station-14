@@ -11,15 +11,12 @@ public partial interface IPartyManager : ISharedPartyManager
     event Action<ServerPartyData>? PartyDataUpdated;
     event Action<ServerPartyData>? PartyDisbanding;
 
-    List<ServerPartyData> Parties { get; }
+    IReadOnlyList<ServerPartyData> Parties { get; }
 
-    /// <inheritdoc/>
     bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, PartySettingsState? settings = null, bool force = false);
 
-    /// <inheritdoc/>
     ServerPartyData? CreateParty(ICommonSession leader, PartySettingsState? settings = null, bool force = false);
 
-    /// <inheritdoc/>
     void DisbandParty(ServerPartyData party);
 
     bool TryGetPartyById(uint id, [NotNullWhen(true)] out ServerPartyData? party);

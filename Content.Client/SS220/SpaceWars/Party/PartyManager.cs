@@ -27,21 +27,32 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         SetPartyMenu(new PartyMenu());
 
-        SubscribeNetMessage<SetCurrentPartyMessage>(OnSetCurrentParty);
-        SubscribeNetMessage<UpdateCurrentPartyMessage>(OnUpdatePartyDataInfo);
+        SubscribeNetMessage<UpdatePartyDataMessage>(OnUpdatePartyDataMessage);
 
         InviteInitialize();
         ChatInitialize();
     }
 
-    private void OnSetCurrentParty(SetCurrentPartyMessage message)
+    private void OnUpdatePartyDataMessage(UpdatePartyDataMessage message)
     {
-        SetCurrentParty(message.State);
-    }
+        var state = message.State;
+        if (state is null || state.Value.Disbanded)
+        {
+            if (_currentParty != null)
+            {
+                _currentParty = null;
+                OnCurrentPartyUpdated?.Invoke();
+            }
 
-    private void OnUpdatePartyDataInfo(UpdateCurrentPartyMessage message)
-    {
-        UpdateCurrentParty(message.State);
+            return;
+        }
+
+        if (_currentParty is null || _currentParty.Id != state.Value.Id)
+            _currentParty = new ClientPartyData(state.Value);
+        else
+            _currentParty.UpdateState(state.Value);
+
+        OnCurrentPartyUpdated?.Invoke();
     }
 
     private void SendNetMessage(PartyMessage message)
@@ -55,30 +66,6 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         };
 
         _net.ClientSendMessage(msg);
-    }
-
-    public void SetCurrentParty(ClientPartyDataState? state)
-    {
-        if (state == null || state.Value.Disbanded)
-        {
-            _currentParty = null;
-        }
-        else
-        {
-            var party = new ClientPartyData(state.Value);
-            _currentParty = party;
-        }
-
-        OnCurrentPartyUpdated?.Invoke();
-    }
-
-    public void UpdateCurrentParty(ClientPartyDataState state)
-    {
-        if (_currentParty == null || state.Id != _currentParty.Id)
-            return;
-
-        _currentParty.UpdateState(state);
-        OnCurrentPartyUpdated?.Invoke();
     }
 
     public void SendCreatePartyRequest(PartySettingsState? settings = null)

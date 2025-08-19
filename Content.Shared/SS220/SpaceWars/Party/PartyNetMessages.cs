@@ -1,7 +1,6 @@
 
 using Lidgren.Network;
 using Robust.Shared.Network;
-using Robust.Shared.Player;
 using Robust.Shared.Serialization;
 using Robust.Shared.Utility;
 using System.IO;
@@ -71,15 +70,9 @@ public sealed class KickFromPartyRequestMessage(uint partyUserId) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class SetCurrentPartyMessage(ClientPartyDataState? state) : PartyMessage
+public sealed class UpdatePartyDataMessage(ClientPartyDataState? state) : PartyMessage
 {
     public readonly ClientPartyDataState? State = state;
-}
-
-[Serializable, NetSerializable]
-public sealed class UpdateCurrentPartyMessage(ClientPartyDataState state) : PartyMessage
-{
-    public readonly ClientPartyDataState State = state;
 }
 
 #region Settings
