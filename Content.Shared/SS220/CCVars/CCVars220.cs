@@ -131,6 +131,12 @@ public sealed partial class CCVars220
     public static readonly CVarDef<int> MaxLanguagesInOneMessage =
         CVarDef.Create("chat.max_languages_in_one_message", 3, CVar.SERVER);
 
+    /// <summary>
+    /// Additional info into ban window shown if banned player connects
+    /// </summary>
+    public static readonly CVarDef<string> AdditionalBanInfo =
+        CVarDef.Create("ban.additional_info", "", CVar.SERVERONLY | CVar.ARCHIVE);
+
     #region Party
     public static readonly CVarDef<int> PartyMembersLimit =
         CVarDef.Create("party.members_limit", 10, CVar.SERVER);
