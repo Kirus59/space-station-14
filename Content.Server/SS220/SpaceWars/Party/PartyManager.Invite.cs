@@ -10,7 +10,7 @@ namespace Content.Server.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager
 {
-    private Dictionary<uint, ServerPartyInvite> _invites = new();
+    private Dictionary<uint, PartyInvite> _invites = new();
     private HashSet<ICommonSession> _doesntReceiveInvites = new();
 
     public void InviteInitialize()
@@ -73,7 +73,7 @@ public sealed partial class PartyManager
         invite.Status = InviteStatus.Accepted;
         DirtyInvite(invite);
 
-        if (!TryAddUserToParty(invite.Target, party, out var reason, PartyRole.Member, force: true))
+        if (!TryAddUserToParty(invite.Target, party, out var reason, PartyMemberRole.Member, force: true))
             Sawmill.Warning($"Failed to accept party invite with id: \"{inviteId}\"; by reason: \"{reason}\"");
 
         _invites.Remove(invite.Id);
@@ -102,7 +102,7 @@ public sealed partial class PartyManager
         DeleteInvite(invite);
     }
 
-    public void DeleteInvite(ServerPartyInvite invite)
+    public void DeleteInvite(PartyInvite invite)
     {
         invite.Status = InviteStatus.Deleted;
         DirtyInvite(invite);
@@ -159,7 +159,7 @@ public sealed partial class PartyManager
             throw new Exception($"Failed to send invite from {sender} to {target} by reason: {reason}");
     }
 
-    private bool TryGetInvite(NetUserId sender, NetUserId target, [NotNullWhen(true)] out ServerPartyInvite? invite)
+    private bool TryGetInvite(NetUserId sender, NetUserId target, [NotNullWhen(true)] out PartyInvite? invite)
     {
         invite = null;
         var founded = _invites.Values.Where(i => i.Sender == sender && i.Target == target);
@@ -172,18 +172,18 @@ public sealed partial class PartyManager
         return false;
     }
 
-    private IEnumerable<ServerPartyInvite> GetSendedInvites(NetUserId sender)
+    private IEnumerable<PartyInvite> GetSendedInvites(NetUserId sender)
     {
         return _invites.Values.Where(i => i.Sender == sender);
     }
 
-    private ServerPartyInvite CreateNewInvite(ICommonSession sender, ICommonSession target, InviteStatus status = InviteStatus.None)
+    private PartyInvite CreateNewInvite(ICommonSession sender, ICommonSession target, InviteStatus status = InviteStatus.None)
     {
         if (TryGetInvite(sender.UserId, target.UserId, out _))
             throw new Exception($"Invite from {sender} to {target} is already exist!");
 
         var id = GenerateInviteId();
-        var invite = new ServerPartyInvite(id, sender.UserId, target.UserId, sender.Name, target.Name, status);
+        var invite = new PartyInvite(id, sender, target, status);
         _invites.Add(id, invite);
         return invite;
     }
@@ -199,8 +199,8 @@ public sealed partial class PartyManager
 
     private void UpdateInvitesInfo(ICommonSession session)
     {
-        var sendedInvites = _invites.Values.Where(i => i.Sender == session.UserId).Select(i => i.GetSendedInviteState()).ToList();
-        var incomingInvites = _invites.Values.Where(i => i.Target == session.UserId).Select(i => i.GetIncomingInviteState()).ToList();
+        var sendedInvites = _invites.Values.Where(i => i.Sender == session).Select(i => i.GetSendedInviteState()).ToList();
+        var incomingInvites = _invites.Values.Where(i => i.Target == session).Select(i => i.GetIncomingInviteState()).ToList();
         UpdateInvitesInfo(sendedInvites, incomingInvites, session);
     }
 
@@ -210,19 +210,13 @@ public sealed partial class PartyManager
         SendNetMessage(msg, session);
     }
 
-    public void DirtyInvite(ServerPartyInvite invite)
+    public void DirtyInvite(PartyInvite invite)
     {
-        if (_playerManager.TryGetSessionById(invite.Sender, out var sender))
-        {
-            var state = invite.GetSendedInviteState();
-            UpdateSendedInvite(state, sender);
-        }
+        var sendedState = invite.GetSendedInviteState();
+        UpdateSendedInvite(sendedState, invite.Target);
 
-        if (_playerManager.TryGetSessionById(invite.Target, out var target))
-        {
-            var state = invite.GetIncomingInviteState();
-            UpdateIncomingInvite(state, target);
-        }
+        var incomingState = invite.GetIncomingInviteState();
+        UpdateIncomingInvite(incomingState, invite.Target);
     }
 
     public void UpdateSendedInvite(SendedInviteState state, ICommonSession session)
@@ -235,38 +229,5 @@ public sealed partial class PartyManager
     {
         var msg = new UpdateIncomingInviteMessage(state);
         SendNetMessage(msg, session);
-    }
-}
-
-public sealed class ServerPartyInvite : SharedPartyInvite
-{
-    public readonly NetUserId Sender;
-    public readonly NetUserId Target;
-
-    public readonly string SenderName;
-    public readonly string TargetName;
-
-    public ServerPartyInvite(uint id,
-        NetUserId sender,
-        NetUserId target,
-        string senderName,
-        string targetName,
-        InviteStatus status = InviteStatus.None) : base(id, status)
-    {
-        Sender = sender;
-        Target = target;
-
-        SenderName = senderName;
-        TargetName = targetName;
-    }
-
-    public IncomingInviteState GetIncomingInviteState()
-    {
-        return new IncomingInviteState(Id, SenderName, Status);
-    }
-
-    public SendedInviteState GetSendedInviteState()
-    {
-        return new SendedInviteState(Id, TargetName, Status);
     }
 }

@@ -8,48 +8,48 @@ namespace Content.Server.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager : ISharedPartyManager
 {
-    event Action<ServerPartyData>? PartyDataUpdated;
-    event Action<ServerPartyData>? PartyDisbanding;
+    event Action<Party>? PartyDataUpdated;
+    event Action<Party>? PartyDisbanding;
 
-    IReadOnlyList<ServerPartyData> Parties { get; }
+    IReadOnlyList<Party> Parties { get; }
 
     bool TryCreateParty(ICommonSession leader, [NotNullWhen(false)] out string? reason, PartySettingsState? settings = null, bool force = false);
 
-    ServerPartyData? CreateParty(ICommonSession leader, PartySettingsState? settings = null, bool force = false);
+    Party? CreateParty(ICommonSession leader, PartySettingsState? settings = null, bool force = false);
 
-    void DisbandParty(ServerPartyData party);
+    void DisbandParty(Party party);
 
-    bool TryGetPartyById(uint id, [NotNullWhen(true)] out ServerPartyData? party);
+    bool TryGetPartyById(uint id, [NotNullWhen(true)] out Party? party);
 
-    bool TryGetPartyByLeader(ICommonSession leader, [NotNullWhen(true)] out ServerPartyData? party);
+    bool TryGetPartyByLeader(ICommonSession leader, [NotNullWhen(true)] out Party? party);
 
-    bool TryGetPartyByLeader(NetUserId leader, [NotNullWhen(true)] out ServerPartyData? party);
+    bool TryGetPartyByLeader(NetUserId leader, [NotNullWhen(true)] out Party? party);
 
-    bool TryGetPartyByMember(ICommonSession member, [NotNullWhen(true)] out ServerPartyData? party);
+    bool TryGetPartyByMember(ICommonSession member, [NotNullWhen(true)] out Party? party);
 
-    bool TryGetPartyByMember(NetUserId member, [NotNullWhen(true)] out ServerPartyData? party);
+    bool TryGetPartyByMember(NetUserId member, [NotNullWhen(true)] out Party? party);
 
-    ServerPartyData? GetPartyById(uint id);
+    Party? GetPartyById(uint id);
 
-    ServerPartyData? GetPartyByLeader(ICommonSession leader);
+    Party? GetPartyByLeader(ICommonSession leader);
 
-    ServerPartyData? GetPartyByLeader(NetUserId leader);
+    Party? GetPartyByLeader(NetUserId leader);
 
-    ServerPartyData? GetPartyByMember(ICommonSession member);
+    Party? GetPartyByMember(ICommonSession member);
 
-    ServerPartyData? GetPartyByMember(NetUserId member);
+    Party? GetPartyByMember(NetUserId member);
 
     bool TryAddUserToParty(ICommonSession user,
-        ServerPartyData party,
+        Party party,
         [NotNullWhen(false)] out string? reason,
-        PartyRole role = PartyRole.Member,
+        PartyMemberRole role = PartyMemberRole.Member,
         bool force = false);
 
-    void RemoveUserFromParty(ICommonSession user, ServerPartyData party);
+    void RemoveUserFromParty(ICommonSession user, Party party);
 
-    void RemoveUserFromParty(NetUserId user, ServerPartyData party);
+    void RemoveUserFromParty(NetUserId user, Party party);
 
     #region Settings
-    void SetSettings(ServerPartyData partyData, PartySettingsState state);
+    void SetSettings(Party partyData, PartySettingsState state);
     #endregion
 }

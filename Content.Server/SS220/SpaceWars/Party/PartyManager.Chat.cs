@@ -6,7 +6,7 @@ namespace Content.Server.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager
 {
-    public void ChatMessageToParty(string message, ServerPartyData partyData, PartyChatMessageType messageType = PartyChatMessageType.None)
+    public void ChatMessageToParty(string message, Party partyData, PartyChatMessageType messageType = PartyChatMessageType.None)
     {
         message = SanitizePartyChatMessage(message, messageType);
         foreach (var (user, _) in partyData.Members)

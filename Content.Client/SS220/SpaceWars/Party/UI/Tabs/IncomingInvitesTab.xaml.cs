@@ -64,7 +64,7 @@ public sealed partial class IncomingInvitesTab : Control
             _confirmationWindow.ClearEvents();
 
             string message;
-            if (party.LocalUserInfo.Role is PartyRole.Leader)
+            if (party.LocalUserInfo.Role is PartyMemberRole.Leader)
                 message = Loc.GetString("ui-incoming-invites-tab-leave-to-another-party-watning-leader");
             else
                 message = Loc.GetString("ui-incoming-invites-tab-leave-to-another-party-watning-member");

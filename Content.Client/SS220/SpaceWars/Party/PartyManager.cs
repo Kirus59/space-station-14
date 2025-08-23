@@ -19,7 +19,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public ClientPartyData? CurrentParty => _currentParty;
     private ClientPartyData? _currentParty;
 
-    public PartyUserInfo? LocalPartyUserInfo => CurrentParty?.LocalUserInfo;
+    public PartyMember? LocalPartyUserInfo => CurrentParty?.LocalUserInfo;
 
     public override void Initialize()
     {
@@ -112,22 +112,22 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     #endregion
 }
 
-public sealed class ClientPartyData : SharedPartyData
+public sealed class ClientPartyData : SharedParty
 {
-    public PartyUserInfo LocalUserInfo;
-    public List<PartyUserInfo> Members;
+    public PartyMember LocalUserInfo;
+    public List<PartyMember> Members;
     public PartySettings Settings;
 
-    public ClientPartyData(uint id, PartyUserInfo localUserInfo, List<PartyUserInfo> members, PartySettingsState state) : base(id)
+    public ClientPartyData(uint id, PartyMember localUserInfo, List<PartyMember> members, PartySettingsState state) : base(id)
     {
         LocalUserInfo = localUserInfo;
         Members = members;
         Settings = new PartySettings(state);
     }
 
-    public ClientPartyData(ClientPartyDataState state) : this(state.Id, state.LocalUserInfo, state.Members, state.SettingsState) { }
+    public ClientPartyData(PartyState state) : this(state.Id, state.LocalUserInfo, state.Members, state.SettingsState) { }
 
-    public void UpdateState(ClientPartyDataState state)
+    public void UpdateState(PartyState state)
     {
         LocalUserInfo = state.LocalUserInfo;
         Members = state.Members;

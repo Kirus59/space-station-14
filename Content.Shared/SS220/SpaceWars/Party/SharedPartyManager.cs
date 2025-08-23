@@ -1,9 +1,6 @@
 
-using Content.Shared.SS220.CCVars;
-using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
-using Robust.Shared.Serialization;
 using Robust.Shared.Utility;
 using System.Threading.Tasks;
 
@@ -141,115 +138,5 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
 
             Callback.Invoke((TMsg)message, (TSession)session);
         }
-    }
-}
-
-[Serializable, NetSerializable]
-public abstract class SharedPartyData(uint id)
-{
-    public readonly uint Id = id;
-
-    public bool Disbanded = false;
-}
-
-[Serializable, NetSerializable]
-public record struct ClientPartyDataState(uint Id,
-    PartyUserInfo LocalUserInfo,
-    List<PartyUserInfo> Members,
-    PartySettingsState SettingsState,
-    bool Disbanded);
-
-[Serializable, NetSerializable]
-[Access(typeof(SharedPartyManager), Other = AccessPermissions.Read)]
-public sealed class PartyUserInfo
-{
-    public readonly uint Id;
-    public PartyRole Role;
-    public string Name;
-    public bool Connected;
-
-    public PartyUserInfo(uint id, PartyRole role, string name, bool connected)
-    {
-        Id = id;
-        Role = role;
-        Name = name;
-        Connected = connected;
-    }
-}
-
-[Serializable, NetSerializable]
-public abstract class SharedPartyInvite(uint id, InviteStatus status = InviteStatus.None)
-{
-    public readonly uint Id = id;
-
-    public InviteStatus Status = status;
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is null)
-            return false;
-
-        return GetHashCode() == obj.GetHashCode();
-    }
-
-    public override int GetHashCode()
-    {
-        return Id.GetHashCode();
-    }
-
-    public static bool Equals(SharedPartyInvite? invite1, SharedPartyInvite? invite2)
-    {
-        if (ReferenceEquals(invite1, invite2))
-            return true;
-
-        if (invite1 is null)
-            return false;
-
-        return invite1.Equals(invite2);
-    }
-
-    public static bool operator ==(SharedPartyInvite? left, SharedPartyInvite? right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(SharedPartyInvite? left, SharedPartyInvite? right)
-    {
-        return !Equals(left, right);
-    }
-}
-
-public enum PartyRole
-{
-    None,
-    Member,
-    Leader
-}
-
-public enum InviteStatus
-{
-    None,
-    Deleted,
-    Sended,
-
-    Accepted,
-    Denied
-}
-
-[Serializable, NetSerializable]
-public record struct SendedInviteState(uint Id, string TargetName, InviteStatus Status);
-
-[Serializable, NetSerializable]
-public record struct IncomingInviteState(uint Id, string SenderName, InviteStatus Status);
-
-[Serializable, NetSerializable]
-public record struct PartySettingsState
-{
-    public int MaxMembers;
-
-    public PartySettingsState()
-    {
-        var cfg = IoCManager.Resolve<IConfigurationManager>();
-        MaxMembers = cfg.GetCVar(CCVars220.PartyMembersLimit);
     }
 }

@@ -12,7 +12,7 @@ public partial interface IPartyManager : ISharedPartyManager
 
     ClientPartyData? CurrentParty { get; }
 
-    PartyUserInfo? LocalPartyUserInfo { get; }
+    PartyMember? LocalPartyUserInfo { get; }
 
     void SendCreatePartyRequest(PartySettingsState? settings = null);
 

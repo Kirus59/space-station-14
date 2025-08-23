@@ -59,8 +59,8 @@ public sealed partial class MainTab : Control
                     MembersContainer.AddChild(userPanel);
                     _userPanels.Add(member.Name, userPanel);
 
-                    if (member.Role != PartyRole.Leader &&
-                        _partyManager.LocalPartyUserInfo?.Role == PartyRole.Leader)
+                    if (member.Role != PartyMemberRole.Leader &&
+                        _partyManager.LocalPartyUserInfo?.Role == PartyMemberRole.Leader)
                         userPanel.BottomBox.AddChild(NewKickButton(member.Id));
                 }
                 else
@@ -118,7 +118,7 @@ public sealed partial class MainTab : Control
         {
             ButtonContainer.AddChild(NewCreatePartyButton());
         }
-        else if (currentParty.LocalUserInfo.Role is PartyRole.Leader)
+        else if (currentParty.LocalUserInfo.Role is PartyMemberRole.Leader)
         {
             ButtonContainer.AddChild(NewDisbandPartyButton());
             ButtonContainer.AddChild(NewInviteInPartyButton());

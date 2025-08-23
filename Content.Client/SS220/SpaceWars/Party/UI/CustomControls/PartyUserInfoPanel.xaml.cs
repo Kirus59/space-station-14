@@ -36,19 +36,19 @@ public sealed partial class PartyUserInfoPanel : PanelContainer
         SetConnectionStatus(false);
     }
 
-    public PartyUserInfoPanel(string? username, bool conected, PartyRole role = PartyRole.None) : this()
+    public PartyUserInfoPanel(string? username, bool conected, PartyMemberRole role = PartyMemberRole.None) : this()
     {
         Populate(username, conected, role);
     }
 
-    public PartyUserInfoPanel(PartyUserInfo userInfo) : this(userInfo.Name, userInfo.Connected, userInfo.Role) { }
+    public PartyUserInfoPanel(PartyMember userInfo) : this(userInfo.Name, userInfo.Connected, userInfo.Role) { }
 
-    public void Populate(PartyUserInfo userInfo)
+    public void Populate(PartyMember userInfo)
     {
         Populate(userInfo.Name, userInfo.Connected, userInfo.Role);
     }
 
-    public void Populate(string? username, bool conected, PartyRole role = PartyRole.None)
+    public void Populate(string? username, bool conected, PartyMemberRole role = PartyMemberRole.None)
     {
         UserNameLabel.Text = username;
         PartyRoleLabel.Text = GetRoleName(role);
@@ -60,22 +60,22 @@ public sealed partial class PartyUserInfoPanel : PanelContainer
         SetConnectionStatus(conected);
     }
 
-    private string GetRoleName(PartyRole role)
+    private string GetRoleName(PartyMemberRole role)
     {
         return role switch
         {
-            PartyRole.Member => Loc.GetString("partyRole-Member"),
-            PartyRole.Leader => Loc.GetString("partyRole-Leader"),
+            PartyMemberRole.Member => Loc.GetString("partyRole-Member"),
+            PartyMemberRole.Leader => Loc.GetString("partyRole-Leader"),
             _ => Loc.GetString("partyRole-Unknown")
         };
     }
 
-    private Color? GetRoleColor(PartyRole role)
+    private Color? GetRoleColor(PartyMemberRole role)
     {
         return role switch
         {
-            PartyRole.Member => new Color(52, 101, 131),
-            PartyRole.Leader => new Color(146, 122, 25),
+            PartyMemberRole.Member => new Color(52, 101, 131),
+            PartyMemberRole.Leader => new Color(146, 122, 25),
             _ => null
         };
     }
