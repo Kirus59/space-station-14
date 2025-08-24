@@ -66,7 +66,7 @@ public sealed partial class PartyManager
         if (invite.Target != target.UserId)
             return;
 
-        var party = GetPartyByLeader(invite.Sender);
+        var party = GetPartyByHost(invite.Sender);
         if (party == null)
             return;
 

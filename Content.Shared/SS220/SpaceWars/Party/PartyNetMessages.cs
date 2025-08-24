@@ -64,9 +64,9 @@ public sealed class LeavePartyRequestMessage() : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class KickFromPartyRequestMessage(uint partyUserId) : PartyMessage
+public sealed class KickFromPartyRequestMessage(NetUserId userId) : PartyMessage
 {
-    public readonly uint PartyUserId = partyUserId;
+    public readonly NetUserId UserId = userId;
 }
 
 [Serializable, NetSerializable]

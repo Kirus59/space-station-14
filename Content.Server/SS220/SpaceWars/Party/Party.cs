@@ -1,6 +1,4 @@
 using Content.Shared.SS220.SpaceWars.Party;
-using Robust.Shared.Enums;
-using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
 using System.Diagnostics.CodeAnalysis;
@@ -10,41 +8,56 @@ namespace Content.Server.SS220.SpaceWars.Party;
 
 public sealed class Party : SharedParty
 {
-    public PartyMember Host => _host;
-    private PartyMember _host;
+    public PartyMember Host { get; private set; }
 
     public IReadOnlyCollection<PartyMember> Members => _members;
     private readonly HashSet<PartyMember> _members = [];
 
-    public PartySettings Settings => _settings;
-    private PartySettings _settings;
+    public PartySettings Settings;
+    public bool LimitReached => Members.Count >= Settings.MaxMembers;
+
+    private bool _disposed;
 
     public Party(uint id, ICommonSession host, PartySettings? settings = null) : base(id)
     {
-        _host = new PartyMember(host, PartyMemberRole.Host);
-        _members.Add(_host);
-        _settings = settings ?? new PartySettings();
+        Host = new PartyMember(host, PartyMemberRole.Host);
+        _members.Add(Host);
+
+        Settings = settings ?? new();
     }
 
-    public void SetHost(ICommonSession session)
+    public void SetHost(ICommonSession session, bool ignoreLimit = false, bool throwException = false)
     {
-        if (_host.Session == session)
+        if (Host.Session == session)
             return;
 
-        var oldHost = _host;
+        var oldHost = Host;
         if (!TryFindMember(session, out var newHost))
         {
+            if (!ignoreLimit)
+            {
+                try
+                {
+                    CheckLimit(true);
+                }
+                catch (Exception e)
+                {
+                    if (throwException)
+                        throw new Exception($"Failed to set {session.Name} as host of the party with id: {Id}, by reason: \"{e.Message}\"");
+                }
+            }
+
             newHost = new PartyMember(session, PartyMemberRole.Host);
             _members.Add(newHost);
         }
         else
             newHost.Role = PartyMemberRole.Host;
 
-        _host = newHost;
+        Host = newHost;
         oldHost.Role = PartyMemberRole.Member;
     }
 
-    public bool AddMember(ICommonSession session, PartyMemberRole role, bool throwException = false, bool forceLimit = false)
+    public bool AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false, bool throwException = false)
     {
         if (ContainsMember(session))
         {
@@ -54,13 +67,21 @@ public sealed class Party : SharedParty
 
         if (role is PartyMemberRole.Host)
         {
-            TryThrow($"Cannot add user with the {PartyMemberRole.Host} role. Use the \"{nameof(SetHost)}\" function to set a new party host");
+            TryThrow($"Cannot add member with the {PartyMemberRole.Host} role. Use the \"{nameof(SetHost)}\" function to set a new party host");
             return false;
         }
 
-        if (!forceLimit && Members.Count >= Settings.MaxMembers)
+        if (!ignoreLimit)
         {
-            TryThrow("The party has reached the limit of members");
+            try
+            {
+                CheckLimit(true);
+            }
+            catch (Exception e)
+            {
+                TryThrow(e.Message);
+            }
+
             return false;
         }
 
@@ -91,7 +112,7 @@ public sealed class Party : SharedParty
             return false;
         }
 
-        DebugTools.Assert(sorted.Count() == 1, $"Пользователь с ником {session.Name} дважды записан в участниках пати. Party_id: \"{Id}\"");
+        DebugTools.Assert(sorted.Count() == 1, $"The user with the nickname {session.Name} is listed more than once in the party members. Party_id: \"{Id}\"");
         member = sorted.First();
         return true;
     }
@@ -101,7 +122,7 @@ public sealed class Party : SharedParty
         if (!TryFindMember(session, out var member))
             return false;
 
-        if (_host == member)
+        if (Host == member)
         {
             if (throwException)
                 throw new Exception($"Failed to remove {session.Name} from party with id: \"{Id}\" by reason: " +
@@ -114,8 +135,30 @@ public sealed class Party : SharedParty
         return _members.Remove(member);
     }
 
+    public bool IsHost(ICommonSession session)
+    {
+        return Host.Session == session;
+    }
+
+    public void Disband()
+    {
+        if (Status is PartyStatus.Disbanded)
+            return;
+
+        _members.Clear();
+        Status = PartyStatus.Disbanded;
+    }
+
+    private bool CheckLimit(bool throwException = false)
+    {
+        if (LimitReached && throwException)
+            throw new Exception("The party has reached the limit of members");
+
+        return LimitReached;
+    }
+
     public PartyState GetState()
     {
-        return new PartyState(Id, member, [.. Members.Select(x => x.Value)], Settings.GetState(), Disbanded);
+        return new PartyState(Id, [.. _members.Select(x => x.GetState())], Settings.GetState(), Status);
     }
 }

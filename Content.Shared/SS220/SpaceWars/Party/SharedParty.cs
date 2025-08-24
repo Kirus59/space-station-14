@@ -1,3 +1,5 @@
+using Content.Shared.SS220.CCVars;
+using Robust.Shared.Configuration;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
@@ -6,7 +8,8 @@ namespace Content.Shared.SS220.SpaceWars.Party;
 public abstract class SharedParty(uint id)
 {
     public readonly uint Id = id;
-    public bool Disbanded = false;
+
+    public PartyStatus Status { get; protected set; } = PartyStatus.Created;
 
     public override bool Equals(object? obj)
     {
@@ -47,7 +50,7 @@ public abstract class SharedParty(uint id)
 public record struct PartyState(uint Id,
     List<PartyMemberState> Members,
     PartySettingsState Settings,
-    bool Disbanded);
+    PartyStatus Status);
 
 [Serializable, NetSerializable]
 public record struct PartySettingsState
@@ -59,4 +62,10 @@ public record struct PartySettingsState
         var cfg = IoCManager.Resolve<IConfigurationManager>();
         MaxMembers = cfg.GetCVar(CCVars220.PartyMembersLimit);
     }
+}
+
+public enum PartyStatus
+{
+    Created,
+    Disbanded
 }
