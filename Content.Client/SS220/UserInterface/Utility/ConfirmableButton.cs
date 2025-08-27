@@ -1,3 +1,4 @@
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Timing;
@@ -5,18 +6,30 @@ using System.Threading.Tasks;
 
 namespace Content.Client.SS220.UserInterface.Utility;
 
-public sealed class ConfirmableButton : Button
+[Virtual]
+public class ConfirmableButton : Button
 {
     [Dependency] private readonly IGameTiming _gameTiming = default!;
 
     public Action? OnConfirmed;
 
+    [ViewVariables]
     public ConfirmableButtonClicksAction ClicksActionWhenConfirmed = ConfirmableButtonClicksAction.Reset;
+    [ViewVariables]
     public ConfirmableButtonClicksAction ClicksActionWhenNotConfirmed = ConfirmableButtonClicksAction.Reset;
 
-    public TimeSpan ConfirmDelay = TimeSpan.FromMilliseconds(5000);
+    [ViewVariables]
+    public float ConfirmDelayMillisecond { get; set; }
 
-    public uint ClicksForConfirm = 2;
+    public TimeSpan ConfirmDelay => TimeSpan.FromMilliseconds(ConfirmDelayMillisecond);
+
+    [ViewVariables]
+    public uint ClicksForConfirm { get; set; }
+
+    [ViewVariables]
+    public string? DefaultText;
+    [ViewVariables]
+    public Color? DefaultColor;
 
     private TimeSpan _lastClick = TimeSpan.Zero;
 
@@ -25,26 +38,22 @@ public sealed class ConfirmableButton : Button
     private int _curClicks = 0;
     private Dictionary<uint, ConfirmableButtonState> _clickStates = new();
 
-    public ConfirmableButton(ConfirmableButtonState? defaultState = null)
+    public ConfirmableButton()
     {
         IoCManager.InjectDependencies(this);
 
         OnPressed += _ => ProcessClick();
-        if (defaultState != null)
-            SetDefaultState(defaultState.Value);
-        else
-            _clickStates[0] = new ConfirmableButtonState(Text, ModulateSelfOverride);
-
+        SetClickState(0, new ConfirmableButtonState(DefaultText, DefaultColor));
         LoopedUpdate();
+    }
+
+    public ConfirmableButton(ConfirmableButtonState defaultState) : this()
+    {
+        SetClickState(0, defaultState);
     }
 
     public ConfirmableButton(string? text, Color? overrideColor) : this(new ConfirmableButtonState(text, overrideColor)) { }
 
-    public void SetDefaultState(ConfirmableButtonState state)
-    {
-        _clickStates[0] = state;
-        UpdateState();
-    }
 
     public void SetClickState(Dictionary<uint, ConfirmableButtonState> clickStates)
     {
@@ -101,7 +110,7 @@ public sealed class ConfirmableButton : Button
     private void ProcessClick()
     {
         _lastClick = _gameTiming.CurTime;
-        IncreaceClicks();
+        IncreaseClicks();
     }
 
     private void Confirmed()
@@ -121,13 +130,13 @@ public sealed class ConfirmableButton : Button
         Update();
     }
 
-    private void IncreaceClicks()
+    private void IncreaseClicks()
     {
         _curClicks++;
         Update();
     }
 
-    private void DecreaceClicks()
+    private void DecreaseClicks()
     {
         var newValue = _curClicks - 1;
         _curClicks = Math.Max(newValue, 0);
@@ -138,12 +147,12 @@ public sealed class ConfirmableButton : Button
     {
         switch (action)
         {
-            case ConfirmableButtonClicksAction.Decreace:
-                DecreaceClicks();
+            case ConfirmableButtonClicksAction.Decrease:
+                DecreaseClicks();
                 break;
 
-            case ConfirmableButtonClicksAction.Increace:
-                DecreaceClicks();
+            case ConfirmableButtonClicksAction.Increase:
+                DecreaseClicks();
                 break;
 
             case ConfirmableButtonClicksAction.Reset:
@@ -158,7 +167,7 @@ public record struct ConfirmableButtonState(string? Text, Color? OverrideColor);
 public enum ConfirmableButtonClicksAction
 {
     None,
-    Decreace,
-    Increace,
+    Decrease,
+    Increase,
     Reset
 }
