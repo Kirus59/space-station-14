@@ -7,18 +7,16 @@ namespace Content.Server.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager : ISharedPartyManager
 {
-    event Action<Party>? PartyStatusChanged;
-    event Action<Party>? PartyDataUpdated;
+    event Action<PartyStatusChangedActionArgs>? PartyStatusChanged;
+    event Action<Party>? PartyUpdated;
 
     event Action<PartyMember>? UserJoinedParty;
     event Action<PartyMember>? UserLeavedParty;
 
-    IReadOnlyList<Party> Parties { get; }
+    IReadOnlyCollection<Party> Parties { get; }
 
-    /// <inheritdoc/>
     bool TryCreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettingsState? settings = null, bool force = false);
 
-    /// <inheritdoc/>
     Party? CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false);
 
     void DisbandParty(Party party, bool updates = true);
@@ -31,21 +29,22 @@ public partial interface IPartyManager : ISharedPartyManager
 
     Party? GetPartyById(uint id);
 
-    Party? GetPartyByHost(ICommonSession leader);
-
+    Party? GetPartyByHost(ICommonSession host);
 
     Party? GetPartyByMember(ICommonSession member);
 
-    bool AddUserToParty(ICommonSession session,
-        Party party,
+    bool AddMember(Party party,
+        ICommonSession session,
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
         bool updates = true,
         bool throwException = false);
 
-    bool RemoveUserFromParty(ICommonSession session, Party party, bool throwException = false, bool updates = true);
+    bool RemoveMember(Party party, ICommonSession session, bool throwException = false, bool updates = true);
 
-    bool SetNewHost(ICommonSession session, Party party, bool force = false, bool throwException = false, bool updates = true);
+    bool SetHost(Party party, ICommonSession session, bool force = false, bool throwException = false, bool updates = true);
+
+    void SetStatus(Party party, PartyStatus newStatus, bool updates = true);
 
     void EnsureNotPartyMember(ICommonSession session, bool updates = true);
 

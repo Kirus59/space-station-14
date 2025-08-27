@@ -4,10 +4,10 @@ using Robust.Shared.Enums;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public sealed class PartyMember(ICommonSession session, PartyMemberRole role) : SharedPartyMember(), IEquatable<PartyMember>
+public sealed class PartyMember(ICommonSession session, uint partyId, PartyMemberRole role) : SharedPartyMember(role), IEquatable<PartyMember>
 {
-    public ICommonSession Session = session;
-    public PartyMemberRole Role = role;
+    public readonly ICommonSession Session = session;
+    public readonly uint PartyId = partyId;
 
     public PartyMemberState GetState()
     {

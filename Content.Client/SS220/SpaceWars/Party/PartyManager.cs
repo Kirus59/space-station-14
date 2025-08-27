@@ -27,13 +27,13 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         SetPartyMenu(new PartyMenu());
 
-        SubscribeNetMessage<UpdatePartyDataMessage>(OnUpdatePartyDataMessage);
+        SubscribeNetMessage<UpdateClientPartyMessage>(OnUpdatePartyDataMessage);
 
         InviteInitialize();
         ChatInitialize();
     }
 
-    private void OnUpdatePartyDataMessage(UpdatePartyDataMessage message)
+    private void OnUpdatePartyDataMessage(UpdateClientPartyMessage message)
     {
         var state = message.State;
         if (state is null || state.Value.Disbanded)

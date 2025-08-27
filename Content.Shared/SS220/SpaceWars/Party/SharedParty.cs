@@ -9,7 +9,13 @@ public abstract class SharedParty(uint id)
 {
     public readonly uint Id = id;
 
-    public PartyStatus Status { get; protected set; } = PartyStatus.Created;
+    public PartyStatus Status { get; protected set; } = PartyStatus.None;
+
+    [Access(typeof(SharedPartyManager))]
+    public virtual void SetStatus(PartyStatus newStatus)
+    {
+        Status = newStatus;
+    }
 
     public override bool Equals(object? obj)
     {
@@ -66,6 +72,8 @@ public record struct PartySettingsState
 
 public enum PartyStatus
 {
-    Created,
+    None,
+    Running,
+    Disbanding,
     Disbanded
 }

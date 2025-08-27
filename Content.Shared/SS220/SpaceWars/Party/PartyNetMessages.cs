@@ -70,7 +70,7 @@ public sealed class KickFromPartyRequestMessage(NetUserId userId) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class UpdatePartyDataMessage(PartyState? state) : PartyMessage
+public sealed class UpdateClientPartyMessage(PartyState? state) : PartyMessage
 {
     public readonly PartyState? State = state;
 }

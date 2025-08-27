@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public sealed class Party : SharedParty
+public sealed class Party : SharedParty, IDisposable
 {
     public PartyMember Host { get; private set; }
 
@@ -20,7 +20,7 @@ public sealed class Party : SharedParty
 
     public Party(uint id, ICommonSession host, PartySettings? settings = null) : base(id)
     {
-        Host = new PartyMember(host, PartyMemberRole.Host);
+        Host = new PartyMember(host, Id, PartyMemberRole.Host);
         _members.Add(Host);
 
         Settings = settings ?? new();
@@ -28,6 +28,8 @@ public sealed class Party : SharedParty
 
     public void SetHost(ICommonSession session, bool ignoreLimit = false, bool throwException = false)
     {
+        DebugTools.Assert(!_disposed);
+
         if (Host.Session == session)
             return;
 
@@ -47,7 +49,7 @@ public sealed class Party : SharedParty
                 }
             }
 
-            newHost = new PartyMember(session, PartyMemberRole.Host);
+            newHost = new PartyMember(session, Id, PartyMemberRole.Host);
             _members.Add(newHost);
         }
         else
@@ -59,6 +61,8 @@ public sealed class Party : SharedParty
 
     public bool AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false, bool throwException = false)
     {
+        DebugTools.Assert(!_disposed);
+
         if (ContainsMember(session))
         {
             TryThrow("User is already a member of the party");
@@ -85,7 +89,7 @@ public sealed class Party : SharedParty
             return false;
         }
 
-        var member = new PartyMember(session, role);
+        var member = new PartyMember(session, Id, role);
         return _members.Add(member);
 
         void TryThrow(string message)
@@ -99,11 +103,14 @@ public sealed class Party : SharedParty
 
     public bool ContainsMember(ICommonSession session)
     {
+        DebugTools.Assert(!_disposed);
         return TryFindMember(session, out _);
     }
 
     public bool TryFindMember(ICommonSession session, [NotNullWhen(true)] out PartyMember? member)
     {
+        DebugTools.Assert(!_disposed);
+
         var sorted = _members.Where(x => x.Session == session);
         var count = sorted.Count();
         if (count <= 0)
@@ -119,6 +126,8 @@ public sealed class Party : SharedParty
 
     public bool RemoveMember(ICommonSession session, bool throwException = false)
     {
+        DebugTools.Assert(!_disposed);
+
         if (!TryFindMember(session, out var member))
             return false;
 
@@ -137,16 +146,23 @@ public sealed class Party : SharedParty
 
     public bool IsHost(ICommonSession session)
     {
+        DebugTools.Assert(!_disposed);
         return Host.Session == session;
     }
 
-    public void Disband()
+    public void Dispose()
     {
-        if (Status is PartyStatus.Disbanded)
+        if (_disposed)
             return;
 
         _members.Clear();
-        Status = PartyStatus.Disbanded;
+        _disposed = true;
+    }
+
+    public PartyState GetState()
+    {
+        DebugTools.Assert(!_disposed);
+        return new PartyState(Id, [.. _members.Select(x => x.GetState())], Settings.GetState(), Status);
     }
 
     private bool CheckLimit(bool throwException = false)
@@ -155,10 +171,5 @@ public sealed class Party : SharedParty
             throw new Exception("The party has reached the limit of members");
 
         return LimitReached;
-    }
-
-    public PartyState GetState()
-    {
-        return new PartyState(Id, [.. _members.Select(x => x.GetState())], Settings.GetState(), Status);
     }
 }
