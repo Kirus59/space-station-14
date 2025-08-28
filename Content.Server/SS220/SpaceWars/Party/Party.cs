@@ -14,16 +14,18 @@ public sealed class Party : SharedParty, IDisposable
     private readonly HashSet<PartyMember> _members = [];
 
     public PartySettings Settings;
-    public bool LimitReached => Members.Count >= Settings.MaxMembers;
+    public bool LimitReached => Members.Count >= Settings.MembersLimit;
 
     private bool _disposed;
 
-    public Party(uint id, ICommonSession host, PartySettings? settings = null) : base(id)
+    public Party(uint id, ICommonSession host, PartySettingsState? settingsState = null) : base(id)
     {
         Host = new PartyMember(host, Id, PartyMemberRole.Host);
         _members.Add(Host);
 
-        Settings = settings ?? new();
+        Settings = new(this);
+        if (settingsState is { } state)
+            Settings.HandleState(state);
     }
 
     public void SetHost(ICommonSession session, bool ignoreLimit = false, bool throwException = false)

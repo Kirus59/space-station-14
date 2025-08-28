@@ -1,24 +1,29 @@
+using Robust.Shared.Network;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
 [Serializable, NetSerializable]
-public abstract class SharedPartyInvite(uint id, InviteStatus status = InviteStatus.None)
+public abstract class SharedPartyInvite(uint id, uint partyId, PartyInviteStatus status = PartyInviteStatus.None)
 {
     public readonly uint Id = id;
-    public InviteStatus Status = status;
+    public readonly uint PartyId = partyId;
+    public PartyInviteStatus Status = status;
 
     public override bool Equals(object? obj)
     {
-        if (obj is null)
+        if (obj is not SharedPartyInvite other)
             return false;
 
-        return GetHashCode() == obj.GetHashCode();
+        return Equals(other);
     }
 
-    public override int GetHashCode()
+    public bool Equals(SharedPartyInvite other)
     {
-        return Id.GetHashCode();
+        if (ReferenceEquals(this, other))
+            return true;
+
+        return Id == other.Id;
     }
 
     public static bool Equals(SharedPartyInvite? invite1, SharedPartyInvite? invite2)
@@ -26,8 +31,8 @@ public abstract class SharedPartyInvite(uint id, InviteStatus status = InviteSta
         if (ReferenceEquals(invite1, invite2))
             return true;
 
-        if (invite1 is null)
-            return false;
+        if (invite1 is null) return false;
+        if (invite2 is null) return false;
 
         return invite1.Equals(invite2);
     }
@@ -41,20 +46,29 @@ public abstract class SharedPartyInvite(uint id, InviteStatus status = InviteSta
     {
         return !Equals(left, right);
     }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
+    }
 }
 
-public enum InviteStatus
+[Serializable, NetSerializable]
+public record struct InviteState(uint Id,
+    uint partyId,
+    NetUserId Sender,
+    NetUserId Target,
+    PartyInviteStatus Status,
+    string SenderName = "unknown");
+
+public enum PartyInviteStatus
 {
     None,
-    Deleted,
+    Created,
     Sended,
 
     Accepted,
-    Denied
+    Denied,
+
+    Deleted
 }
-
-[Serializable, NetSerializable]
-public record struct SendedInviteState(uint Id, string TargetName, InviteStatus Status);
-
-[Serializable, NetSerializable]
-public record struct IncomingInviteState(uint Id, string SenderName, InviteStatus Status);

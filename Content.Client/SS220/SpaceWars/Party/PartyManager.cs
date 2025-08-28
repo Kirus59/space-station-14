@@ -146,6 +146,6 @@ public sealed class PartySettings()
 
     public void UpdateState(PartySettingsState state)
     {
-        MaxMembers = state.MaxMembers;
+        MaxMembers = state.MembersLimit;
     }
 }

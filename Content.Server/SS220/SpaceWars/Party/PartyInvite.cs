@@ -4,18 +4,17 @@ using Robust.Shared.Player;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public sealed class PartyInvite(uint id, ICommonSession sender, ICommonSession target, InviteStatus status = InviteStatus.None) : SharedPartyInvite(id, status)
+public sealed class PartyInvite(uint id,
+    uint partyId,
+    ICommonSession sender,
+    ICommonSession target,
+    PartyInviteStatus status = PartyInviteStatus.None) : SharedPartyInvite(id, partyId, status)
 {
     public readonly ICommonSession Sender = sender;
     public readonly ICommonSession Target = target;
 
-    public IncomingInviteState GetIncomingInviteState()
+    public InviteState GetState()
     {
-        return new IncomingInviteState(Id, Sender.Name, Status);
-    }
-
-    public SendedInviteState GetSendedInviteState()
-    {
-        return new SendedInviteState(Id, Target.Name, Status);
+        return new InviteState(Id, Sender.UserId, Target.UserId, Status, SenderName: Sender.Name);
     }
 }

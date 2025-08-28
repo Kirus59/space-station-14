@@ -35,7 +35,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         _playerManager.PlayerStatusChanged += OnPlayerStatusChanged;
 
-        _cfg.OnValueChanged(CCVars220.PartyMembersLimit, OnMembersLimitChanged, true);
+        _cfg.OnValueChanged(CCVars220.PartyMembersLimit, _ => ResetSettings(), true);
 
         SubscribeNetMessage<CreatePartyRequestMessage>(OnCreatePartyRequest);
         SubscribeNetMessage<DisbandPartyRequestMessage>(OnDisbandPartyRequest);
@@ -55,14 +55,14 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return;
 
         if (TryGetPartyByMember(e.Session, out var party))
-            UpdateClientParty(party);
+            UpdateClientParty(party, [e.Session]);
 
         UpdateClient(e.Session, party);
     }
 
     private void OnCreatePartyRequest(CreatePartyRequestMessage message, ICommonSession sender)
     {
-        CreateParty(sender);
+        CreateParty(sender, message.SettingsState);
     }
 
     private void OnDisbandPartyRequest(DisbandPartyRequestMessage message, ICommonSession sender)
@@ -229,17 +229,17 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return false;
         }
 
-        if (!party.AddMember(session, role, throwException, force))
+        if (!party.AddMember(session, role, ignoreLimit: force, throwException: throwException))
             return false;
+
+        var chatMessage = Loc.GetString("partymanager-user-join-party-mesage", ("user", session.Name));
+        ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
 
         if (updates)
         {
             UpdateClientParty(party);
             PartyUpdated?.Invoke(party);
         }
-
-        var chatMesage = Loc.GetString("partymanager-user-join-party-mesage", ("user", session.Name));
-        ChatMessageToParty(chatMesage, party, PartyChatMessageType.Info);
 
         return true;
     }
@@ -258,7 +258,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (!party.TryFindMember(session, out var member))
             return false;
 
-        if (!party.RemoveMember(session, true))
+        if (!party.RemoveMember(session, throwException: throwException))
             return false;
 
         UserLeavedParty?.Invoke(member);
@@ -295,7 +295,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return false;
         }
 
-        party.SetHost(session);
+        party.SetHost(session, ignoreLimit: force, throwException: throwException);
 
         if (!isMember)
             UserJoinedParty?.Invoke(party.Host);
@@ -303,7 +303,6 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (updates)
         {
             UpdateClientParty(party);
-
             PartyUpdated?.Invoke(party);
         }
 
@@ -318,15 +317,14 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         party.SetStatus(newStatus);
 
+        var args = new PartyStatusChangedActionArgs(party.Id, oldStatus, newStatus);
+        PartyStatusChanged?.Invoke(args);
+
         if (updates)
         {
             UpdateClientParty(party);
-
             PartyUpdated?.Invoke(party);
         }
-
-        var args = new PartyStatusChangedActionArgs(party.Id, oldStatus, newStatus);
-        PartyStatusChanged?.Invoke(args);
     }
 
     public void EnsureNotPartyMember(ICommonSession session, bool updates = true)
@@ -337,7 +335,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (party.IsHost(session))
             DisbandParty(party, updates);
         else
-            RemoveMember(party, session, updates);
+            RemoveMember(party, session, updates: updates);
     }
 
     public bool IsAnyPartyMember(ICommonSession session)
@@ -345,10 +343,15 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         return TryGetPartyByMember(session, out _);
     }
 
-    private void UpdateClientParty(Party party)
+    private void UpdateClientParty(Party party, List<ICommonSession>? blacklist = null)
     {
         foreach (var member in party.Members)
+        {
+            if (blacklist != null && blacklist.Contains(member.Session))
+                continue;
+
             UpdateClientParty(member.Session, party);
+        }
     }
 
     private void UpdateClientParty(ICommonSession session)
@@ -390,14 +393,6 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     }
 
     #region Settings
-    private int _membersLimit = int.MaxValue;
-
-    private void OnMembersLimitChanged(int value)
-    {
-        _membersLimit = value;
-        ResetSettings();
-    }
-
     private void ResetSettings()
     {
         foreach (var party in _parties)
@@ -412,13 +407,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public void SetSettings(Party party, PartySettingsState state, bool updates = true)
     {
-        var settings = party.Settings;
-        settings.MaxMembers = Math.Clamp(state.MaxMembers, party.Members.Count, _membersLimit);
+        party.Settings.HandleState(state);
 
         if (updates)
         {
             UpdateClientParty(party);
-
             PartyUpdated?.Invoke(party);
         }
     }

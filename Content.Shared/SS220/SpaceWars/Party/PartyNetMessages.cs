@@ -109,7 +109,7 @@ public sealed class DenyInviteMessage(uint inviteId) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class DeleteInviteMessage(uint inviteId) : PartyMessage
+public sealed class DeleteInviteRequestMessage(uint inviteId) : PartyMessage
 {
     public readonly uint InviteId = inviteId;
 }
@@ -144,6 +144,16 @@ public sealed class UpdateInvitesInfoMessage(List<SendedInviteState> sendedInvit
 {
     public readonly List<SendedInviteState> SendedInvites = sendedInvites;
     public readonly List<IncomingInviteState> IncomingInvites = incomingInvites;
+}
+
+public sealed class UpdateClientPartyInvitesMessage(List<InviteState> states) : PartyMessage
+{
+    public readonly List<InviteState> States = states;
+}
+
+public sealed class UpdateClientPartyInviteMessage(InviteState state) : PartyMessage
+{
+    public readonly InviteState State = state;
 }
 
 [Serializable, NetSerializable]

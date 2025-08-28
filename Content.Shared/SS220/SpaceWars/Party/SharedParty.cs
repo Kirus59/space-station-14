@@ -8,7 +8,6 @@ namespace Content.Shared.SS220.SpaceWars.Party;
 public abstract class SharedParty(uint id)
 {
     public readonly uint Id = id;
-
     public PartyStatus Status { get; protected set; } = PartyStatus.None;
 
     [Access(typeof(SharedPartyManager))]
@@ -19,10 +18,18 @@ public abstract class SharedParty(uint id)
 
     public override bool Equals(object? obj)
     {
-        if (obj is null)
+        if (obj is not SharedParty other)
             return false;
 
-        return GetHashCode() == obj.GetHashCode();
+        return Equals(other);
+    }
+
+    public bool Equals(SharedParty other)
+    {
+        if (ReferenceEquals(this, other))
+            return true;
+
+        return Id == other.Id;
     }
 
     public override int GetHashCode()
@@ -35,8 +42,8 @@ public abstract class SharedParty(uint id)
         if (ReferenceEquals(party1, party2))
             return true;
 
-        if (party1 is null)
-            return false;
+        if (party1 is null) return false;
+        if (party2 is null) return false;
 
         return party1.Equals(party2);
     }
@@ -59,16 +66,7 @@ public record struct PartyState(uint Id,
     PartyStatus Status);
 
 [Serializable, NetSerializable]
-public record struct PartySettingsState
-{
-    public int MaxMembers;
-
-    public PartySettingsState()
-    {
-        var cfg = IoCManager.Resolve<IConfigurationManager>();
-        MaxMembers = cfg.GetCVar(CCVars220.PartyMembersLimit);
-    }
-}
+public record struct PartySettingsState(int MembersLimit);
 
 public enum PartyStatus
 {

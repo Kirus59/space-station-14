@@ -39,7 +39,7 @@ public sealed partial class PartySettingsPanel : PanelContainer
         var state = new PartySettingsState();
         if (TryGetSettingValue<string>(nameof(PartySettings.MaxMembers), out var value) &&
             int.TryParse(value, out var maxMembers))
-            state.MaxMembers = maxMembers;
+            state.MembersLimit = maxMembers;
 
         return state;
     }

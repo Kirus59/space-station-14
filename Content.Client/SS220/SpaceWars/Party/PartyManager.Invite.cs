@@ -80,7 +80,7 @@ public sealed partial class PartyManager
 
     public void DeleteInvite(uint inviteId)
     {
-        var msg = new DeleteInviteMessage(inviteId);
+        var msg = new DeleteInviteRequestMessage(inviteId);
         SendNetMessage(msg);
     }
 
@@ -233,12 +233,12 @@ public sealed partial class PartyManager
     {
         switch (invite.Status)
         {
-            case InviteStatus.Deleted:
-            case InviteStatus.Accepted:
+            case PartyInviteStatus.Deleted:
+            case PartyInviteStatus.Accepted:
                 RemoveInvite(invite);
                 break;
 
-            case InviteStatus.Denied:
+            case PartyInviteStatus.Denied:
                 if (invite is IncomingPartyInvite)
                     RemoveInvite(invite);
                 break;
@@ -252,7 +252,7 @@ public sealed class SendedPartyInvite : SharedPartyInvite
 
     public SendedPartyInvite(SendedInviteState state) : this(state.Id, state.TargetName, state.Status) { }
 
-    public SendedPartyInvite(uint id, string targetName, InviteStatus status = InviteStatus.None) : base(id, status)
+    public SendedPartyInvite(uint id, string targetName, PartyInviteStatus status = PartyInviteStatus.None) : base(id, status)
     {
         TargetName = targetName;
     }
@@ -264,7 +264,7 @@ public sealed class IncomingPartyInvite : SharedPartyInvite
 
     public IncomingPartyInvite(IncomingInviteState state) : this(state.Id, state.SenderName, state.Status) { }
 
-    public IncomingPartyInvite(uint id, string senderName, InviteStatus status = InviteStatus.None) : base(id, status)
+    public IncomingPartyInvite(uint id, string senderName, PartyInviteStatus status = PartyInviteStatus.None) : base(id, status)
     {
         SenderName = senderName;
     }
