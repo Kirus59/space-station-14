@@ -4,10 +4,9 @@ using Robust.Shared.Serialization;
 namespace Content.Shared.SS220.SpaceWars.Party;
 
 [Serializable, NetSerializable]
-public abstract class SharedPartyInvite(uint id, uint partyId, PartyInviteStatus status = PartyInviteStatus.None)
+public abstract class SharedPartyInvite(uint id, PartyInviteStatus status = PartyInviteStatus.None)
 {
     public readonly uint Id = id;
-    public readonly uint PartyId = partyId;
     public PartyInviteStatus Status = status;
 
     public override bool Equals(object? obj)
@@ -55,11 +54,10 @@ public abstract class SharedPartyInvite(uint id, uint partyId, PartyInviteStatus
 
 [Serializable, NetSerializable]
 public record struct InviteState(uint Id,
-    uint partyId,
-    NetUserId Sender,
-    NetUserId Target,
-    PartyInviteStatus Status,
-    string SenderName = "unknown");
+    uint PartyId,
+    NetUserId Receiver,
+    string SenderName,
+    PartyInviteStatus Status);
 
 public enum PartyInviteStatus
 {

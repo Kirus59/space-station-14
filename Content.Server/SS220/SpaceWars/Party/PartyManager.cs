@@ -114,17 +114,25 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     /// <inheritdoc/>
     public bool TryCreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettingsState? settings = null, bool force = false)
     {
-        party = CreateParty(host, settings, force);
-        return party != null;
+        try
+        {
+            party = CreateParty(host, settings, force);
+            return true;
+        }
+        catch
+        {
+            party = null;
+            return false;
+        }
     }
 
     /// <inheritdoc/>
-    public Party? CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false)
+    public Party CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false)
     {
         if (force)
             EnsureNotPartyMember(host);
         else if (IsAnyPartyMember(host))
-            return null;
+            throw new Exception($"{host.Name} is already a member of another party.");
 
         var party = new Party(GeneratePartyId(), host);
         _parties.Add(party);
@@ -216,6 +224,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         ICommonSession session,
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
+        bool ignoreLimit = false,
         bool updates = true,
         bool throwException = false)
     {
@@ -229,7 +238,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return false;
         }
 
-        if (!party.AddMember(session, role, ignoreLimit: force, throwException: throwException))
+        if (!party.AddMember(session, role, ignoreLimit: ignoreLimit, throwException: throwException))
             return false;
 
         var chatMessage = Loc.GetString("partymanager-user-join-party-mesage", ("user", session.Name));
@@ -341,6 +350,18 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public bool IsAnyPartyMember(ICommonSession session)
     {
         return TryGetPartyByMember(session, out _);
+    }
+
+    public bool Exist(Party? party)
+    {
+        if (party == null)
+            return false;
+
+        var exist = _parties.Contains(party);
+        if (exist)
+            DebugTools.Assert(party.Status is not PartyStatus.Disbanding or PartyStatus.Disbanded);
+
+        return exist;
     }
 
     private void UpdateClientParty(Party party, List<ICommonSession>? blacklist = null)
