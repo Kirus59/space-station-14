@@ -29,12 +29,12 @@ public sealed class Party : SharedParty, IDisposable
     }
 
     [Access(typeof(PartyManager))]
-    public void SetHost(ICommonSession session, bool ignoreLimit = false)
+    public PartyMember SetHost(ICommonSession session, bool ignoreLimit = false)
     {
         DebugTools.Assert(!_disposed);
 
         if (Host.Session == session)
-            return;
+            return Host;
 
         var oldHost = Host;
         if (!TryFindMember(session, out var newHost))
@@ -50,15 +50,17 @@ public sealed class Party : SharedParty, IDisposable
 
         Host = newHost;
         oldHost.Role = PartyMemberRole.Member;
+
+        return newHost;
     }
 
     [Access(typeof(PartyManager))]
-    public void AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
+    public PartyMember AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
     {
         DebugTools.Assert(!_disposed);
 
-        if (ContainsMember(session))
-            return;
+        if (TryFindMember(session, out var member))
+            return member;
 
         if (role is PartyMemberRole.Host)
             throw new ArgumentException($"Cannot add member with the {PartyMemberRole.Host} role. " +
@@ -67,8 +69,10 @@ public sealed class Party : SharedParty, IDisposable
         if (!ignoreLimit)
             LimitCheckout(true);
 
-        var member = new PartyMember(session, Id, role);
-        return;
+        member = new PartyMember(session, Id, role);
+        _members.Add(member);
+
+        return member;
     }
 
     public bool ContainsMember(ICommonSession session)
@@ -126,7 +130,7 @@ public sealed class Party : SharedParty, IDisposable
     public PartyState GetState()
     {
         DebugTools.Assert(!_disposed);
-        return new PartyState(Id, [.. _members.Select(x => x.GetState())], Settings.GetState(), Status);
+        return new PartyState(Id, Host.GetState(), [.. _members.Select(x => x.GetState())], Settings.GetState(), Status);
     }
 
     private bool LimitCheckout(bool throwException = false)

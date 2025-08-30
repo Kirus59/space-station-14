@@ -1,53 +1,32 @@
 using Content.Shared.SS220.SpaceWars.Party;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager
 {
-    event Action<SendedPartyInvite>? OnSendedInviteAdded;
-    event Action<SendedPartyInvite>? OnSendedInviteRemoved;
-    event Action<SendedPartyInvite>? OnSendedInviteUpdated;
+    event Action<PartyInvite>? InviteAdded;
+    event Action<PartyInvite>? InviteRemoved;
+    event Action<PartyInvite>? InviteUpdated;
 
-    event Action<IncomingPartyInvite>? OnIncomingInviteAdded;
-    event Action<IncomingPartyInvite>? OnIncomingInviteRemoved;
-    event Action<IncomingPartyInvite>? OnIncomingInviteUpdated;
+    IEnumerable<PartyInvite> ReceivedInvites { get; }
+    IEnumerable<PartyInvite> LocalPartyInvites { get; }
+    IEnumerable<PartyInvite> AllInvites { get; }
 
-    Dictionary<uint, SendedPartyInvite> SendedInvites { get; }
+    void InviteInitialize();
 
-    Dictionary<uint, IncomingPartyInvite> IncomingInvites { get; }
+    bool TryGetInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite);
+    PartyInvite? GetInvite(uint id);
 
-    Task<InviteInPartyResponceMessage> SendInvite(string username);
+    void InviteUserRequest(string username);
+    Task<InviteUserResponceMessage> InviteUserRequestAsync(string username);
 
-    void AcceptInvite(uint inviteId);
+    void AcceptInviteRequest(uint inviteId);
 
-    void DenyInvite(uint inviteId);
+    void DenyInviteRequest(uint inviteId);
 
-    void DeleteInvite(uint inviteId);
+    void DeleteInviteRequest(uint inviteId);
 
     void SetReceiveInvitesStatus(bool receiveInvites);
-
-    void UpdateSendedInvitesInfo(List<SendedInviteState> sendedInvites);
-
-    void UpdateIncomingInvitesInfo(List<IncomingInviteState> incomingInvites);
-
-    void UpdateSendedInvite(SendedInviteState state);
-
-    void UpdateIncomingInvite(IncomingInviteState state);
-
-    void AddSendedInvite(SendedInviteState state);
-
-    void AddSendedInvite(SendedPartyInvite invite);
-
-    void RemoveSendedInvite(uint id);
-
-    void RemoveSendedInvite(SendedPartyInvite invite);
-
-    void AddIncomingInvite(IncomingInviteState state);
-
-    void AddIncomingInvite(IncomingPartyInvite invite);
-
-    void RemoveIncomingInvite(uint id);
-
-    void RemoveIncomingInvite(IncomingPartyInvite invite);
 }

@@ -39,7 +39,7 @@ public partial interface IPartyManager : ISharedPartyManager
     void RemoveMember(Party party, ICommonSession session, bool updates = true);
 
     bool TrySetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
-    bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
+    void SetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
 
     void SetStatus(Party party, PartyStatus newStatus, bool updates = true);
 

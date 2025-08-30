@@ -1,11 +1,10 @@
-using Content.Shared.SS220.CCVars;
-using Robust.Shared.Configuration;
+
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
 [Serializable, NetSerializable]
-public abstract class SharedParty(uint id)
+public abstract class SharedParty(uint id) : IEquatable<SharedParty>
 {
     public readonly uint Id = id;
     public PartyStatus Status { get; protected set; } = PartyStatus.None;
@@ -24,10 +23,10 @@ public abstract class SharedParty(uint id)
         return Equals(other);
     }
 
-    public bool Equals(SharedParty other)
+    public bool Equals(SharedParty? other)
     {
-        if (ReferenceEquals(this, other))
-            return true;
+        if (other is null)
+            return false;
 
         return Id == other.Id;
     }
@@ -43,7 +42,6 @@ public abstract class SharedParty(uint id)
             return true;
 
         if (party1 is null) return false;
-        if (party2 is null) return false;
 
         return party1.Equals(party2);
     }
@@ -61,6 +59,7 @@ public abstract class SharedParty(uint id)
 
 [Serializable, NetSerializable]
 public record struct PartyState(uint Id,
+    PartyMemberState Host,
     List<PartyMemberState> Members,
     PartySettingsState Settings,
     PartyStatus Status);

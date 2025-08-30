@@ -16,6 +16,9 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
     private readonly Dictionary<Type, INetSubscription> _netSubs = [];
     private event Action<PartyResponceMessage>? OnResponceMsg;
 
+    // not synced
+    private uint _nextMessageId = 0;
+
     public virtual void Initialize()
     {
         IoCManager.InjectDependencies(this);
@@ -68,14 +71,19 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
         _netSubs.Add(type, new NetSubscription<T, ICommonSession>(callback));
     }
 
-    protected async Task<T> WaitResponce<T>(TimeSpan? timeout = null) where T : PartyResponceMessage, new()
+    protected async Task<T> WaitResponce<T>(TimeSpan? timeout = null, uint? id = null) where T : PartyResponceMessage, new()
     {
         var tcs = new TaskCompletionSource<T>();
 
         void OnResponce(PartyResponceMessage responce)
         {
-            if (responce is T result)
-                tcs.SetResult(result);
+            if (responce is not T result)
+                return;
+
+            if (id != result.Id)
+                return;
+
+            tcs.SetResult(result);
         }
 
         OnResponceMsg += OnResponce;
@@ -96,6 +104,11 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
 
         OnResponceMsg -= OnResponce;
         return result;
+    }
+
+    protected uint GenerateMessageId()
+    {
+        return _nextMessageId++;
     }
 
     private interface INetSubscription

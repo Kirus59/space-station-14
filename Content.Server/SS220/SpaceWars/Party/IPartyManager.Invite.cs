@@ -13,6 +13,8 @@ public partial interface IPartyManager
 
     void DenyInvite(PartyInvite invite);
 
+    void DeleteInvite(uint inviteId);
+    void DeleteInvite(Party party, ICommonSession receiver);
     void DeleteInvite(PartyInvite invite, bool updates = true);
 
     bool TryCreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out PartyInvite? invite);

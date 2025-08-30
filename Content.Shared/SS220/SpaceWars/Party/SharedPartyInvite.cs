@@ -53,7 +53,7 @@ public abstract class SharedPartyInvite(uint id, PartyInviteStatus status = Part
 }
 
 [Serializable, NetSerializable]
-public record struct InviteState(uint Id,
+public record struct PartyInviteState(uint Id,
     uint PartyId,
     NetUserId Receiver,
     string SenderName,

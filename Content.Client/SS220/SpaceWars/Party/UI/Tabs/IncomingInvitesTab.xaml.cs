@@ -51,7 +51,7 @@ public sealed partial class IncomingInvitesTab : Control
             };
 
             control.AcceptButton.OnPressed += _ => AcceptInvite(invite);
-            control.DenyButton.OnPressed += _ => _partyManager.DenyInvite(id);
+            control.DenyButton.OnPressed += _ => _partyManager.DenyInviteRequest(id);
 
             InvitesContainer.AddChild(control);
         }
@@ -59,7 +59,7 @@ public sealed partial class IncomingInvitesTab : Control
 
     private void AcceptInvite(IncomingPartyInvite invite)
     {
-        if (_partyManager.CurrentParty is { } party)
+        if (_partyManager.LocalParty is { } party)
         {
             _confirmationWindow.ClearEvents();
 

@@ -31,7 +31,7 @@ public sealed partial class PartySettingsPanel : PanelContainer
         SettingsBox.RemoveAllChildren();
 
         AddLineEditOption(nameof(PartySettings.MaxMembers),
-            (_partyManager.CurrentParty?.Settings.MaxMembers ?? _cfg.GetCVar(CCVars220.PartyMembersLimit)).ToString());
+            (_partyManager.LocalParty?.Settings.MaxMembers ?? _cfg.GetCVar(CCVars220.PartyMembersLimit)).ToString());
     }
 
     public PartySettingsState GetSettingsState()

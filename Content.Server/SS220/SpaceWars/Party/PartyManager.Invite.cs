@@ -19,19 +19,20 @@ public sealed partial class PartyManager
 
     public void InviteInitialize()
     {
-        SubscribeNetMessage<InviteInPartyRequestMessage>(OnInviteInPartyRequest);
-        SubscribeNetMessage<AcceptInviteMessage>(OnAcceptInvite);
-        SubscribeNetMessage<DenyInviteMessage>(OnDenyInvite);
+        SubscribeNetMessage<InviteUserRequestMessage>(OnInviteInPartyRequest);
+        SubscribeNetMessage<AcceptInviteRequestMessage>(OnAcceptInvite);
+        SubscribeNetMessage<DenyInviteRequestMessage>(OnDenyInvite);
         SubscribeNetMessage<DeleteInviteRequestMessage>(OnDeleteInvite);
         SubscribeNetMessage<SetReceiveInvitesStatusMessage>(OnSetReceiveInvitesStatus);
     }
 
-    private void OnInviteInPartyRequest(InviteInPartyRequestMessage message, ICommonSession sender)
+    private void OnInviteInPartyRequest(InviteUserRequestMessage message, ICommonSession sender)
     {
         var success = TryInvite(out var responceMessage);
 
-        var responce = new InviteInPartyResponceMessage
+        var responce = new InviteUserResponceMessage
         {
+            Id = message.Id,
             Success = success,
             Text = responceMessage
         };
@@ -71,7 +72,7 @@ public sealed partial class PartyManager
         }
     }
 
-    private void OnAcceptInvite(AcceptInviteMessage message, ICommonSession sender)
+    private void OnAcceptInvite(AcceptInviteRequestMessage message, ICommonSession sender)
     {
         if (!TryGetInvite(message.InviteId, out var invite))
             return;
@@ -82,7 +83,7 @@ public sealed partial class PartyManager
         TryAcceptInvite(invite, force: true);
     }
 
-    private void OnDenyInvite(DenyInviteMessage message, ICommonSession sender)
+    private void OnDenyInvite(DenyInviteRequestMessage message, ICommonSession sender)
     {
         if (!TryGetInvite(message.InviteId, out var invite))
             return;
@@ -141,6 +142,22 @@ public sealed partial class PartyManager
     public void DenyInvite(PartyInvite invite)
     {
         SetInviteStatus(invite, PartyInviteStatus.Denied);
+        DeleteInvite(invite);
+    }
+
+    public void DeleteInvite(uint inviteId)
+    {
+        if (!TryGetInvite(inviteId, out var invite))
+            return;
+
+        DeleteInvite(invite);
+    }
+
+    public void DeleteInvite(Party party, ICommonSession receiver)
+    {
+        if (!TryGetInvite(party, receiver, out var invite))
+            return;
+
         DeleteInvite(invite);
     }
 

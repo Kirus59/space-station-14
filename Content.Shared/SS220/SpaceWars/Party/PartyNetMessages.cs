@@ -38,6 +38,7 @@ public sealed class PartyNetMessage : NetMessage
 [Serializable, NetSerializable]
 public abstract class PartyMessage
 {
+    public uint? Id;
     public NetUserId? Sender;
 }
 
@@ -85,25 +86,13 @@ public sealed class SetPartySettingsRequestMessage(PartySettingsState state) : P
 
 #region Invite
 [Serializable, NetSerializable]
-public sealed class CreatedNewInviteMessage(SendedInviteState state) : PartyMessage
-{
-    public readonly SendedInviteState State = state;
-}
-
-[Serializable, NetSerializable]
-public sealed class InviteReceivedMessage(IncomingInviteState state) : PartyMessage
-{
-    public readonly IncomingInviteState State = state;
-}
-
-[Serializable, NetSerializable]
-public sealed class AcceptInviteMessage(uint inviteId) : PartyMessage
+public sealed class AcceptInviteRequestMessage(uint inviteId) : PartyMessage
 {
     public readonly uint InviteId = inviteId;
 }
 
 [Serializable, NetSerializable]
-public sealed class DenyInviteMessage(uint inviteId) : PartyMessage
+public sealed class DenyInviteRequestMessage(uint inviteId) : PartyMessage
 {
     public readonly uint InviteId = inviteId;
 }
@@ -115,45 +104,26 @@ public sealed class DeleteInviteRequestMessage(uint inviteId) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class InviteInPartyRequestMessage(string username) : PartyMessage
+public sealed class InviteUserRequestMessage(string username) : PartyMessage
 {
     public readonly string Username = username;
 }
 
 [Serializable, NetSerializable]
-public sealed class InviteInPartyResponceMessage() : PartyResponceMessage
+public sealed class InviteUserResponceMessage() : PartyResponceMessage
 {
     public bool Success = false;
     public string Text = string.Empty;
 }
 
-[Serializable, NetSerializable]
-public sealed class UpdateSendedInviteMessage(SendedInviteState state) : PartyMessage
+public sealed class UpdateClientPartyInvitesMessage(List<PartyInviteState> states) : PartyMessage
 {
-    public readonly SendedInviteState State = state;
+    public readonly List<PartyInviteState> States = states;
 }
 
-[Serializable, NetSerializable]
-public sealed class UpdateIncomingInviteMessage(IncomingInviteState state) : PartyMessage
+public sealed class UpdateClientPartyInviteMessage(PartyInviteState state) : PartyMessage
 {
-    public readonly IncomingInviteState State = state;
-}
-
-[Serializable, NetSerializable]
-public sealed class UpdateInvitesInfoMessage(List<SendedInviteState> sendedInvites, List<IncomingInviteState> incomingInvites) : PartyMessage
-{
-    public readonly List<SendedInviteState> SendedInvites = sendedInvites;
-    public readonly List<IncomingInviteState> IncomingInvites = incomingInvites;
-}
-
-public sealed class UpdateClientPartyInvitesMessage(List<InviteState> states) : PartyMessage
-{
-    public readonly List<InviteState> States = states;
-}
-
-public sealed class UpdateClientPartyInviteMessage(InviteState state) : PartyMessage
-{
-    public readonly InviteState State = state;
+    public readonly PartyInviteState State = state;
 }
 
 [Serializable, NetSerializable]

@@ -3,6 +3,7 @@ using Content.Client.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Client.Player;
 using Robust.Shared.Network;
+using Robust.Shared.Utility;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
@@ -13,44 +14,62 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public event Action? OnCurrentPartyUpdated;
 
-    public PartyMenu? PartyMenu => _partyMenu;
-    private PartyMenu? _partyMenu;
+    public PartyMenu? PartyMenu { get; set; }
 
-    public ClientPartyData? CurrentParty => _currentParty;
-    private ClientPartyData? _currentParty;
+    public Party? LocalParty { get; private set; }
 
-    public PartyMember? LocalPartyUserInfo => CurrentParty?.LocalUserInfo;
+    public bool IsLocalPartyHost => LocalMember is { } member && member.Role is PartyMemberRole.Host;
+
+    public PartyMember? LocalMember
+    {
+        get
+        {
+            if (LocalParty is not { } party)
+                return null;
+
+            if (_player.LocalUser is not { } userId)
+                return null;
+
+            var member = party.FindMember(userId);
+            DebugTools.AssertNotNull(member);
+            return member;
+        }
+    }
 
     public override void Initialize()
     {
         base.Initialize();
 
-        SetPartyMenu(new PartyMenu());
-
-        SubscribeNetMessage<UpdateClientPartyMessage>(OnUpdatePartyDataMessage);
+        PartyMenu = new PartyMenu();
+        SubscribeNetMessage<UpdateClientPartyMessage>(OnUpdatePartyMessage);
 
         InviteInitialize();
         ChatInitialize();
     }
 
-    private void OnUpdatePartyDataMessage(UpdateClientPartyMessage message)
+    private void OnUpdatePartyMessage(UpdateClientPartyMessage message)
     {
         var state = message.State;
-        if (state is null || state.Value.Disbanded)
+        if (state is null)
         {
-            if (_currentParty != null)
+            if (LocalParty is null)
             {
-                _currentParty = null;
+                LocalParty = null;
                 OnCurrentPartyUpdated?.Invoke();
             }
 
             return;
         }
 
-        if (_currentParty is null || _currentParty.Id != state.Value.Id)
-            _currentParty = new ClientPartyData(state.Value);
+        if (LocalParty is null)
+            LocalParty = new Party(state.Value);
+        else if (LocalParty.Id != state.Value.Id)
+        {
+            LocalParty.Dispose();
+            LocalParty = new Party(state.Value);
+        }
         else
-            _currentParty.UpdateState(state.Value);
+            LocalParty.HandleState(state.Value);
 
         OnCurrentPartyUpdated?.Invoke();
     }
@@ -86,9 +105,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         SendNetMessage(msg);
     }
 
-    public void SendKickFromPartyRequest(uint partyUserId)
+    public void SendKickFromPartyRequest(NetUserId userId)
     {
-        var msg = new KickFromPartyRequestMessage(partyUserId);
+        var msg = new KickFromPartyRequestMessage(userId);
         SendNetMessage(msg);
     }
 
@@ -100,52 +119,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public void SendInviteRequest(string username)
     {
-        var msg = new InviteInPartyRequestMessage(username);
+        var msg = new InviteUserRequestMessage(username);
         SendNetMessage(msg);
-    }
-
-    #region PartyMenuUI
-    public void SetPartyMenu(PartyMenu? partyMenu)
-    {
-        _partyMenu = partyMenu;
-    }
-    #endregion
-}
-
-public sealed class ClientPartyData : SharedParty
-{
-    public PartyMember LocalUserInfo;
-    public List<PartyMember> Members;
-    public PartySettings Settings;
-
-    public ClientPartyData(uint id, PartyMember localUserInfo, List<PartyMember> members, PartySettingsState state) : base(id)
-    {
-        LocalUserInfo = localUserInfo;
-        Members = members;
-        Settings = new PartySettings(state);
-    }
-
-    public ClientPartyData(PartyState state) : this(state.Id, state.LocalUserInfo, state.Members, state.SettingsState) { }
-
-    public void UpdateState(PartyState state)
-    {
-        LocalUserInfo = state.LocalUserInfo;
-        Members = state.Members;
-        Settings.UpdateState(state.SettingsState);
-    }
-}
-
-public sealed class PartySettings()
-{
-    public int MaxMembers;
-
-    public PartySettings(PartySettingsState state) : this()
-    {
-        UpdateState(state);
-    }
-
-    public void UpdateState(PartySettingsState state)
-    {
-        MaxMembers = state.MembersLimit;
     }
 }

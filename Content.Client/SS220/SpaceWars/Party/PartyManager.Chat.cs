@@ -6,7 +6,7 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager
 {
-    public event Action<string>? OnChatMessageReceived;
+    public event Action<string>? ChatMessageReceived;
 
     public void ChatInitialize()
     {
@@ -15,6 +15,6 @@ public sealed partial class PartyManager
 
     private void OnReceiveChatMessage(PartyChatMessage message)
     {
-        OnChatMessageReceived?.Invoke(message.Message);
+        ChatMessageReceived?.Invoke(message.Message);
     }
 }

@@ -47,7 +47,7 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
             control.Margin = new Thickness(5);
             control.CancelButton.OnPressed += _ =>
             {
-                _partyManager.DeleteInvite(id);
+                _partyManager.DeleteInviteRequest(id);
             };
             InvitesContainer.AddChild(control);
         }
@@ -59,7 +59,7 @@ public sealed partial class InviteInPartyWindow : DefaultWindow
         if (string.IsNullOrEmpty(text))
             return;
 
-        var responce = await _partyManager.SendInvite(text);
+        var responce = await _partyManager.InviteUserRequestAsync(text);
         if (responce.Timeout)
         {
             AddFailReason("Истекло время ожидания ответа");

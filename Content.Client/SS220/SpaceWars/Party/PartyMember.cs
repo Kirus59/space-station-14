@@ -1,19 +1,12 @@
+
 using Content.Shared.SS220.SpaceWars.Party;
-using Robust.Shared.Player;
-using Robust.Shared.Enums;
+using Robust.Shared.Network;
 
-namespace Content.Server.SS220.SpaceWars.Party;
-
-public sealed class PartyMember(ICommonSession session, uint partyId, PartyMemberRole role) : SharedPartyMember(role), IEquatable<PartyMember>
+namespace Content.Client.SS220.SpaceWars.Party;
+public sealed class PartyMember(NetUserId userId, string username, PartyMemberRole role) : SharedPartyMember(role), IEquatable<PartyMember>
 {
-    public readonly ICommonSession Session = session;
-    public readonly uint PartyId = partyId;
-
-    public PartyMemberState GetState()
-    {
-        var connected = Session.Status is SessionStatus.Connected or SessionStatus.InGame;
-        return new PartyMemberState(Session.UserId, Session.Name, Role, connected);
-    }
+    public readonly NetUserId UserId = userId;
+    public readonly string Username = username;
 
     public override bool Equals(object? obj)
     {
@@ -28,7 +21,7 @@ public sealed class PartyMember(ICommonSession session, uint partyId, PartyMembe
         if (other is null)
             return false;
 
-        return Session == other.Session;
+        return UserId == other.UserId;
     }
 
     public static bool Equals(PartyMember? member1, PartyMember? member2)
@@ -36,8 +29,7 @@ public sealed class PartyMember(ICommonSession session, uint partyId, PartyMembe
         if (ReferenceEquals(member1, member2))
             return true;
 
-        if (member1 is null)
-            return false;
+        if (member1 is null) return false;
 
         return member1.Equals(member2);
     }
@@ -54,6 +46,6 @@ public sealed class PartyMember(ICommonSession session, uint partyId, PartyMembe
 
     public override int GetHashCode()
     {
-        return Session.GetHashCode();
+        return UserId.GetHashCode();
     }
 }

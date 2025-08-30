@@ -29,7 +29,7 @@ public sealed partial class MainTab : Control
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        _partyManager.OnChatMessageReceived += AddChatMessage;
+        _partyManager.ChatMessageReceived += AddChatMessage;
 
         MembersContainer.OnResized += UpdateMembers;
         Update();
@@ -47,7 +47,7 @@ public sealed partial class MainTab : Control
     {
         var panelsToRemove = _userPanels.Keys.ToList();
 
-        if (_partyManager.CurrentParty is { } currentParty)
+        if (_partyManager.LocalParty is { } currentParty)
         {
             var members = currentParty.Members.OrderByDescending(x => x.Role).ThenBy(x => x.Name);
             foreach (var member in members)
@@ -91,7 +91,7 @@ public sealed partial class MainTab : Control
     #region Chat
     private void UpdateChat()
     {
-        if (_partyManager.CurrentParty is null)
+        if (_partyManager.LocalParty is null)
             ChatBox.RemoveAllChildren();
     }
 
@@ -114,7 +114,7 @@ public sealed partial class MainTab : Control
     {
         ButtonContainer.RemoveAllChildren();
 
-        if (_partyManager.CurrentParty is not { } currentParty)
+        if (_partyManager.LocalParty is not { } currentParty)
         {
             ButtonContainer.AddChild(NewCreatePartyButton());
         }
@@ -217,7 +217,7 @@ public sealed partial class MainTab : Control
 
     private void UpdateNotMemberOverlay()
     {
-        var visible = _partyManager.CurrentParty is null;
+        var visible = _partyManager.LocalParty is null;
         NotMemberOverlay.Visible = visible;
         NotMemberLabel.Visible = visible;
     }

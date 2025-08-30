@@ -5,12 +5,12 @@ using Robust.Shared.Configuration;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public sealed class PartySettings
+public sealed class PartySettings : SharedPartySettings
 {
     private readonly Party _party;
     private readonly IConfigurationManager _cfg;
 
-    public int MembersLimit
+    public override int MembersLimit
     {
         get => _membersLimit;
         set => _membersLimit = Math.Clamp(value, _party.Members.Count, _cfg.GetCVar(CCVars220.PartyMembersLimit));

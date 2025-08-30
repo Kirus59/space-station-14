@@ -1,6 +1,7 @@
 
 using Content.Client.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
+using Robust.Shared.Network;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
@@ -8,11 +9,12 @@ public partial interface IPartyManager : ISharedPartyManager
 {
     event Action? OnCurrentPartyUpdated;
 
-    PartyMenu? PartyMenu { get; }
+    PartyMenu? PartyMenu { get; set; }
 
-    ClientPartyData? CurrentParty { get; }
+    Party? LocalParty { get; }
+    bool IsLocalPartyHost { get; }
 
-    PartyMember? LocalPartyUserInfo { get; }
+    PartyMember? LocalMember { get; }
 
     void SendCreatePartyRequest(PartySettingsState? settings = null);
 
@@ -20,11 +22,7 @@ public partial interface IPartyManager : ISharedPartyManager
 
     void SendLeavePartyRequest();
 
-    void SendKickFromPartyRequest(uint partyUserId);
+    void SendKickFromPartyRequest(NetUserId userId);
 
     void SetSettingsRequest(PartySettingsState settingsState);
-
-    #region PartyMenuUI
-    void SetPartyMenu(PartyMenu? partyMenu);
-    #endregion
 }

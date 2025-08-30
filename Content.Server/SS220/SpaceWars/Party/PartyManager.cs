@@ -155,6 +155,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
                 UpdateClientParty(member.Session, null);
         }
 
+        foreach (var invite in GetInvitesByParty(party))
+            DeleteInvite(invite);
+
         _parties.Remove(party);
         SetStatus(party, PartyStatus.Disbanded, false);
         DebugTools.Assert(!PartyExist(party));
@@ -195,17 +198,21 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         else if (IsAnyPartyMember(session))
             throw new Exception($"User {session.Name} is already a member of another party");
 
-        party.AddMember(session, role, ignoreLimit);
+        var member = party.AddMember(session, role, ignoreLimit);
         DebugTools.Assert(party.ContainsMember(session));
 
         var chatMessage = Loc.GetString("partymanager-user-join-party-mesage", ("user", session.Name));
         ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+
+        UserJoinedParty?.Invoke(member);
 
         if (updates)
         {
             UpdateClientParty(party);
             PartyUpdated?.Invoke(party);
         }
+
+        DeleteInvite(party, session);
     }
 
     public bool TryRemoveMember(Party party, ICommonSession session, bool updates = true)
@@ -260,7 +267,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
     }
 
-    public bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true)
+    public void SetHost(Party party, ICommonSession session, bool force = false, bool updates = true)
     {
         if (!PartyExist(party))
             throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
@@ -286,7 +293,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             PartyUpdated?.Invoke(party);
         }
 
-        return true;
+        DeleteInvite(party, session);
     }
 
     public void SetStatus(Party party, PartyStatus newStatus, bool updates = true)

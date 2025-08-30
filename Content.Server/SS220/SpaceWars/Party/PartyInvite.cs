@@ -12,8 +12,8 @@ public sealed class PartyInvite(uint id,
     public readonly Party Party = party;
     public readonly ICommonSession Receiver = receiver;
 
-    public InviteState GetState()
+    public PartyInviteState GetState()
     {
-        return new InviteState(Id, Party.Id, Receiver.UserId, Party.Host.Session.Name, Status);
+        return new PartyInviteState(Id, Party.Id, Receiver.UserId, Party.Host.Session.Name, Status);
     }
 }
