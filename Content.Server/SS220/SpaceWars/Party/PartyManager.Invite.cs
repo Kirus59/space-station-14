@@ -1,10 +1,8 @@
 
 using Content.Shared.SS220.CCVars;
 using Content.Shared.SS220.SpaceWars.Party;
-using Pidgin;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -14,8 +12,8 @@ public sealed partial class PartyManager
 {
     public event Action<PartyInviteStatusChangedActionArgs>? PartyInviteStatusChanged;
 
-    private HashSet<PartyInvite> _invites = new();
-    private HashSet<ICommonSession> _doesNotReceiveInvites = new();
+    private readonly HashSet<PartyInvite> _invites = [];
+    private readonly HashSet<ICommonSession> _doesNotReceiveInvites = [];
 
     private uint _nextInviteId = 0;
 
@@ -44,13 +42,13 @@ public sealed partial class PartyManager
         {
             if (!TryGetPartyByHost(sender, out var party))
             {
-                responceMessage = Loc.GetString($"");
+                responceMessage = Loc.GetString("partyinvite-request-hosted-party-not-found");
                 return false;
             }
 
             if (!_playerManager.TryGetSessionByUsername(message.Username, out var receiver))
             {
-                responceMessage = Loc.GetString($"");
+                responceMessage = Loc.GetString("partyinvite-request-user-not-found", ("username", message.Username));
                 return false;
             }
 
@@ -58,10 +56,12 @@ public sealed partial class PartyManager
             {
                 responceMessage = checkoutResult switch
                 {
-                    InviteCheckoutResult.LimitReached => Loc.GetString(""),
-                    InviteCheckoutResult.AlreadyExist => Loc.GetString(""),
-                    InviteCheckoutResult.DoesNotReseive => Loc.GetString(""),
-                    _ => Loc.GetString("")
+                    PartyInviteCheckoutResult.PartyNotExist => Loc.GetString("partyinvite-request-party-not-exist", ("partyId", party.Id)),
+                    PartyInviteCheckoutResult.AlreadyMember => Loc.GetString("partyinvite-request-receiver-already-member", ("username", receiver.Name)),
+                    PartyInviteCheckoutResult.LimitReached => Loc.GetString("partyinvite-request-limit-reached"),
+                    PartyInviteCheckoutResult.AlreadyInvited => Loc.GetString("partyinvite-request-already-invited", ("username", receiver.Name)),
+                    PartyInviteCheckoutResult.DoesNotReseive => Loc.GetString("partyinvite-request-does-not-receive", ("username", receiver.Name)),
+                    _ => Loc.GetString("partyinvite-request-other-reason", ("username", receiver.Name))
                 };
                 return false;
             }
@@ -79,7 +79,7 @@ public sealed partial class PartyManager
         if (sender != invite.Receiver)
             return;
 
-        AcceptInvite(invite, force: true);
+        TryAcceptInvite(invite, force: true);
     }
 
     private void OnDenyInvite(DenyInviteMessage message, ICommonSession sender)
@@ -112,23 +112,30 @@ public sealed partial class PartyManager
             _doesNotReceiveInvites.Add(sender);
     }
 
-    public bool AcceptInvite(PartyInvite invite, bool force = false, bool throwException = false, bool ignoreLimit = false)
+    public bool TryAcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false)
     {
-        var party = invite.Party;
-        if (!Exist(party))
+        try
         {
-            if (throwException)
-                throw new Exception($"Party \"{invite.Party.Id}\" doesn't exist!");
-
+            AcceptInvite(invite, force, ignoreLimit);
+            return true;
+        }
+        catch
+        {
             return false;
         }
+    }
+
+    public void AcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false)
+    {
+        var party = invite.Party;
+        if (!PartyExist(party))
+            throw new Exception($"Party \"{invite.Party.Id}\" doesn't exist!");
 
         SetInviteStatus(invite, PartyInviteStatus.Accepted, updates: false);
-        if (!AddMember(party, invite.Receiver, PartyMemberRole.Member, force: force, ignoreLimit: ignoreLimit, throwException: throwException))
-            return false;
+        AddMember(party, invite.Receiver, PartyMemberRole.Member, force, ignoreLimit);
 
+        DebugTools.Assert(party.ContainsMember(invite.Receiver));
         DeleteInvite(invite);
-        return true;
     }
 
     public void DenyInvite(PartyInvite invite)
@@ -148,35 +155,39 @@ public sealed partial class PartyManager
         return TryCreateInvite(party, target, out _, out invite);
     }
 
-    public bool TryCreateInvite(Party party, ICommonSession target, out InviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite)
+    public bool TryCreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite)
     {
         invite = null;
 
         if (!InviteCheckout(party, target, out result))
             return false;
 
-        invite = CreateInvite(party, target, checkout: false);
+        try
+        {
+            invite = CreateInvite(party, target, checkout: false);
+        }
+        catch
+        {
+            invite = null;
+        }
+
         return invite != null;
-    }
-
-    public bool TryCreateAndSendInvite(Party party, ICommonSession target, out InviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite)
-    {
-        if (!TryCreateInvite(party, target, out result, out invite))
-            return false;
-
-        SendInvite(invite);
-        return true;
     }
 
     public PartyInvite CreateInvite(Party party, ICommonSession target, bool checkout = true)
     {
+        if (!PartyExist(party))
+            throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
+
         if (checkout && !InviteCheckout(party, target, out var result))
         {
             var exception = result switch
             {
-                InviteCheckoutResult.LimitReached => $"Reached the limit of invites from party \"{party.Id}\"",
-                InviteCheckoutResult.AlreadyExist => $"Already exist an invite from party \"{party.Id}\" to {target.Name}",
-                InviteCheckoutResult.DoesNotReseive => $"{target.Name} doesn't receive new party invites",
+                PartyInviteCheckoutResult.PartyNotExist => $"Party \"{party.Id}\" doesn't exist!",
+                PartyInviteCheckoutResult.AlreadyMember => $"{target.Name} is already a member of party \"{party.Id}\".",
+                PartyInviteCheckoutResult.LimitReached => $"Reached the limit of invites from party \"{party.Id}\".",
+                PartyInviteCheckoutResult.AlreadyInvited => $"Already exist an invite from party \"{party.Id}\" to {target.Name}.",
+                PartyInviteCheckoutResult.DoesNotReseive => $"{target.Name} doesn't receive new party invites.",
                 _ => null
             };
 
@@ -188,6 +199,15 @@ public sealed partial class PartyManager
 
         SetInviteStatus(invite, PartyInviteStatus.Created, updates: false);
         return invite;
+    }
+
+    public bool TryCreateAndSendInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite)
+    {
+        if (!TryCreateInvite(party, target, out result, out invite))
+            return false;
+
+        SendInvite(invite);
+        return true;
     }
 
     public PartyInvite CreateAndSendInvite(Party party, ICommonSession target, bool checkout = true)
@@ -209,29 +229,41 @@ public sealed partial class PartyManager
         return InviteCheckout(party, target, out _);
     }
 
-    public bool InviteCheckout(Party party, ICommonSession target, out InviteCheckoutResult result)
+    public bool InviteCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result)
     {
+        if (!PartyExist(party))
+        {
+            result = PartyInviteCheckoutResult.PartyNotExist;
+            return false;
+        }
+
+        if (party.ContainsMember(target))
+        {
+            result = PartyInviteCheckoutResult.AlreadyMember;
+            return false;
+        }
+
         var existedInvites = GetInvitesByParty(party);
         if (existedInvites.Any(i => i.Receiver == target))
         {
-            result = InviteCheckoutResult.AlreadyExist;
+            result = PartyInviteCheckoutResult.AlreadyInvited;
             return false;
         }
 
         var invitesLimit = _cfg.GetCVar(CCVars220.PartyInvitesLimit);
         if (existedInvites.Count() > invitesLimit)
         {
-            result = InviteCheckoutResult.LimitReached;
+            result = PartyInviteCheckoutResult.LimitReached;
             return false;
         }
 
         if (_doesNotReceiveInvites.Contains(target))
         {
-            result = InviteCheckoutResult.DoesNotReseive;
+            result = PartyInviteCheckoutResult.DoesNotReseive;
             return false;
         }
 
-        result = InviteCheckoutResult.Available;
+        result = PartyInviteCheckoutResult.Available;
         return true;
     }
 
@@ -327,15 +359,4 @@ public sealed partial class PartyManager
         var msg = new UpdateClientPartyInviteMessage(invite.GetState());
         SendNetMessage(msg, session);
     }
-
-    public enum InviteCheckoutResult
-    {
-        Available,
-
-        LimitReached,
-        AlreadyExist,
-        DoesNotReseive
-    }
 }
-
-public record struct PartyInviteStatusChangedActionArgs(uint PartyId, PartyInviteStatus OldStatus, PartyInviteStatus NewStatus);

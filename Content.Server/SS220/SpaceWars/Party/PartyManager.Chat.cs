@@ -6,16 +6,11 @@ namespace Content.Server.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager
 {
-    public void ChatMessageToParty(string message, Party partyData, PartyChatMessageType messageType = PartyChatMessageType.None)
+    public void ChatMessageToParty(string message, Party party, PartyChatMessageType messageType = PartyChatMessageType.None)
     {
         message = SanitizePartyChatMessage(message, messageType);
-        foreach (var (user, _) in partyData.Members)
-        {
-            if (!_playerManager.TryGetSessionById(user, out var session))
-                continue;
-
-            SendPartyChatMessage(message, session);
-        }
+        foreach (var member in party.Members)
+            SendPartyChatMessage(message, member.Session);
     }
 
     public void ChatMessageToUser(string message, ICommonSession session, PartyChatMessageType messageType = PartyChatMessageType.None)
@@ -49,11 +44,4 @@ public sealed partial class PartyManager
 
         return msg.ToMarkup();
     }
-}
-
-public enum PartyChatMessageType
-{
-    None,
-    Info,
-    Alert
 }

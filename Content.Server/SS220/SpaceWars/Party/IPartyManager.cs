@@ -17,32 +17,29 @@ public partial interface IPartyManager : ISharedPartyManager
 
     bool TryCreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettingsState? settings = null, bool force = false);
 
-    Party? CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false);
+    Party CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false);
 
     void DisbandParty(Party party, bool updates = true);
 
-    bool TryGetPartyById(uint id, [NotNullWhen(true)] out Party? party);
-
-    bool TryGetPartyByHost(ICommonSession host, [NotNullWhen(true)] out Party? party);
-
-    bool TryGetPartyByMember(ICommonSession member, [NotNullWhen(true)] out Party? party);
-
-    Party? GetPartyById(uint id);
-
-    Party? GetPartyByHost(ICommonSession host);
-
-    Party? GetPartyByMember(ICommonSession member);
-
-    bool AddMember(Party party,
+    bool TryAddMember(Party party,
         ICommonSession session,
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
-        bool updates = true,
-        bool throwException = false);
+        bool ignoreLimit = false,
+        bool updates = true);
+    void AddMember(Party party,
+        ICommonSession session,
+        PartyMemberRole role = PartyMemberRole.Member,
+        bool force = false,
+        bool ignoreLimit = false,
+        bool updates = true);
 
-    bool RemoveMember(Party party, ICommonSession session, bool throwException = false, bool updates = true);
 
-    bool SetHost(Party party, ICommonSession session, bool force = false, bool throwException = false, bool updates = true);
+    bool TryRemoveMember(Party party, ICommonSession session, bool updates = true);
+    void RemoveMember(Party party, ICommonSession session, bool updates = true);
+
+    bool TrySetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
+    bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
 
     void SetStatus(Party party, PartyStatus newStatus, bool updates = true);
 
@@ -50,7 +47,19 @@ public partial interface IPartyManager : ISharedPartyManager
 
     bool IsAnyPartyMember(ICommonSession session);
 
+    bool PartyExist(Party? party);
+
+    bool TryGetPartyById(uint id, [NotNullWhen(true)] out Party? party);
+    bool TryGetPartyByHost(ICommonSession host, [NotNullWhen(true)] out Party? party);
+    bool TryGetPartyByMember(ICommonSession member, [NotNullWhen(true)] out Party? party);
+
+    Party? GetPartyById(uint id);
+    Party? GetPartyByHost(ICommonSession session);
+    Party? GetPartyByMember(ICommonSession session);
+
     #region Settings
     void SetSettings(Party party, PartySettingsState state, bool updates = true);
     #endregion
 }
+
+public record struct PartyStatusChangedActionArgs(uint PartyId, PartyStatus OldStatus, PartyStatus NewStatus);

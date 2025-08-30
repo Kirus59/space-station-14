@@ -75,10 +75,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     private void OnLeavePartyMessage(LeavePartyRequestMessage message, ICommonSession sender)
     {
-        if (!TryGetPartyByMember(sender, out var party))
-            return;
-
-        RemoveMember(party, sender);
+        EnsureNotPartyMember(sender);
     }
 
     private void OnKickFromPartyRequest(KickFromPartyRequestMessage message, ICommonSession sender)
@@ -89,7 +86,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (!_playerManager.TryGetSessionById(message.UserId, out var session))
             return;
 
-        RemoveMember(party, session);
+        TryRemoveMember(party, session);
     }
 
     private void OnSetSettingsRequest(SetPartySettingsRequestMessage message, ICommonSession sender)
@@ -98,17 +95,6 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return;
 
         SetSettings(party, message.State);
-    }
-
-    private void UpdateClient(ICommonSession session)
-    {
-        UpdateClient(session, GetPartyByMember(session));
-    }
-
-    private void UpdateClient(ICommonSession session, Party? curParty)
-    {
-        UpdateClientParty(session, curParty);
-        UpdateInvitesInfo(session);
     }
 
     /// <inheritdoc/>
@@ -132,10 +118,13 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (force)
             EnsureNotPartyMember(host);
         else if (IsAnyPartyMember(host))
-            throw new Exception($"{host.Name} is already a member of another party.");
+            throw new ArgumentException($"{host.Name} is already a member of another party.");
 
         var party = new Party(GeneratePartyId(), host);
         _parties.Add(party);
+
+        DebugTools.Assert(PartyExist(party));
+        DebugTools.Assert(party.IsHost(host));
 
         if (settings != null)
             SetSettings(party, settings.Value, false);
@@ -153,6 +142,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     /// <inheritdoc/>
     public void DisbandParty(Party party, bool updates = true)
     {
+        if (!PartyExist(party))
+            return;
+
         SetStatus(party, PartyStatus.Disbanding, false);
 
         foreach (var member in party.Members)
@@ -165,8 +157,185 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         _parties.Remove(party);
         SetStatus(party, PartyStatus.Disbanded, false);
+        DebugTools.Assert(!PartyExist(party));
 
         party.Dispose();
+    }
+
+    public bool TryAddMember(Party party,
+        ICommonSession session,
+        PartyMemberRole role = PartyMemberRole.Member,
+        bool force = false,
+        bool ignoreLimit = false,
+        bool updates = true)
+    {
+        try
+        {
+            AddMember(party, session, role, force, ignoreLimit, updates);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public void AddMember(Party party,
+        ICommonSession session,
+        PartyMemberRole role = PartyMemberRole.Member,
+        bool force = false,
+        bool ignoreLimit = false,
+        bool updates = true)
+    {
+        if (!PartyExist(party))
+            throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
+
+        if (force)
+            EnsureNotPartyMember(session);
+        else if (IsAnyPartyMember(session))
+            throw new Exception($"User {session.Name} is already a member of another party");
+
+        party.AddMember(session, role, ignoreLimit);
+        DebugTools.Assert(party.ContainsMember(session));
+
+        var chatMessage = Loc.GetString("partymanager-user-join-party-mesage", ("user", session.Name));
+        ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+
+        if (updates)
+        {
+            UpdateClientParty(party);
+            PartyUpdated?.Invoke(party);
+        }
+    }
+
+    public bool TryRemoveMember(Party party, ICommonSession session, bool updates = true)
+    {
+        try
+        {
+            RemoveMember(party, session, updates);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public void RemoveMember(Party party, ICommonSession session, bool updates = true)
+    {
+        if (!PartyExist(party))
+            throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
+
+        if (party.IsHost(session))
+            throw new ArgumentException($"\"Cannot remove user with the {PartyMemberRole.Host} role. " +
+                $"Use the \"{nameof(SetHost)}\" function to set a new party host and then remove this user");
+
+        if (!party.TryFindMember(session, out var member))
+            return;
+
+        party.RemoveMember(session);
+        DebugTools.Assert(!party.ContainsMember(session));
+
+        UserLeavedParty?.Invoke(member);
+
+        if (updates)
+        {
+            UpdateClientParty(session, null);
+            UpdateClientParty(party);
+
+            PartyUpdated?.Invoke(party);
+        }
+    }
+
+    public bool TrySetHost(Party party, ICommonSession session, bool force = false, bool updates = true)
+    {
+        try
+        {
+            SetHost(party, session, force, updates);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true)
+    {
+        if (!PartyExist(party))
+            throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
+
+        if (party.IsHost(session))
+            throw new ArgumentException($"User {session.Name} is already a host of this party");
+
+        var isMember = party.ContainsMember(session);
+        if (force)
+            EnsureNotPartyMember(session);
+        else if (!isMember && IsAnyPartyMember(session))
+            throw new ArgumentException($"User {session.Name} is a member of another party");
+
+        party.SetHost(session, ignoreLimit: force);
+        DebugTools.Assert(party.IsHost(session));
+
+        if (!isMember)
+            UserJoinedParty?.Invoke(party.Host);
+
+        if (updates)
+        {
+            UpdateClientParty(party);
+            PartyUpdated?.Invoke(party);
+        }
+
+        return true;
+    }
+
+    public void SetStatus(Party party, PartyStatus newStatus, bool updates = true)
+    {
+        var oldStatus = party.Status;
+        if (oldStatus == newStatus)
+            return;
+
+        party.SetStatus(newStatus);
+        DebugTools.Assert(party.Status == newStatus);
+
+        var args = new PartyStatusChangedActionArgs(party.Id, oldStatus, newStatus);
+        PartyStatusChanged?.Invoke(args);
+
+        if (updates)
+        {
+            UpdateClientParty(party);
+            PartyUpdated?.Invoke(party);
+        }
+    }
+
+    public void EnsureNotPartyMember(ICommonSession session, bool updates = true)
+    {
+        if (!TryGetPartyByMember(session, out var party))
+            return;
+
+        if (party.IsHost(session))
+            DisbandParty(party, updates);
+        else
+            RemoveMember(party, session, updates);
+
+        DebugTools.Assert(!IsAnyPartyMember(session));
+    }
+
+    public bool IsAnyPartyMember(ICommonSession session)
+    {
+        return TryGetPartyByMember(session, out _);
+    }
+
+    public bool PartyExist(Party? party)
+    {
+        if (party == null)
+            return false;
+
+        var exist = _parties.Contains(party);
+        if (exist)
+            DebugTools.Assert(party.Status is not PartyStatus.Disbanding or PartyStatus.Disbanded);
+
+        return exist;
     }
 
     public bool TryGetPartyById(uint id, [NotNullWhen(true)] out Party? party)
@@ -195,7 +364,10 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return null;
 
         DebugTools.Assert(count == 1);
-        return result.First();
+        var party = result.First();
+
+        DebugTools.Assert(PartyExist(party));
+        return party;
     }
 
     public Party? GetPartyByHost(ICommonSession session)
@@ -206,7 +378,10 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return null;
 
         DebugTools.Assert(count == 1);
-        return result.First();
+        var party = result.First();
+
+        DebugTools.Assert(PartyExist(party));
+        return party;
     }
 
     public Party? GetPartyByMember(ICommonSession session)
@@ -217,151 +392,21 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return null;
 
         DebugTools.Assert(count == 1);
-        return result.First();
+        var party = result.First();
+
+        DebugTools.Assert(PartyExist(party));
+        return party;
     }
 
-    public bool AddMember(Party party,
-        ICommonSession session,
-        PartyMemberRole role = PartyMemberRole.Member,
-        bool force = false,
-        bool ignoreLimit = false,
-        bool updates = true,
-        bool throwException = false)
+    private void UpdateClient(ICommonSession session)
     {
-        if (force)
-            EnsureNotPartyMember(session);
-        else if (IsAnyPartyMember(session))
-        {
-            if (throwException)
-                throw new Exception($"User {session.Name} is already a member of another party");
-
-            return false;
-        }
-
-        if (!party.AddMember(session, role, ignoreLimit: ignoreLimit, throwException: throwException))
-            return false;
-
-        var chatMessage = Loc.GetString("partymanager-user-join-party-mesage", ("user", session.Name));
-        ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
-
-        if (updates)
-        {
-            UpdateClientParty(party);
-            PartyUpdated?.Invoke(party);
-        }
-
-        return true;
+        UpdateClient(session, GetPartyByMember(session));
     }
 
-    public bool RemoveMember(Party party, ICommonSession session, bool throwException = false, bool updates = true)
+    private void UpdateClient(ICommonSession session, Party? curParty)
     {
-        if (party.IsHost(session))
-        {
-            if (throwException)
-                throw new Exception($"\"Cannot remove user with the {PartyMemberRole.Host} role. " +
-                    $"Use the \"{nameof(SetHost)}\" function to set a new party host and then remove this user");
-
-            return false;
-        }
-
-        if (!party.TryFindMember(session, out var member))
-            return false;
-
-        if (!party.RemoveMember(session, throwException: throwException))
-            return false;
-
-        UserLeavedParty?.Invoke(member);
-
-        if (updates)
-        {
-            UpdateClientParty(session, null);
-            UpdateClientParty(party);
-
-            PartyUpdated?.Invoke(party);
-        }
-
-        return true;
-    }
-
-    public bool SetHost(Party party, ICommonSession session, bool force = false, bool throwException = false, bool updates = true)
-    {
-        if (party.IsHost(session))
-        {
-            if (throwException)
-                throw new Exception($"User {session.Name} is already a host of this party");
-
-            return false;
-        }
-
-        var isMember = party.ContainsMember(session);
-        if (force)
-            EnsureNotPartyMember(session);
-        else if (!isMember && IsAnyPartyMember(session))
-        {
-            if (throwException)
-                throw new Exception($"User {session.Name} is a member of another party");
-
-            return false;
-        }
-
-        party.SetHost(session, ignoreLimit: force, throwException: throwException);
-
-        if (!isMember)
-            UserJoinedParty?.Invoke(party.Host);
-
-        if (updates)
-        {
-            UpdateClientParty(party);
-            PartyUpdated?.Invoke(party);
-        }
-
-        return true;
-    }
-
-    public void SetStatus(Party party, PartyStatus newStatus, bool updates = true)
-    {
-        var oldStatus = party.Status;
-        if (oldStatus == newStatus)
-            return;
-
-        party.SetStatus(newStatus);
-
-        var args = new PartyStatusChangedActionArgs(party.Id, oldStatus, newStatus);
-        PartyStatusChanged?.Invoke(args);
-
-        if (updates)
-        {
-            UpdateClientParty(party);
-            PartyUpdated?.Invoke(party);
-        }
-    }
-
-    public void EnsureNotPartyMember(ICommonSession session, bool updates = true)
-    {
-        if (!TryGetPartyByMember(session, out var party))
-            return;
-
-        if (party.IsHost(session))
-            DisbandParty(party, updates);
-        else
-            RemoveMember(party, session, updates: updates);
-    }
-
-    public bool IsAnyPartyMember(ICommonSession session)
-    {
-        return TryGetPartyByMember(session, out _);
-    }
-
-    public bool Exist(Party? party)
-    {
-        if (party == null)
-            return false;
-
-        var exist = _parties.Contains(party);
-        if (exist)
-            DebugTools.Assert(party.Status is not PartyStatus.Disbanding or PartyStatus.Disbanded);
-
-        return exist;
+        UpdateClientParty(session, curParty);
+        UpdateClientInvites(session);
     }
 
     private void UpdateClientParty(Party party, List<ICommonSession>? blacklist = null)
@@ -438,5 +483,3 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     }
     #endregion
 }
-
-public record struct PartyStatusChangedActionArgs(uint PartyId, PartyStatus OldStatus, PartyStatus NewStatus);

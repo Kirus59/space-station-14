@@ -6,17 +6,48 @@ namespace Content.Server.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager
 {
-    void AcceptInvite(uint inviteId, ICommonSession target);
+    event Action<PartyInviteStatusChangedActionArgs>? PartyInviteStatusChanged;
 
-    void DenyInvite(uint inviteId, ICommonSession target);
+    bool TryAcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false);
+    void AcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false);
 
-    void DeleteInvite(uint inviteId, ICommonSession session);
+    void DenyInvite(PartyInvite invite);
 
-    void DeleteInvite(PartyInvite invite);
+    void DeleteInvite(PartyInvite invite, bool updates = true);
 
-    bool TrySendInvite(ICommonSession sender, string username, [NotNullWhen(false)] out string? failReason);
+    bool TryCreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out PartyInvite? invite);
+    bool TryCreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite);
+    PartyInvite CreateInvite(Party party, ICommonSession target, bool checkout = true);
 
-    bool TrySendInvite(ICommonSession sender, ICommonSession target, [NotNullWhen(false)] out string? failReason);
+    bool TryCreateAndSendInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite);
+    PartyInvite CreateAndSendInvite(Party party, ICommonSession target, bool checkout = true);
 
-    void SendInvite(ICommonSession sender, ICommonSession receiver);
+    void SendInvite(PartyInvite invite);
+
+    bool InviteAvailable(Party party, ICommonSession target);
+    bool InviteCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result);
+
+    bool TryGetInvite(uint inviteId, [NotNullWhen(true)] out PartyInvite? invite);
+    bool TryGetInvite(Party party, ICommonSession receiver, [NotNullWhen(true)] out PartyInvite? invite);
+
+    PartyInvite? GetInvite(uint inviteId);
+    PartyInvite? GetInvite(Party party, ICommonSession receiver);
+
+    IEnumerable<PartyInvite> GetInvitesByParty(Party party);
+    IEnumerable<PartyInvite> GetInvitesByReceiver(ICommonSession receiver);
+
+    void SetInviteStatus(PartyInvite invite, PartyInviteStatus status, bool updates = true);
 }
+
+public enum PartyInviteCheckoutResult
+{
+    Available,
+
+    PartyNotExist,
+    AlreadyMember,
+    LimitReached,
+    AlreadyInvited,
+    DoesNotReseive
+}
+
+public record struct PartyInviteStatusChangedActionArgs(uint PartyId, PartyInviteStatus OldStatus, PartyInviteStatus NewStatus);

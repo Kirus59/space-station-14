@@ -28,7 +28,8 @@ public sealed class Party : SharedParty, IDisposable
             Settings.HandleState(state);
     }
 
-    public void SetHost(ICommonSession session, bool ignoreLimit = false, bool throwException = false)
+    [Access(typeof(PartyManager))]
+    public void SetHost(ICommonSession session, bool ignoreLimit = false)
     {
         DebugTools.Assert(!_disposed);
 
@@ -39,17 +40,7 @@ public sealed class Party : SharedParty, IDisposable
         if (!TryFindMember(session, out var newHost))
         {
             if (!ignoreLimit)
-            {
-                try
-                {
-                    CheckLimit(true);
-                }
-                catch (Exception e)
-                {
-                    if (throwException)
-                        throw new Exception($"Failed to set {session.Name} as host of the party with id: {Id}, by reason: \"{e.Message}\"");
-                }
-            }
+                LimitCheckout(true);
 
             newHost = new PartyMember(session, Id, PartyMemberRole.Host);
             _members.Add(newHost);
@@ -61,46 +52,23 @@ public sealed class Party : SharedParty, IDisposable
         oldHost.Role = PartyMemberRole.Member;
     }
 
-    public bool AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false, bool throwException = false)
+    [Access(typeof(PartyManager))]
+    public void AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
     {
         DebugTools.Assert(!_disposed);
 
         if (ContainsMember(session))
-        {
-            TryThrow("User is already a member of the party");
-            return false;
-        }
+            return;
 
         if (role is PartyMemberRole.Host)
-        {
-            TryThrow($"Cannot add member with the {PartyMemberRole.Host} role. Use the \"{nameof(SetHost)}\" function to set a new party host");
-            return false;
-        }
+            throw new ArgumentException($"Cannot add member with the {PartyMemberRole.Host} role. " +
+                $"Use the \"{nameof(SetHost)}\" function to set a new party host");
 
         if (!ignoreLimit)
-        {
-            try
-            {
-                CheckLimit(true);
-            }
-            catch (Exception e)
-            {
-                TryThrow(e.Message);
-            }
-
-            return false;
-        }
+            LimitCheckout(true);
 
         var member = new PartyMember(session, Id, role);
-        return _members.Add(member);
-
-        void TryThrow(string message)
-        {
-            if (!throwException)
-                return;
-
-            throw new Exception($"Failed to add {session.Name} to the party with id: \"{Id}\", by reason: \"{message}\"");
-        }
+        return;
     }
 
     public bool ContainsMember(ICommonSession session)
@@ -126,24 +94,17 @@ public sealed class Party : SharedParty, IDisposable
         return true;
     }
 
-    public bool RemoveMember(ICommonSession session, bool throwException = false)
+    [Access(typeof(PartyManager))]
+    public void RemoveMember(ICommonSession session)
     {
         DebugTools.Assert(!_disposed);
 
-        if (!TryFindMember(session, out var member))
-            return false;
+        if (!ContainsMember(session))
+            return;
 
-        if (Host == member)
-        {
-            if (throwException)
-                throw new Exception($"Failed to remove {session.Name} from party with id: \"{Id}\" by reason: " +
-                    $"\"Cannot remove user with the {PartyMemberRole.Host} role. Use the \"{nameof(SetHost)}\" function to set a new party host " +
-                    $"and then remove this user.\"");
-
-            return false;
-        }
-
-        return _members.Remove(member);
+        if (Host.Session == session)
+            throw new Exception($"\"Cannot remove user with the {PartyMemberRole.Host} role. " +
+                $"Use the \"{nameof(SetHost)}\" function to set a new party host and then remove this user.\"");
     }
 
     public bool IsHost(ICommonSession session)
@@ -152,6 +113,7 @@ public sealed class Party : SharedParty, IDisposable
         return Host.Session == session;
     }
 
+    [Access(typeof(PartyManager))]
     public void Dispose()
     {
         if (_disposed)
@@ -167,10 +129,10 @@ public sealed class Party : SharedParty, IDisposable
         return new PartyState(Id, [.. _members.Select(x => x.GetState())], Settings.GetState(), Status);
     }
 
-    private bool CheckLimit(bool throwException = false)
+    private bool LimitCheckout(bool throwException = false)
     {
         if (LimitReached && throwException)
-            throw new Exception("The party has reached the limit of members");
+            throw new Exception("The party has reached the limit of members!");
 
         return LimitReached;
     }
