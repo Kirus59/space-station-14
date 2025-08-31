@@ -14,6 +14,6 @@ public sealed class PartyInvite(uint id,
 
     public PartyInviteState GetState()
     {
-        return new PartyInviteState(Id, Party.Id, Receiver.UserId, Party.Host.Session.Name, Status);
+        return new PartyInviteState(Id, Party.Id, Party.Host.Session.Name, Receiver.UserId, Receiver.Name, Status);
     }
 }

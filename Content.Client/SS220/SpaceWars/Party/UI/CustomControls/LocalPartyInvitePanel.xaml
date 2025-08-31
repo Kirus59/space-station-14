@@ -1,9 +1,9 @@
 <PanelContainer xmlns="https://spacestation14.io">
     <BoxContainer Orientation="Horizontal">
         <BoxContainer Orientation="Vertical" HorizontalExpand="True">
-            <RichTextLabel Name="TargetLabel"/>
+            <RichTextLabel Name="ReceiverLabel"/>
             <RichTextLabel Name="StatusLabel"/>
         </BoxContainer>
-        <TextureButton Name="CancelButton" Access="Public" StyleClasses="windowCloseButton" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextureButton Name="CancelButton" StyleClasses="windowCloseButton" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </BoxContainer>
 </PanelContainer>

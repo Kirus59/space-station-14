@@ -6,9 +6,14 @@ namespace Content.Shared.SS220.SpaceWars.Party;
 public abstract class SharedPartyMember(PartyMemberRole role)
 {
     public PartyMemberRole Role = role;
+
+    public static string GetPartyMemberRoleName(PartyMemberRole role)
+    {
+        return Loc.GetString($"party-member-role-{role.ToString().ToLower()}");
+    }
 }
 
-public record struct PartyMemberState(NetUserId Id, string Name, PartyMemberRole Role, bool Connected);
+public record struct PartyMemberState(NetUserId UserId, string Username, PartyMemberRole Role, bool Connected);
 
 public enum PartyMemberRole : byte
 {

@@ -7,9 +7,9 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager : ISharedPartyManager
 {
-    event Action? OnCurrentPartyUpdated;
+    event Action? CurrentPartyUpdated;
 
-    PartyMenu? PartyMenu { get; set; }
+    PartyWindow PartyWindow { get; set; }
 
     Party? LocalParty { get; }
     bool IsLocalPartyHost { get; }

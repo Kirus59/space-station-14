@@ -201,7 +201,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         var member = party.AddMember(session, role, ignoreLimit);
         DebugTools.Assert(party.ContainsMember(session));
 
-        var chatMessage = Loc.GetString("partymanager-user-join-party-mesage", ("user", session.Name));
+        var chatMessage = Loc.GetString("party-manager-user-join-party-message", ("username", session.Name));
         ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
 
         UserJoinedParty?.Invoke(member);
@@ -242,6 +242,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         party.RemoveMember(session);
         DebugTools.Assert(!party.ContainsMember(session));
+
+        var chatMessage = Loc.GetString("party-manager-user-left-party-message", ("username", session.Name));
+        ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
 
         UserLeavedParty?.Invoke(member);
 

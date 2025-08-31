@@ -21,17 +21,17 @@ public sealed class Party : SharedParty, IDisposable
     public Party(PartyState state) : base(state.Id)
     {
         DebugTools.Assert(state.Host.Role is PartyMemberRole.Host);
-        Host = new PartyMember(state.Host.Id, state.Host.Name, PartyMemberRole.Host);
+        Host = new PartyMember(state.Host);
 
         foreach (var memberState in state.Members)
-            AddMember(memberState.Id, memberState.Name);
+            AddMember(memberState);
 
         Settings = new PartySettings(state.Settings);
     }
 
-    public bool AddMember(NetUserId userId, string username, PartyMemberRole role = PartyMemberRole.Member)
+    public bool AddMember(PartyMemberState state)
     {
-        return AddMember(new PartyMember(userId, username, role));
+        return AddMember(new PartyMember(state));
     }
 
     public bool AddMember(PartyMember member)
@@ -84,12 +84,24 @@ public sealed class Party : SharedParty, IDisposable
             return;
 
         DebugTools.Assert(state.Host.Role is PartyMemberRole.Host);
-        Host = new PartyMember(state.Host.Id, state.Host.Name, PartyMemberRole.Host);
+        Host = new PartyMember(state.Host);
 
+        var toRemove = Members.ToList();
         foreach (var memberState in state.Members)
-            AddMember(memberState.Id, memberState.Name);
+        {
+            if (TryFindMember(memberState.UserId, out var member))
+            {
+                member.HandleState(memberState);
+                toRemove.Remove(member);
+            }
+            else
+                AddMember(memberState);
+        }
 
-        Settings = new PartySettings(state.Settings);
+        foreach (var member in toRemove)
+            RemoveMember(member);
+
+        Settings.HandleState(state.Settings);
     }
 
     public void Dispose()

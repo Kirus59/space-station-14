@@ -11,79 +11,56 @@ using System.Numerics;
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
 [GenerateTypedNameReferences]
-public sealed partial class PartyUserInfoPanel : PanelContainer
+public sealed partial class PartyMemberPanel : PanelContainer
 {
     [Dependency] private readonly IResourceCache _cache = default!;
     [Dependency] private readonly IStylesheetManager _stylesheetManager = default!;
 
+    public readonly PartyMember Member;
+
     private readonly Font _textFont;
 
-    public PartyUserInfoPanel()
+    public PartyMemberPanel(PartyMember member)
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
+        Member = member;
         Stylesheet = new PartyUserInfoPanelStyle().Create(_stylesheetManager.SheetNano, _cache);
 
         PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(60, 60, 60) };
         _textFont = new VectorFont(_cache.GetResource<FontResource>("/Fonts/NotoSansDisplay/NotoSansDisplay-Regular.ttf"), 11);
 
-        UserNameLabel.FontOverride = _textFont;
+        UsernameLabel.FontOverride = _textFont;
         PartyRoleLabel.FontOverride = _textFont;
         ConnectionStatusLabel.FontOverride = _textFont;
         ConnectionStatusIcon.TextureScale = new Vector2(0.6f, 0.6f);
 
-        SetConnectionStatus(false);
+        Refresh();
     }
 
-    public PartyUserInfoPanel(string? username, bool conected, PartyMemberRole role = PartyMemberRole.None) : this()
+    public void Refresh()
     {
-        Populate(username, conected, role);
-    }
+        UsernameLabel.Text = Member.Username;
+        PartyRoleLabel.Text = SharedPartyMember.GetPartyMemberRoleName(Member.Role);
 
-    public PartyUserInfoPanel(PartyMember userInfo) : this(userInfo.Name, userInfo.Connected, userInfo.Role) { }
-
-    public void Populate(PartyMember userInfo)
-    {
-        Populate(userInfo.Name, userInfo.Connected, userInfo.Role);
-    }
-
-    public void Populate(string? username, bool conected, PartyMemberRole role = PartyMemberRole.None)
-    {
-        UserNameLabel.Text = username;
-        PartyRoleLabel.Text = GetRoleName(role);
-
-        var roleBackground = GetRoleColor(role);
+        var roleBackground = GetRoleColor(Member.Role);
         if (roleBackground != null)
             PartyRolePanel.PanelOverride = new StyleBoxFlat() { BackgroundColor = roleBackground.Value };
 
-        SetConnectionStatus(conected);
+        ConnectionStatusIcon.ModulateSelfOverride = Member.Connected ? Color.Green : Color.Red;
+        ConnectionStatusLabel.Text = Member.Connected ? Loc.GetString("ui-party-member-panel-member-connected")
+            : Loc.GetString("ui-party-member-panel-member-disconnected");
     }
 
-    private string GetRoleName(PartyMemberRole role)
-    {
-        return role switch
-        {
-            PartyMemberRole.Member => Loc.GetString("partyRole-Member"),
-            PartyMemberRole.Leader => Loc.GetString("partyRole-Leader"),
-            _ => Loc.GetString("partyRole-Unknown")
-        };
-    }
-
-    private Color? GetRoleColor(PartyMemberRole role)
+    private static Color? GetRoleColor(PartyMemberRole role)
     {
         return role switch
         {
             PartyMemberRole.Member => new Color(52, 101, 131),
-            PartyMemberRole.Leader => new Color(146, 122, 25),
+            PartyMemberRole.Host => new Color(146, 122, 25),
             _ => null
         };
-    }
-
-    private void SetConnectionStatus(bool conected)
-    {
-        ConnectionStatusIcon.ModulateSelfOverride = conected ? Color.Green : Color.Red;
-        ConnectionStatusLabel.Text = conected ? Loc.GetString("ui-PartyUserInfo-Connected") : Loc.GetString("ui-PartyUserInfo-Disconnected");
     }
 }
 

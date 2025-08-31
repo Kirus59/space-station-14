@@ -22,6 +22,6 @@ public sealed partial class CreatePartyWindow : DefaultWindow
         };
         CancelButton.OnPressed += _ => Close();
 
-        OnOpen += SettingsPanel.Update;
+        OnOpen += SettingsPanel.Refresh;
     }
 }

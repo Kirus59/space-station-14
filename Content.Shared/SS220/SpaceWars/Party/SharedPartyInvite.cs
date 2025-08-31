@@ -50,13 +50,19 @@ public abstract class SharedPartyInvite(uint id, PartyInviteStatus status = Part
     {
         return Id.GetHashCode();
     }
+
+    public static string GetPartyInviteStatusName(PartyInviteStatus status)
+    {
+        return Loc.GetString($"party-invite-status-{status.ToString().ToLower()}");
+    }
 }
 
 [Serializable, NetSerializable]
 public record struct PartyInviteState(uint Id,
     uint PartyId,
-    NetUserId Receiver,
     string SenderName,
+    NetUserId Receiver,
+    string ReceiverName,
     PartyInviteStatus Status);
 
 public enum PartyInviteStatus

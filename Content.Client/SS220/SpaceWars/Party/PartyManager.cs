@@ -12,9 +12,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     [Dependency] private readonly INetManager _net = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
 
-    public event Action? OnCurrentPartyUpdated;
+    public event Action? CurrentPartyUpdated;
 
-    public PartyMenu? PartyMenu { get; set; }
+    public PartyWindow PartyWindow { get; set; } = default!;
 
     public Party? LocalParty { get; private set; }
 
@@ -40,7 +40,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     {
         base.Initialize();
 
-        PartyMenu = new PartyMenu();
+        PartyWindow = new PartyWindow();
         SubscribeNetMessage<UpdateClientPartyMessage>(OnUpdatePartyMessage);
 
         InviteInitialize();
@@ -55,7 +55,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             if (LocalParty is null)
             {
                 LocalParty = null;
-                OnCurrentPartyUpdated?.Invoke();
+                CurrentPartyUpdated?.Invoke();
             }
 
             return;
@@ -71,7 +71,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         else
             LocalParty.HandleState(state.Value);
 
-        OnCurrentPartyUpdated?.Invoke();
+        CurrentPartyUpdated?.Invoke();
     }
 
     private void SendNetMessage(PartyMessage message)

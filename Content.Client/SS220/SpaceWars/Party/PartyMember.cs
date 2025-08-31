@@ -1,12 +1,15 @@
 
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Network;
+using Robust.Shared.Utility;
 
 namespace Content.Client.SS220.SpaceWars.Party;
-public sealed class PartyMember(NetUserId userId, string username, PartyMemberRole role) : SharedPartyMember(role), IEquatable<PartyMember>
+public sealed class PartyMember(PartyMemberState state) : SharedPartyMember(state.Role), IEquatable<PartyMember>
 {
-    public readonly NetUserId UserId = userId;
-    public readonly string Username = username;
+    public readonly NetUserId UserId = state.UserId;
+
+    public string Username = state.Username;
+    public bool Connected = state.Connected;
 
     public override bool Equals(object? obj)
     {
@@ -47,5 +50,14 @@ public sealed class PartyMember(NetUserId userId, string username, PartyMemberRo
     public override int GetHashCode()
     {
         return UserId.GetHashCode();
+    }
+
+    public void HandleState(PartyMemberState state)
+    {
+        DebugTools.AssertEqual(state.UserId, UserId);
+
+        Username = state.Username;
+        Connected = state.Connected;
+        Role = state.Role;
     }
 }

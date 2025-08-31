@@ -13,6 +13,6 @@ public sealed class PartyMenuCommand : LocalizedCommands
 
     public override void Execute(IConsoleShell shell, string argStr, string[] args)
     {
-        _partyManager.PartyMenu?.OpenCentered();
+        _partyManager.PartyWindow?.OpenCentered();
     }
 }

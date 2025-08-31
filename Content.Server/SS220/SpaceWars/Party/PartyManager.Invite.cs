@@ -43,13 +43,13 @@ public sealed partial class PartyManager
         {
             if (!TryGetPartyByHost(sender, out var party))
             {
-                responceMessage = Loc.GetString("partyinvite-request-hosted-party-not-found");
+                responceMessage = Loc.GetString("party-invite-request-hosted-party-not-found");
                 return false;
             }
 
             if (!_playerManager.TryGetSessionByUsername(message.Username, out var receiver))
             {
-                responceMessage = Loc.GetString("partyinvite-request-user-not-found", ("username", message.Username));
+                responceMessage = Loc.GetString("party-invite-request-user-not-found", ("username", message.Username));
                 return false;
             }
 
@@ -57,12 +57,12 @@ public sealed partial class PartyManager
             {
                 responceMessage = checkoutResult switch
                 {
-                    PartyInviteCheckoutResult.PartyNotExist => Loc.GetString("partyinvite-request-party-not-exist", ("partyId", party.Id)),
-                    PartyInviteCheckoutResult.AlreadyMember => Loc.GetString("partyinvite-request-receiver-already-member", ("username", receiver.Name)),
-                    PartyInviteCheckoutResult.LimitReached => Loc.GetString("partyinvite-request-limit-reached"),
-                    PartyInviteCheckoutResult.AlreadyInvited => Loc.GetString("partyinvite-request-already-invited", ("username", receiver.Name)),
-                    PartyInviteCheckoutResult.DoesNotReseive => Loc.GetString("partyinvite-request-does-not-receive", ("username", receiver.Name)),
-                    _ => Loc.GetString("partyinvite-request-other-reason", ("username", receiver.Name))
+                    PartyInviteCheckoutResult.PartyNotExist => Loc.GetString("party-invite-request-party-not-exist", ("partyId", party.Id)),
+                    PartyInviteCheckoutResult.AlreadyMember => Loc.GetString("party-invite-request-receiver-already-member", ("username", receiver.Name)),
+                    PartyInviteCheckoutResult.LimitReached => Loc.GetString("party-invite-request-limit-reached"),
+                    PartyInviteCheckoutResult.AlreadyInvited => Loc.GetString("party-invite-request-already-invited", ("username", receiver.Name)),
+                    PartyInviteCheckoutResult.DoesNotReseive => Loc.GetString("party-invite-request-does-not-receive", ("username", receiver.Name)),
+                    _ => Loc.GetString("party-invite-request-other-reason", ("username", receiver.Name))
                 };
                 return false;
             }

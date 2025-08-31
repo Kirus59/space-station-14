@@ -1,4 +1,4 @@
-<tabs:MainTab xmlns="https://spacestation14.io"
+<tabs:PartyMainTab xmlns="https://spacestation14.io"
               xmlns:tabs="clr-namespace:Content.Client.SS220.SpaceWars.Party.UI.Tabs"
               xmlns:gfx="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client"
               MinSize="550 200">
@@ -30,9 +30,9 @@
                     <gfx:StyleBoxFlat BackgroundColor="#121214e6" />
                 </PanelContainer.PanelOverride>
             </PanelContainer>
-            <RichTextLabel Name="NotMemberLabel" Text="{Loc 'ui-PartyMenu-MainTab-NotMemberLable'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <RichTextLabel Name="NotMemberLabel" Text="{Loc 'ui-party-main-tab-not-member-lable'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Control>
         <BoxContainer Orientation="Horizontal" Name="ButtonContainer" MinSize="20 20" Margin="5 0 0 0">
         </BoxContainer>
     </BoxContainer>
-</tabs:MainTab>
+</tabs:PartyMainTab>

@@ -26,6 +26,20 @@
   <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
   <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
   <ItemGroup>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\PartyMemberPanel.xaml.cs">
+      <DependentUpon>PartyMemberPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\ReceivedInvitePanel.xaml.cs">
+      <DependentUpon>ReceivedInvitePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\LocalPartyInvitePanel.xaml.cs">
+      <DependentUpon>LocalPartyInvitePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\Tabs\ReceivedInvitesTab.xaml.cs">
+      <DependentUpon>ReceivedInvitesTab.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Update="SS220\UserInterface\Utility\QuickConfirmationWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

@@ -21,6 +21,6 @@ public sealed partial class PartySettingsWindow : DefaultWindow
             Close();
         };
 
-        OnOpen += SettingsPanel.Update;
+        OnOpen += SettingsPanel.Refresh;
     }
 }
