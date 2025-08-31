@@ -7,7 +7,7 @@ namespace Content.Client.SS220.SpaceWars.Party.UI;
 [GenerateTypedNameReferences]
 public sealed partial class CreatePartyWindow : DefaultWindow
 {
-    [Dependency] private readonly IPartyManager _partyManager = default!;
+    [Dependency] private readonly IPartyManager _party = default!;
 
     public CreatePartyWindow()
     {
@@ -17,7 +17,7 @@ public sealed partial class CreatePartyWindow : DefaultWindow
         CreateButton.OnPressed += _ =>
         {
             var state = SettingsPanel.GetSettingsState();
-            _partyManager.SendCreatePartyRequest(state);
+            _party.SendCreatePartyRequest(state);
             Close();
         };
         CancelButton.OnPressed += _ => Close();

@@ -65,7 +65,8 @@ public record struct PartyInviteState(uint Id,
     string ReceiverName,
     PartyInviteStatus Status);
 
-public enum PartyInviteStatus
+[Serializable, NetSerializable]
+public enum PartyInviteStatus : byte
 {
     None,
     Created,

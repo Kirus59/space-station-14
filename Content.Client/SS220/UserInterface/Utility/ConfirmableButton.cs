@@ -2,6 +2,7 @@
 
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 using System.Threading.Tasks;
 
 namespace Content.Client.SS220.UserInterface.Utility;
@@ -19,12 +20,17 @@ public class ConfirmableButton : Button
     public ConfirmableButtonClicksAction ClicksActionWhenNotConfirmed = ConfirmableButtonClicksAction.Reset;
 
     [ViewVariables]
-    public float ConfirmDelayMillisecond { get; set; }
+    public float ConfirmDelayMillisecond { get; set; } = 3000f;
 
     public TimeSpan ConfirmDelay => TimeSpan.FromMilliseconds(ConfirmDelayMillisecond);
 
     [ViewVariables]
-    public uint ClicksForConfirm { get; set; }
+    public uint ClicksForConfirm
+    {
+        get => _clicksForConfirm;
+        set => _clicksForConfirm = Math.Max(1, value);
+    }
+    private uint _clicksForConfirm = 1;
 
     [ViewVariables]
     public string? DefaultText;
@@ -33,10 +39,10 @@ public class ConfirmableButton : Button
 
     private TimeSpan _lastClick = TimeSpan.Zero;
 
-    private int _loopedUpdateRate = 10;
+    private readonly int _loopedUpdateRate = 10;
 
     private int _curClicks = 0;
-    private Dictionary<uint, ConfirmableButtonState> _clickStates = new();
+    private readonly Dictionary<uint, ConfirmableButtonState> _clickStates = [];
 
     public ConfirmableButton()
     {
@@ -54,20 +60,14 @@ public class ConfirmableButton : Button
 
     public ConfirmableButton(string? text, Color? overrideColor) : this(new ConfirmableButtonState(text, overrideColor)) { }
 
-
     public void SetClickState(Dictionary<uint, ConfirmableButtonState> clickStates)
     {
         foreach (var (key, value) in clickStates)
-        {
             SetClickState(key, value);
-        }
     }
 
     public void SetClickState(uint click, ConfirmableButtonState state)
     {
-        if (click == 0) /// Use <see cref="SetDefaultState(ConfirmableButtonState)"/> for default state
-            return;
-
         _clickStates[click] = state;
         UpdateState();
     }
@@ -77,6 +77,7 @@ public class ConfirmableButton : Button
         if (Disposed)
             return;
 
+        DebugTools.Assert(_clicksForConfirm > 0);
         if (_curClicks >= ClicksForConfirm)
             Confirmed();
 

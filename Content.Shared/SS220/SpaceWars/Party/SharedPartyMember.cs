@@ -1,5 +1,6 @@
 
 using Robust.Shared.Network;
+using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
@@ -13,8 +14,10 @@ public abstract class SharedPartyMember(PartyMemberRole role)
     }
 }
 
+[Serializable, NetSerializable]
 public record struct PartyMemberState(NetUserId UserId, string Username, PartyMemberRole Role, bool Connected);
 
+[Serializable, NetSerializable]
 public enum PartyMemberRole : byte
 {
     /// <summary>

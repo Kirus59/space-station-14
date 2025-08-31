@@ -26,17 +26,19 @@ public partial interface IPartyManager : ISharedPartyManager
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
         bool ignoreLimit = false,
-        bool updates = true);
+        bool updates = true,
+        bool notify = true);
     void AddMember(Party party,
         ICommonSession session,
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
         bool ignoreLimit = false,
-        bool updates = true);
+        bool updates = true,
+        bool notify = true);
 
 
-    bool TryRemoveMember(Party party, ICommonSession session, bool updates = true);
-    void RemoveMember(Party party, ICommonSession session, bool updates = true);
+    bool TryRemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true);
+    void RemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true);
 
     bool TrySetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
     void SetHost(Party party, ICommonSession session, bool force = false, bool updates = true);

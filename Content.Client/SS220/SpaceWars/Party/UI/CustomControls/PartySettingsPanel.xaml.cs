@@ -12,8 +12,7 @@ public sealed partial class PartySettingsPanel : PanelContainer
 {
     public event Action<PartySettingsState>? OnSettingChanged;
 
-    [Dependency] private readonly IPartyManager _partyManager = default!;
-    [Dependency] private readonly ILocalizationManager _localizationManager = default!;
+    [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
 
     public PartySettingsPanel()
@@ -26,7 +25,7 @@ public sealed partial class PartySettingsPanel : PanelContainer
 
     public void Refresh()
     {
-        MembersLimitLineEdit.SetText((_partyManager.LocalParty?.Settings.MembersLimit ?? _cfg.GetCVar(CCVars220.PartyMembersLimit)).ToString());
+        MembersLimitLineEdit.SetText((_party.LocalParty?.Settings.MembersLimit ?? _cfg.GetCVar(CCVars220.PartyMembersLimit)).ToString());
     }
 
     public PartySettingsState GetSettingsState()

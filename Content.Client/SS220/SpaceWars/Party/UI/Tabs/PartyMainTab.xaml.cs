@@ -19,11 +19,12 @@ namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 public sealed partial class PartyMainTab : Control
 {
     [Dependency] private readonly IPartyManager _party = default!;
-    [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
+    [Dependency] private readonly IUserInterfaceManager _userInterface = default!;
 
     private Dictionary<NetUserId, PartyMemberPanel> _memberPanels = new();
 
-    private readonly InviteInPartyWindow _localPartyInvitesWindow = new();
+    private readonly CreatePartyWindow _createPartyWindow = new();
+    private readonly LocalPartyInvitesWindow _localPartyInvitesWindow = new();
     private readonly PartySettingsWindow _partySettingsWindow = new();
 
     public PartyMainTab()
@@ -145,8 +146,8 @@ public sealed partial class PartyMainTab : Control
         };
         button.OnPressed += _ =>
         {
-            var pos = _userInterfaceManager.MousePositionScaled.Position;
-            new CreatePartyWindow().Open(pos);
+            var pos = _userInterface.MousePositionScaled.Position;
+            _createPartyWindow.Open(pos);
         };
         return button;
     }
@@ -154,12 +155,14 @@ public sealed partial class PartyMainTab : Control
     private ConfirmableButton NewDisbandPartyButton()
     {
         var text = Loc.GetString("ui-party-main-tab-disband-party-button");
-        var button = new ConfirmableButton(text, null);
+        var button = new ConfirmableButton(text, null)
+        {
+            ClicksForConfirm = 2
+        };
 
         var firstClickText = Loc.GetString("ui-party-main-tab-confirmable-button-are-you-sure");
         button.SetClickState(1, new ConfirmableButtonState(firstClickText, StyleNano.ButtonColorCautionDefault));
         button.OnConfirmed += _party.SendDisbandPartyRequest;
-        button.ClicksActionWhenConfirmed = ConfirmableButtonClicksAction.Decrease;
 
         return button;
     }
@@ -167,12 +170,14 @@ public sealed partial class PartyMainTab : Control
     private ConfirmableButton NewLeavePartyButton()
     {
         var text = Loc.GetString("ui-party-main-tab-leave-party-button");
-        var button = new ConfirmableButton(text, null);
+        var button = new ConfirmableButton(text, null)
+        {
+            ClicksForConfirm = 2
+        };
 
         var firstClickText = Loc.GetString("ui-party-main-tab-confirmable-button-are-you-sure");
         button.SetClickState(1, new ConfirmableButtonState(firstClickText, StyleNano.ButtonColorCautionDefault));
         button.OnConfirmed += _party.SendLeavePartyRequest;
-        button.ClicksActionWhenConfirmed = ConfirmableButtonClicksAction.Decrease;
 
         return button;
     }
@@ -186,7 +191,7 @@ public sealed partial class PartyMainTab : Control
 
         button.OnPressed += _ =>
         {
-            var pos = _userInterfaceManager.MousePositionScaled.Position;
+            var pos = _userInterface.MousePositionScaled.Position;
             _localPartyInvitesWindow.Open(pos);
         };
         return button;
@@ -201,7 +206,7 @@ public sealed partial class PartyMainTab : Control
 
         button.OnPressed += _ =>
         {
-            var pos = _userInterfaceManager.MousePositionScaled.Position;
+            var pos = _userInterface.MousePositionScaled.Position;
             _partySettingsWindow.Open(pos);
         };
         return button;

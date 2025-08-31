@@ -116,11 +116,13 @@ public sealed class InviteUserResponceMessage() : PartyResponceMessage
     public string Text = string.Empty;
 }
 
+[Serializable, NetSerializable]
 public sealed class UpdateClientPartyInvitesMessage(List<PartyInviteState> states) : PartyMessage
 {
     public readonly List<PartyInviteState> States = states;
 }
 
+[Serializable, NetSerializable]
 public sealed class UpdateClientPartyInviteMessage(PartyInviteState state) : PartyMessage
 {
     public readonly PartyInviteState State = state;

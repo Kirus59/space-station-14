@@ -7,7 +7,7 @@ namespace Content.Client.SS220.SpaceWars.Party.UI;
 [GenerateTypedNameReferences]
 public sealed partial class PartySettingsWindow : DefaultWindow
 {
-    [Dependency] private readonly IPartyManager _partyManager = default!;
+    [Dependency] private readonly IPartyManager _party = default!;
 
     public PartySettingsWindow()
     {
@@ -17,7 +17,7 @@ public sealed partial class PartySettingsWindow : DefaultWindow
         AcceptButton.OnPressed += _ =>
         {
             var settings = SettingsPanel.GetSettingsState();
-            _partyManager.SetSettingsRequest(settings);
+            _party.SetSettingsRequest(settings);
             Close();
         };
 

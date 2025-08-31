@@ -52,7 +52,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         var state = message.State;
         if (state is null)
         {
-            if (LocalParty is null)
+            if (LocalParty is not null)
             {
                 LocalParty = null;
                 CurrentPartyUpdated?.Invoke();

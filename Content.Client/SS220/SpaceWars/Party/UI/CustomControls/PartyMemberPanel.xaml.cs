@@ -14,7 +14,7 @@ namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 public sealed partial class PartyMemberPanel : PanelContainer
 {
     [Dependency] private readonly IResourceCache _cache = default!;
-    [Dependency] private readonly IStylesheetManager _stylesheetManager = default!;
+    [Dependency] private readonly IStylesheetManager _stylesheet = default!;
 
     public readonly PartyMember Member;
 
@@ -26,7 +26,7 @@ public sealed partial class PartyMemberPanel : PanelContainer
         IoCManager.InjectDependencies(this);
 
         Member = member;
-        Stylesheet = new PartyUserInfoPanelStyle().Create(_stylesheetManager.SheetNano, _cache);
+        Stylesheet = new PartyUserInfoPanelStyle().Create(_stylesheet.SheetNano, _cache);
 
         PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(60, 60, 60) };
         _textFont = new VectorFont(_cache.GetResource<FontResource>("/Fonts/NotoSansDisplay/NotoSansDisplay-Regular.ttf"), 11);

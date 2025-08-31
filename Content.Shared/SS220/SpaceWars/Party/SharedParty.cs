@@ -65,9 +65,7 @@ public record struct PartyState(uint Id,
     PartyStatus Status);
 
 [Serializable, NetSerializable]
-public record struct PartySettingsState(int MembersLimit);
-
-public enum PartyStatus
+public enum PartyStatus : byte
 {
     None,
     Running,

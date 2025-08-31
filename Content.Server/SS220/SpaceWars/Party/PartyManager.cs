@@ -146,22 +146,27 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return;
 
         SetStatus(party, PartyStatus.Disbanding, false);
+        PartyUpdated?.Invoke(party);
 
         foreach (var member in party.Members)
         {
-            UserLeavedParty?.Invoke(member);
+            if (party.IsHost(member.Session))
+                continue;
 
-            if (updates)
-                UpdateClientParty(member.Session, null);
+            party.RemoveMember(member.Session);
+            UpdateClientParty(member.Session, null);
         }
 
         foreach (var invite in GetInvitesByParty(party))
             DeleteInvite(invite);
 
         _parties.Remove(party);
+        UpdateClientParty(party.Host.Session, null);
+
         SetStatus(party, PartyStatus.Disbanded, false);
         DebugTools.Assert(!PartyExist(party));
 
+        PartyUpdated?.Invoke(party);
         party.Dispose();
     }
 
@@ -170,11 +175,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
         bool ignoreLimit = false,
-        bool updates = true)
+        bool updates = true,
+        bool notify = true)
     {
         try
         {
-            AddMember(party, session, role, force, ignoreLimit, updates);
+            AddMember(party, session, role, force, ignoreLimit, updates, notify);
             return true;
         }
         catch
@@ -188,7 +194,8 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
         bool ignoreLimit = false,
-        bool updates = true)
+        bool updates = true,
+        bool notify = true)
     {
         if (!PartyExist(party))
             throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
@@ -201,8 +208,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         var member = party.AddMember(session, role, ignoreLimit);
         DebugTools.Assert(party.ContainsMember(session));
 
-        var chatMessage = Loc.GetString("party-manager-user-join-party-message", ("username", session.Name));
-        ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+        if (notify)
+        {
+            var chatMessage = Loc.GetString("party-manager-user-join-party-message", ("username", session.Name));
+            ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+        }
 
         UserJoinedParty?.Invoke(member);
 
@@ -215,11 +225,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         DeleteInvite(party, session);
     }
 
-    public bool TryRemoveMember(Party party, ICommonSession session, bool updates = true)
+    public bool TryRemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true)
     {
         try
         {
-            RemoveMember(party, session, updates);
+            RemoveMember(party, session, updates, notify);
             return true;
         }
         catch
@@ -228,7 +238,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
     }
 
-    public void RemoveMember(Party party, ICommonSession session, bool updates = true)
+    public void RemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true)
     {
         if (!PartyExist(party))
             throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
@@ -243,8 +253,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         party.RemoveMember(session);
         DebugTools.Assert(!party.ContainsMember(session));
 
-        var chatMessage = Loc.GetString("party-manager-user-left-party-message", ("username", session.Name));
-        ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+        if (notify)
+        {
+            var chatMessage = Loc.GetString("party-manager-user-left-party-message", ("username", session.Name));
+            ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+        }
 
         UserLeavedParty?.Invoke(member);
 
@@ -324,7 +337,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return;
 
         if (party.IsHost(session))
-            DisbandParty(party, updates);
+            DisbandParty(party);
         else
             RemoveMember(party, session, updates);
 
@@ -343,7 +356,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         var exist = _parties.Contains(party);
         if (exist)
-            DebugTools.Assert(party.Status is not PartyStatus.Disbanding or PartyStatus.Disbanded);
+            DebugTools.Assert(party.Status is not PartyStatus.Disbanded);
 
         return exist;
     }
