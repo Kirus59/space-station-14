@@ -57,6 +57,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             {
                 LocalParty = null;
                 CurrentPartyUpdated?.Invoke();
+                UIController.RefreshWindow();
             }
 
             return;
@@ -73,6 +74,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             LocalParty.HandleState(state.Value);
 
         CurrentPartyUpdated?.Invoke();
+        UIController.RefreshWindow();
     }
 
     private void SendNetMessage(PartyMessage message)
