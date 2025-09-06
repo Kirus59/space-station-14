@@ -9,20 +9,20 @@ public partial interface IPartyManager : ISharedPartyManager
 {
     event Action? CurrentPartyUpdated;
 
-    PartyWindow PartyWindow { get; set; }
+    PartyUIController UIController { get; }
 
     Party? LocalParty { get; }
     bool IsLocalPartyHost { get; }
 
     PartyMember? LocalMember { get; }
 
-    void SendCreatePartyRequest(PartySettingsState? settings = null);
+    void CreatePartyRequest(PartySettingsState? settings = null);
 
-    void SendDisbandPartyRequest();
+    void DisbandPartyRequest();
 
-    void SendLeavePartyRequest();
+    void LeavePartyRequest();
 
-    void SendKickFromPartyRequest(NetUserId userId);
+    void KickFromPartyRequest(NetUserId userId);
 
     void SetSettingsRequest(PartySettingsState settingsState);
 }

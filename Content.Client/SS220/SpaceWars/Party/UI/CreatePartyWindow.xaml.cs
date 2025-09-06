@@ -17,7 +17,7 @@ public sealed partial class CreatePartyWindow : DefaultWindow
         CreateButton.OnPressed += _ =>
         {
             var state = SettingsPanel.GetSettingsState();
-            _party.SendCreatePartyRequest(state);
+            _party.CreatePartyRequest(state);
             Close();
         };
         CancelButton.OnPressed += _ => Close();

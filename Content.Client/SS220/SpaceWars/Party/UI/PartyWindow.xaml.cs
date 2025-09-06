@@ -8,19 +8,14 @@ namespace Content.Client.SS220.SpaceWars.Party.UI;
 [GenerateTypedNameReferences]
 public sealed partial class PartyWindow : DefaultWindow
 {
-    [Dependency] private readonly IPartyManager _party = default!;
-
     public PartyWindow()
     {
         RobustXamlLoader.Load(this);
-        IoCManager.InjectDependencies(this);
-
-        Refresh();
-
-        _party.CurrentPartyUpdated += Refresh;
 
         Tabs.SetTabTitle(0, Loc.GetString("ui-party-main-tab-name"));
         Tabs.SetTabTitle(1, Loc.GetString("ui-received-invites-tab-name"));
+
+        Refresh();
     }
 
     protected override void Opened()

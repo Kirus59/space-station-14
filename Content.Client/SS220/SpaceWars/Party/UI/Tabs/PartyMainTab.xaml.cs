@@ -21,7 +21,7 @@ public sealed partial class PartyMainTab : Control
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IUserInterfaceManager _userInterface = default!;
 
-    private Dictionary<NetUserId, PartyMemberPanel> _memberPanels = new();
+    private readonly Dictionary<NetUserId, PartyMemberPanel> _memberPanels = [];
 
     private readonly CreatePartyWindow _createPartyWindow = new();
     private readonly LocalPartyInvitesWindow _localPartyInvitesWindow = new();
@@ -162,7 +162,7 @@ public sealed partial class PartyMainTab : Control
 
         var firstClickText = Loc.GetString("ui-party-main-tab-confirmable-button-are-you-sure");
         button.SetClickState(1, new ConfirmableButtonState(firstClickText, StyleNano.ButtonColorCautionDefault));
-        button.OnConfirmed += _party.SendDisbandPartyRequest;
+        button.OnConfirmed += _party.DisbandPartyRequest;
 
         return button;
     }
@@ -177,7 +177,7 @@ public sealed partial class PartyMainTab : Control
 
         var firstClickText = Loc.GetString("ui-party-main-tab-confirmable-button-are-you-sure");
         button.SetClickState(1, new ConfirmableButtonState(firstClickText, StyleNano.ButtonColorCautionDefault));
-        button.OnConfirmed += _party.SendLeavePartyRequest;
+        button.OnConfirmed += _party.LeavePartyRequest;
 
         return button;
     }
@@ -223,7 +223,7 @@ public sealed partial class PartyMainTab : Control
         button.AddStyleClass(DefaultWindow.StyleClassWindowCloseButton);
         button.OnPressed += _ =>
         {
-            _party.SendKickFromPartyRequest(member.UserId);
+            _party.KickFromPartyRequest(member.UserId);
         };
 
         var tooltip = new Tooltip();

@@ -7,12 +7,12 @@ namespace Content.Client.SS220.SpaceWars.Party.Commands;
 [UsedImplicitly]
 public sealed class PartyMenuCommand : LocalizedCommands
 {
-    [Dependency] private readonly IPartyManager _partyManager = default!;
+    [Dependency] private readonly IPartyManager _party = default!;
 
-    public override string Command => "partymenu";
+    public override string Command => "partywindow";
 
     public override void Execute(IConsoleShell shell, string argStr, string[] args)
     {
-        _partyManager.PartyWindow?.OpenCentered();
+        _party.UIController.ToggleWindow();
     }
 }

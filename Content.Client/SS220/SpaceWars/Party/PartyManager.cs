@@ -2,6 +2,7 @@
 using Content.Client.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Client.Player;
+using Robust.Client.UserInterface;
 using Robust.Shared.Network;
 using Robust.Shared.Utility;
 
@@ -11,10 +12,11 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 {
     [Dependency] private readonly INetManager _net = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
+    [Dependency] private readonly IUserInterfaceManager _ui = default!;
 
     public event Action? CurrentPartyUpdated;
 
-    public PartyWindow PartyWindow { get; set; } = default!;
+    public PartyUIController UIController => _ui.GetUIController<PartyUIController>();
 
     public Party? LocalParty { get; private set; }
 
@@ -40,7 +42,6 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     {
         base.Initialize();
 
-        PartyWindow = new PartyWindow();
         SubscribeNetMessage<UpdateClientPartyMessage>(OnUpdatePartyMessage);
 
         InviteInitialize();
@@ -87,25 +88,25 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         _net.ClientSendMessage(msg);
     }
 
-    public void SendCreatePartyRequest(PartySettingsState? settings = null)
+    public void CreatePartyRequest(PartySettingsState? settings = null)
     {
         var msg = new CreatePartyRequestMessage(settings);
         SendNetMessage(msg);
     }
 
-    public void SendDisbandPartyRequest()
+    public void DisbandPartyRequest()
     {
         var msg = new DisbandPartyRequestMessage();
         SendNetMessage(msg);
     }
 
-    public void SendLeavePartyRequest()
+    public void LeavePartyRequest()
     {
         var msg = new LeavePartyRequestMessage();
         SendNetMessage(msg);
     }
 
-    public void SendKickFromPartyRequest(NetUserId userId)
+    public void KickFromPartyRequest(NetUserId userId)
     {
         var msg = new KickFromPartyRequestMessage(userId);
         SendNetMessage(msg);
