@@ -11,6 +11,8 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
     [Dependency] private readonly INetManager _net = default!;
     [Dependency] private readonly IDynamicTypeFactory _dynamicTypeFactory = default!;
 
+    public const string CommandsPrefix = "party:";
+
     protected ISawmill Sawmill = default!;
 
     private readonly Dictionary<Type, INetSubscription> _netSubs = [];

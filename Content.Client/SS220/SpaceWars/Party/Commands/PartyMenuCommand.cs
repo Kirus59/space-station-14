@@ -1,4 +1,5 @@
 
+using Content.Shared.SS220.SpaceWars.Party;
 using JetBrains.Annotations;
 using Robust.Shared.Console;
 
@@ -9,7 +10,7 @@ public sealed class PartyMenuCommand : LocalizedCommands
 {
     [Dependency] private readonly IPartyManager _party = default!;
 
-    public override string Command => "partywindow";
+    public override string Command => SharedPartyManager.CommandsPrefix + "window";
 
     public override void Execute(IConsoleShell shell, string argStr, string[] args)
     {
