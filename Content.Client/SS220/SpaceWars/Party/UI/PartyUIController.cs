@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Robust.Client.UserInterface.Controllers;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Input.Binding;
-using Robust.Shared.Utility;
 using static Robust.Client.UserInterface.Controls.BaseButton;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI;
@@ -20,6 +19,8 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
     private PartyWindow? _window;
     private MenuButton? GamePartyButton => UIManager.GetActiveUIWidgetOrNull<GameTopMenuBar>()?.PartyButton;
     private Button? LobbyPartyButton => (UIManager.ActiveScreen as LobbyGui)?.PartyButton;
+
+    private bool _bindsRegistered;
 
     public void LoadButton()
     {
@@ -65,29 +66,87 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
         _window?.Refresh();
     }
 
-    private void OnStateEntered()
+    public void OnStateEntered(GameplayState state)
     {
-        DebugTools.Assert(_window == null);
+        if (GamePartyButton != null)
+        {
+            GamePartyButton.OnPressed -= PartyButtonPressed;
+            GamePartyButton.OnPressed += PartyButtonPressed;
+        }
 
-        _window = UIManager.CreateWindow<PartyWindow>();
+        if (_window != null &&
+            _window.IsOpen)
+            ActivateButton();
+        else
+            DeactivateButton();
+
+        EnsureWindow();
+        EnsureBinds();
+    }
+
+    public void OnStateExited(GameplayState state)
+    {
+        if (GamePartyButton != null)
+            GamePartyButton.OnPressed -= PartyButtonPressed;
+    }
+
+    public void OnStateEntered(LobbyState state)
+    {
+        if (LobbyPartyButton != null)
+        {
+            LobbyPartyButton.OnPressed -= PartyButtonPressed;
+            LobbyPartyButton.OnPressed += PartyButtonPressed;
+        }
+
+        if (_window != null &&
+            _window.IsOpen)
+            ActivateButton();
+        else
+            DeactivateButton();
+
+        EnsureWindow();
+        EnsureBinds();
+    }
+
+    public void OnStateExited(LobbyState state)
+    {
+        if (LobbyPartyButton != null)
+            LobbyPartyButton.OnPressed -= PartyButtonPressed;
+    }
+
+    private void EnsureWindow()
+    {
+        if (_window != null)
+            return;
+
+        _window = new PartyWindow();
         _window.OnClose += DeactivateButton;
         _window.OnOpen += ActivateButton;
+    }
+
+    private void ClearWindow()
+    {
+        _window?.Close();
+        _window = null;
+    }
+
+    private void EnsureBinds()
+    {
+        if (_bindsRegistered)
+            return;
 
         CommandBinds.Builder
             .Bind(ContentKeyFunctions.OpenPartyWindow,
                 InputCmdHandler.FromDelegate(_ => ToggleWindow()))
             .Register<PartyUIController>();
+
+        _bindsRegistered = true;
     }
 
-    private void OnStateExited()
+    private void ClearBinds()
     {
-        if (_window != null)
-        {
-            _window.Close();
-            _window = null;
-        }
-
         CommandBinds.Unregister<PartyUIController>();
+        _bindsRegistered = false;
     }
 
     private void DeactivateButton()
@@ -114,44 +173,5 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
             return;
 
         ToggleWindow();
-        UIManager.ClickSound();
-    }
-
-    public void OnStateEntered(GameplayState state)
-    {
-        if (GamePartyButton != null)
-        {
-            GamePartyButton.OnPressed -= PartyButtonPressed;
-            GamePartyButton.OnPressed += PartyButtonPressed;
-        }
-
-        OnStateEntered();
-    }
-
-    public void OnStateExited(GameplayState state)
-    {
-        if (GamePartyButton != null)
-            GamePartyButton.OnPressed -= PartyButtonPressed;
-
-        OnStateExited();
-    }
-
-    public void OnStateEntered(LobbyState state)
-    {
-        if (LobbyPartyButton != null)
-        {
-            LobbyPartyButton.OnPressed -= PartyButtonPressed;
-            LobbyPartyButton.OnPressed += PartyButtonPressed;
-        }
-
-        OnStateEntered();
-    }
-
-    public void OnStateExited(LobbyState state)
-    {
-        if (LobbyPartyButton != null)
-            LobbyPartyButton.OnPressed -= PartyButtonPressed;
-
-        OnStateExited();
     }
 }
