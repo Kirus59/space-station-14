@@ -17,6 +17,7 @@ public sealed class ListPartiesCommand : LocalizedCommands
     private const string IdTitle = "Id";
     private const string HostTitle = "Host";
     private const string MembersTitle = "Members";
+    private const string StatusTitle = "Status";
 
     public override void Execute(IConsoleShell shell, string argStr, string[] args)
     {
@@ -24,15 +25,15 @@ public sealed class ListPartiesCommand : LocalizedCommands
         var format = GetStringFormat(parties);
 
         var builder = new StringBuilder();
-        var title = string.Format(format, IdTitle, HostTitle, MembersTitle);
+        var title = string.Format(format, IdTitle, HostTitle, MembersTitle, StatusTitle);
         builder.AppendLine(title);
 
-        var devider = new string('=', title.Trim().Length);
+        var devider = new string('=', title.Length);
         builder.AppendLine(devider);
 
         foreach (var party in parties)
         {
-            var partyLine = string.Format(format, party.Id, party.Host.Session.Name, party.Members.Count);
+            var partyLine = string.Format(format, party.Id, party.Host.Session.Name, party.Members.Count, party.Status.ToString());
             builder.AppendLine(partyLine);
         }
 
@@ -46,19 +47,22 @@ public sealed class ListPartiesCommand : LocalizedCommands
         var idWidth = tab;
         var hostWidth = tab;
         var membersWidth = tab;
+        var statusWidth = tab;
 
         CalculateExtraWidth(IdTitle, ref idWidth);
         CalculateExtraWidth(HostTitle, ref hostWidth);
         CalculateExtraWidth(MembersTitle, ref membersWidth);
+        CalculateExtraWidth(StatusTitle, ref statusWidth);
 
         foreach (var party in parties)
         {
             CalculateExtraWidth(party.Id.ToString(), ref idWidth);
             CalculateExtraWidth(party.Host.Session.Name, ref hostWidth);
             CalculateExtraWidth(party.Members.Count.ToString(), ref membersWidth);
+            CalculateExtraWidth(party.Status.ToString(), ref statusWidth);
         }
 
-        return $"{{0,-{idWidth}}}{{1,-{hostWidth}}}{{2,-{membersWidth}}}";
+        return $"{{0,-{idWidth}}}{{1,-{hostWidth}}}{{2,-{membersWidth}}}{{3,-{statusWidth}}}";
 
         static void CalculateExtraWidth(string param, ref int paramWidth)
         {
