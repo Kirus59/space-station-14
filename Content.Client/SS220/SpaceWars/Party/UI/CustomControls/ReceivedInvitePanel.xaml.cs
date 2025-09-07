@@ -7,7 +7,6 @@ using Robust.Client.Player;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Utility;
-using System.Linq;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
@@ -25,7 +24,7 @@ public sealed partial class ReceivedInvitePanel : PanelContainer
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        DebugTools.Assert(_party.ReceivedInvites.Contains(invite));
+        DebugTools.Assert(invite.InviteType is PartyInviteType.External);
         DebugTools.AssertEqual(invite.Receiver, _player.LocalUser);
         Invite = invite;
 
@@ -41,6 +40,8 @@ public sealed partial class ReceivedInvitePanel : PanelContainer
         DenyButton.OnPressed += _ => Deny();
 
         PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(60, 60, 60) };
+
+        Refresh();
     }
 
     public void Refresh()

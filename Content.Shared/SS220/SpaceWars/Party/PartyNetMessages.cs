@@ -123,7 +123,19 @@ public sealed class UpdateClientPartyInvitesMessage(List<PartyInviteState> state
 }
 
 [Serializable, NetSerializable]
-public sealed class UpdateClientPartyInviteMessage(PartyInviteState state) : PartyMessage
+public sealed class HandlePartyInviteStateMessage(PartyInviteState state) : PartyMessage
+{
+    public readonly PartyInviteState State = state;
+}
+
+[Serializable, NetSerializable]
+public sealed class PartyInviteDeletedMessage(uint inviteId) : PartyMessage
+{
+    public readonly uint InviteId = inviteId;
+}
+
+[Serializable, NetSerializable]
+public sealed class PartyInviteReceivedMessage(PartyInviteState state) : PartyMessage
 {
     public readonly PartyInviteState State = state;
 }

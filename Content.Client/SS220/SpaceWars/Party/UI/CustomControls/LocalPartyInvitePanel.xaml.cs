@@ -21,7 +21,7 @@ public sealed partial class LocalPartyInvitePanel : PanelContainer
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        DebugTools.Assert(_party.LocalPartyInvites.Contains(invite));
+        DebugTools.Assert(_party.InternalInvites.Contains(invite));
         DebugTools.AssertEqual(_party.LocalParty?.Id, invite.PartyId);
         Invite = invite;
 

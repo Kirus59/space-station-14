@@ -10,8 +10,8 @@ public partial interface IPartyManager
     event Action<PartyInvite>? InviteRemoved;
     event Action<PartyInvite>? InviteUpdated;
 
-    IEnumerable<PartyInvite> ReceivedInvites { get; }
-    IEnumerable<PartyInvite> LocalPartyInvites { get; }
+    IEnumerable<PartyInvite> ExternalInvites { get; }
+    IEnumerable<PartyInvite> InternalInvites { get; }
     IEnumerable<PartyInvite> AllInvites { get; }
 
     void InviteInitialize();

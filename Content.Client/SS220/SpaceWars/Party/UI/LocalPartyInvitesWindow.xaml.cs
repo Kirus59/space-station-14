@@ -35,7 +35,7 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
 
     public void Refresh()
     {
-        var invites = _party.LocalPartyInvites;
+        var invites = _party.InternalInvites;
 
         var limit = _cfg.GetCVar(CCVars220.PartyInvitesLimit);
         var invitesCountInfo = Loc.GetString("ui-local-party-invites-window-sended-invites-count", ("count", invites.Count()), ("limit", limit));

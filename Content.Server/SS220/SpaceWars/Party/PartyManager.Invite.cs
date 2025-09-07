@@ -161,9 +161,14 @@ public sealed partial class PartyManager
         DeleteInvite(invite);
     }
 
-    public void DeleteInvite(PartyInvite invite, bool updates = true)
+    public void DeleteInvite(PartyInvite invite)
     {
-        SetInviteStatus(invite, PartyInviteStatus.Deleted, updates: updates);
+        SetInviteStatus(invite, PartyInviteStatus.Deleted, false);
+
+        var msg = new PartyInviteDeletedMessage(invite.Id);
+        SendNetMessage(msg, invite.Party.Host.Session);
+        SendNetMessage(msg, invite.Receiver);
+
         _invites.Remove(invite);
     }
 
@@ -238,7 +243,10 @@ public sealed partial class PartyManager
     public void SendInvite(PartyInvite invite)
     {
         SetInviteStatus(invite, PartyInviteStatus.Sended, false);
-        UpdateClientInvite(invite);
+
+        var msg = new PartyInviteReceivedMessage(invite.GetState());
+        SendNetMessage(msg, invite.Party.Host.Session);
+        SendNetMessage(msg, invite.Receiver);
     }
 
     public bool InviteAvailable(Party party, ICommonSession target)
@@ -343,7 +351,7 @@ public sealed partial class PartyManager
 
         if (updates)
         {
-            UpdateClientInvite(invite);
+            UpdateClientInviteState(invite);
         }
     }
 
@@ -363,17 +371,17 @@ public sealed partial class PartyManager
         SendNetMessage(msg, session);
     }
 
-    private void UpdateClientInvite(PartyInvite invite)
+    private void UpdateClientInviteState(PartyInvite invite)
     {
-        UpdateClientInvite(invite.Party.Host.Session, invite);
-        UpdateClientInvite(invite.Receiver, invite);
+        UpdateClientInviteState(invite.Party.Host.Session, invite);
+        UpdateClientInviteState(invite.Receiver, invite);
     }
 
-    private void UpdateClientInvite(ICommonSession session, PartyInvite invite)
+    private void UpdateClientInviteState(ICommonSession session, PartyInvite invite)
     {
         DebugTools.Assert(invite.Party.Host.Session == session || invite.Receiver == session);
 
-        var msg = new UpdateClientPartyInviteMessage(invite.GetState());
+        var msg = new HandlePartyInviteStateMessage(invite.GetState());
         SendNetMessage(msg, session);
     }
 }

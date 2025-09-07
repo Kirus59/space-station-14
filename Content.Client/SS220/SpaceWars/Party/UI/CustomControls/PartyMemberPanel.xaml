@@ -6,8 +6,8 @@
                 <Label Name="PartyRoleLabel" Align="Right" Margin="5 0"/>
             </PanelContainer>
         </BoxContainer>
-        <BoxContainer Name="BottomBox" Orientation="Horizontal" VerticalExpand="True" Access="Public" Margin ="5 0">
-            <TextureRect Name="ConnectionStatusIcon" HorizontalAlignment="Center" VerticalAlignment="Center" StyleClasses="Circle"/>
+        <BoxContainer Name="BottomBox" Orientation="Horizontal" VerticalExpand="True" Access="Public">
+            <TextureRect Name="ConnectionStatusIcon" HorizontalAlignment="Center" VerticalAlignment="Center" StyleClasses="Circle" Margin="0 0 2 0"/>
             <Label Name="ConnectionStatusLabel" Align="Left" Margin ="5 0 0 0" HorizontalExpand="True"/>
         </BoxContainer>
     </BoxContainer>

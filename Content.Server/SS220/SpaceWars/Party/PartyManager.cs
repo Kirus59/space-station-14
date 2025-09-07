@@ -223,6 +223,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
 
         DeleteInvite(party, session);
+        UpdateClientInvites(session);
     }
 
     public bool TryRemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true)
@@ -250,7 +251,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (!party.TryFindMember(session, out var member))
             return;
 
-        party.RemoveMember(session);
+        party.RemoveMember(member);
         DebugTools.Assert(!party.ContainsMember(session));
 
         if (notify)
@@ -260,6 +261,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
 
         UserLeavedParty?.Invoke(member);
+        UpdateClientInvites(session);
 
         if (updates)
         {
@@ -297,7 +299,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         else if (!isMember && IsAnyPartyMember(session))
             throw new ArgumentException($"User {session.Name} is a member of another party");
 
+        var oldHost = party.Host;
         party.SetHost(session, ignoreLimit: force);
+        DebugTools.Assert(party.IsHost(oldHost.Session));
         DebugTools.Assert(party.IsHost(session));
 
         if (!isMember)
@@ -310,6 +314,9 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
 
         DeleteInvite(party, session);
+
+        UpdateClientInvites(session);
+        UpdateClientInvites(oldHost.Session);
     }
 
     public void SetStatus(Party party, PartyStatus newStatus, bool updates = true)

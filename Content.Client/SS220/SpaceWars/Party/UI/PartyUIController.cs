@@ -2,6 +2,7 @@
 using Content.Client.Gameplay;
 using Content.Client.Lobby;
 using Content.Client.Lobby.UI;
+using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
 using Content.Client.UserInterface.Systems.MenuBar.Widgets;
 using Content.Shared.Input;
@@ -16,11 +17,34 @@ namespace Content.Client.SS220.SpaceWars.Party.UI;
 [UsedImplicitly]
 public sealed class PartyUIController : UIController, IOnStateChanged<GameplayState>, IOnStateChanged<LobbyState>
 {
+    [Dependency] private readonly IPartyManager _party = default!;
+
     private PartyWindow? _window;
     private MenuButton? GamePartyButton => UIManager.GetActiveUIWidgetOrNull<GameTopMenuBar>()?.PartyButton;
     private Button? LobbyPartyButton => (UIManager.ActiveScreen as LobbyGui)?.PartyButton;
 
     private bool _bindsRegistered;
+    private bool _hasUnreadInfo;
+
+    public override void Initialize()
+    {
+        base.Initialize();
+
+        _party.CurrentPartyUpdated += () => UnreadInfoReceived();
+        _party.ChatMessageReceived += _ => UnreadInfoReceived();
+
+        _party.InviteAdded += OnInviteUpdated;
+        _party.InviteUpdated += OnInviteUpdated;
+        _party.InviteRemoved += OnInviteUpdated;
+    }
+
+    private void OnInviteUpdated(PartyInvite invite)
+    {
+        if (invite.InviteType is not PartyInviteType.External)
+            return;
+
+        UnreadInfoReceived();
+    }
 
     public void LoadButton()
     {
@@ -165,6 +189,8 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
 
         if (LobbyPartyButton != null)
             LobbyPartyButton.Pressed = true;
+
+        UnreadInfoRead();
     }
 
     private void PartyButtonPressed(ButtonEventArgs args)
@@ -173,5 +199,25 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
             return;
 
         ToggleWindow();
+    }
+
+    private void UnreadInfoReceived()
+    {
+        if (_hasUnreadInfo || _window?.IsOpen is true)
+            return;
+
+        GamePartyButton?.StyleClasses.Add(MenuButton.StyleClassRedTopButton);
+        LobbyPartyButton?.StyleClasses.Add(StyleNano.StyleClassButtonColorRed);
+        _hasUnreadInfo = true;
+    }
+
+    private void UnreadInfoRead()
+    {
+        if (!_hasUnreadInfo)
+            return;
+
+        GamePartyButton?.StyleClasses.Remove(MenuButton.StyleClassRedTopButton);
+        LobbyPartyButton?.StyleClasses.Remove(StyleNano.StyleClassButtonColorRed);
+        _hasUnreadInfo = false;
     }
 }

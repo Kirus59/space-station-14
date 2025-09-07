@@ -99,16 +99,26 @@ public sealed class Party : SharedParty, IDisposable
     }
 
     [Access(typeof(PartyManager))]
-    public void RemoveMember(ICommonSession session)
+    public bool RemoveMember(ICommonSession session)
     {
         DebugTools.Assert(!_disposed);
 
-        if (!ContainsMember(session))
-            return;
+        if (!TryFindMember(session, out var member))
+            return false;
 
-        if (Host.Session == session)
+        return RemoveMember(member);
+    }
+
+    [Access(typeof(PartyManager))]
+    public bool RemoveMember(PartyMember member)
+    {
+        DebugTools.Assert(!_disposed);
+
+        if (Host == member)
             throw new Exception($"\"Cannot remove user with the {PartyMemberRole.Host} role. " +
                 $"Use the \"{nameof(SetHost)}\" function to set a new party host and then remove this user.\"");
+
+        return _members.Remove(member);
     }
 
     public bool IsHost(ICommonSession session)
