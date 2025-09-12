@@ -9,9 +9,8 @@ cmd-party-add-member-invalid-argument-3 = Не удалось спарсить {
 cmd-party-add-member-user-is-another-party-member = Пользователь { $user } уже является участником другого пати. Используйте параметр 'force: True' для принудительного добавления пользователя в пати
 cmd-party-add-member-members-limit-reached = Целевое пати достигло лимита участников. Используйте параметр 'force: True' для игнорирования лимита участников
 
-cmd-party-add-member-success = Пользователь { $user } успешно добавлен в пати { $partyId }!
+cmd-party-add-member-success = Пользователь успешно добавлен в пати!
 
 cmd-party-add-member-hint-1 = <id пати>
 cmd-party-add-member-hint-2 = <имя пользователя>
 cmd-party-add-member-hint-3 = [принудительно]
-cmd-party-add-member-party-hint-option = { $id } Хост: { $host }

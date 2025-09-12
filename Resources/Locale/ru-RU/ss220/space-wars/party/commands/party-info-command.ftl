@@ -11,4 +11,3 @@ cmd-party-info-members-line-name = Участники
 cmd-party-info-status-line-name = Статус
 
 cmd-party-info-hint-1 = <id пати>
-cmd-party-info-party-hint-option = { $id } Хост: { $host }

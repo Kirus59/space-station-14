@@ -66,7 +66,7 @@ public sealed class PartyAddMemberCommand : LocalizedCommands
         try
         {
             _party.AddMember(party, session, force: force, ignoreLimit: force);
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-success", ("user", session.Name), ("partyId", party.Id)));
+            shell.WriteLine(Loc.GetString("cmd-party-add-member-success"));
         }
         catch (Exception e)
         {
