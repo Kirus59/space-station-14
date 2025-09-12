@@ -5,4 +5,6 @@ cmd-disband-party-invalid-arguments-count = Неверное число аргу
 cmd-disband-party-invalid-argument-1 = Не удалось спарсить { $arg } в качестве беззнакового целого числа (uint)
 cmd-disband-party-invalid-party-id = Не удалось найти пати с id { $id }
 
-cmd-party-remove-member-success = Пати успешно расформировано!
+cmd-disband-party-success = Пати успешно расформировано!
+
+cmd-disband-party-hint-1 = <id пати>
