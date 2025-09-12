@@ -1,3 +1,4 @@
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
 using Content.Server.Administration;
 using Content.Shared.Administration;
@@ -14,14 +15,20 @@ public sealed class ListPartiesCommand : LocalizedCommands
 
     public override string Command => SharedPartyManager.CommandsPrefix + "list";
 
-    private const string IdTitle = "Id";
-    private const string HostTitle = "Host";
-    private const string MembersTitle = "Members";
-    private const string StatusTitle = "Status";
+    private string IdTitle => Loc.GetString("cmd-list-parties-id-title");
+    private string HostTitle => Loc.GetString("cmd-list-parties-host-title");
+    private string MembersTitle => Loc.GetString("cmd-list-parties-members-title");
+    private string StatusTitle => Loc.GetString("cmd-list-parties-status-title");
 
     public override void Execute(IConsoleShell shell, string argStr, string[] args)
     {
         var parties = _party.Parties;
+        if (parties.Count == 0)
+        {
+            shell.WriteLine(Loc.GetString("cmd-list-parties-zero-paries"));
+            return;
+        }
+
         var format = GetStringFormat(parties);
 
         var builder = new StringBuilder();
@@ -40,7 +47,7 @@ public sealed class ListPartiesCommand : LocalizedCommands
         shell.WriteLine(builder.ToString());
     }
 
-    private static string GetStringFormat(IEnumerable<Party> parties)
+    private string GetStringFormat(IEnumerable<Party> parties)
     {
         const int tab = 4;
 
