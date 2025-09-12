@@ -1,5 +1,5 @@
 cmd-create-party-desc = Создаёт новое пати с указанным пользователем
-cmd-create-party-help = party:create <имя пользователя> [принудительно]
+cmd-create-party-help = Использование: party:create <имя пользователя> [принудительно]
 
 cmd-create-party-invalid-arguments-count = Неверное число аргументов!\n{ $help }
 cmd-create-party-invalid-username = Не удалось найти пользователя с именем { $username }

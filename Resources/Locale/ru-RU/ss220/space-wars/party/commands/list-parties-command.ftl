@@ -1,5 +1,5 @@
 cmd-list-parties-desc = Выводит список всех существующих пати
-cmd-list-parties-help = party:list
+cmd-list-parties-help = Использование: party:list
 
 cmd-list-parties-zero-paries = Не найдено ни одного пати!
 

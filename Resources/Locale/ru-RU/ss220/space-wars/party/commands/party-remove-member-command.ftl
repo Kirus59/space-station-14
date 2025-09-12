@@ -1,5 +1,5 @@
 cmd-party-remove-member-desc = Исключает пользователя из пати
-cmd-party-remove-member-help = party:removemember <id пати> <имя пользователя>
+cmd-party-remove-member-help = Использование: party:removemember <id пати> <имя пользователя>
 
 cmd-party-remove-member-invalid-arguments-count = Неверное число аргументов!\n{ $help }
 cmd-party-remove-member-invalid-argument-1 = Не удалось спарсить { $arg } в качестве беззнакового целого числа (uint)

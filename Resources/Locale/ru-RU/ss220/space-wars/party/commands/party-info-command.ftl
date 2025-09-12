@@ -1,5 +1,5 @@
 cmd-party-info-desc = Выводит информацию о пати
-cmd-party-info-help = party:info <id пати>
+cmd-party-info-help = Использование: party:info <id пати>
 
 cmd-party-info-invalid-arguments-count = Неверное число аргументов!\n{ $help }
 cmd-party-info-invalid-argument-1 = Не удалось спарсить { $arg } в качестве беззнакового целого числа (uint)

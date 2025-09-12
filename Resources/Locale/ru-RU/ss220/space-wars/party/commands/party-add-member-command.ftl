@@ -1,5 +1,5 @@
 cmd-party-add-member-desc = Добавляет пользователя в пати
-cmd-party-add-member-help = party:adduser <id пати> <имя пользователя> [принудительно]
+cmd-party-add-member-help = Использование: party:adduser <id пати> <имя пользователя> [принудительно]
 
 cmd-party-add-member-invalid-arguments-count = Неверное число аргументов!\n{ $help }
 cmd-party-add-member-invalid-argument-1 = Не удалось спарсить { $arg } в качестве беззнакового целого числа (uint)
