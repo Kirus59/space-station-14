@@ -33,7 +33,7 @@ public sealed class CreatePartyCommand : LocalizedCommands
         var force = false;
         if (args.Length >= 2 && !bool.TryParse(args[1], out force))
         {
-            shell.WriteLine(Loc.GetString("cmd-create-party-invalid-argumens-2", ("arg", args[1])));
+            shell.WriteLine(Loc.GetString("cmd-create-party-invalid-argument-2", ("arg", args[1])));
             return;
         }
 

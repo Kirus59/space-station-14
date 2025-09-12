@@ -3,6 +3,7 @@ using Content.Shared.SS220.CCVars;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Server.Player;
 using Robust.Shared.Configuration;
+using Robust.Shared.Console;
 using Robust.Shared.Enums;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
@@ -426,6 +427,18 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         DebugTools.Assert(PartyExist(party));
         return party;
+    }
+
+    public IEnumerable<CompletionOption> GetPartiesCompletionOptions()
+    {
+        var result = new List<CompletionOption>();
+        foreach (var party in _parties)
+        {
+            var hint = Loc.GetString("party-manager-party-completion-option", ("id", party.Id), ("host", party.Host.Name));
+            result.Add(new CompletionOption(party.Id.ToString(), hint));
+        }
+
+        return result;
     }
 
     private void UpdateClient(ICommonSession session)

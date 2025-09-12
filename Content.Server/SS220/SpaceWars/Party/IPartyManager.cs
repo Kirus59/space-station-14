@@ -1,5 +1,6 @@
 
 using Content.Shared.SS220.SpaceWars.Party;
+using Robust.Shared.Console;
 using Robust.Shared.Player;
 using System.Diagnostics.CodeAnalysis;
 
@@ -58,6 +59,8 @@ public partial interface IPartyManager : ISharedPartyManager
     Party? GetPartyById(uint id);
     Party? GetPartyByHost(ICommonSession session);
     Party? GetPartyByMember(ICommonSession session);
+
+    IEnumerable<CompletionOption> GetPartiesCompletionOptions();
 
     #region Settings
     void SetSettings(Party party, PartySettingsState state, bool updates = true);

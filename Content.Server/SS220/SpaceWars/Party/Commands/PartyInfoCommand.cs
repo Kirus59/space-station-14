@@ -26,13 +26,13 @@ public sealed class PartyInfoCommand : LocalizedCommands
     {
         if (args.Length != 1)
         {
-            shell.WriteLine(Loc.GetString("cmd-party-info-invalid-arguments-count", ("help", Help));
+            shell.WriteLine(Loc.GetString("cmd-party-info-invalid-arguments-count", ("help", Help)));
             return;
         }
 
         if (!uint.TryParse(args[0], out var partyId))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-info-invalid-arguments-1", ("arg", args[0])));
+            shell.WriteLine(Loc.GetString("cmd-party-info-invalid-argument-1", ("arg", args[0])));
             return;
         }
 
@@ -52,5 +52,14 @@ public sealed class PartyInfoCommand : LocalizedCommands
         builder.AppendLine($"{StatusLineName}: {party.Status.ToString()}");
 
         shell.WriteLine(builder.ToString());
+    }
+
+    public override CompletionResult GetCompletion(IConsoleShell shell, string[] args)
+    {
+        return args.Length switch
+        {
+            1 => CompletionResult.FromHintOptions(_party.GetPartiesCompletionOptions(), Loc.GetString("cmd-party-info-hint-1")),
+            _ => CompletionResult.Empty
+        };
     }
 }

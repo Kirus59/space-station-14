@@ -8,6 +8,7 @@ public sealed class PartyMember(ICommonSession session, uint partyId, PartyMembe
 {
     public readonly ICommonSession Session = session;
     public readonly uint PartyId = partyId;
+    public string Name => Session.Name;
 
     public PartyMemberState GetState()
     {
