@@ -14,6 +14,8 @@ public sealed class ListPartiesCommand : LocalizedCommands
     [Dependency] private readonly IPartyManager _party = default!;
 
     public override string Command => SharedPartyManager.CommandsPrefix + "list";
+    public override string Description => Loc.GetString("cmd-list-parties-desc");
+    public override string Help => Loc.GetString("cmd-list-parties-help");
 
     private string IdTitle => Loc.GetString("cmd-list-parties-id-title");
     private string HostTitle => Loc.GetString("cmd-list-parties-host-title");

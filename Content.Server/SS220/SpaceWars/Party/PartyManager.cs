@@ -302,7 +302,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         var oldHost = party.Host;
         party.SetHost(session, ignoreLimit: force);
-        DebugTools.Assert(party.IsHost(oldHost.Session));
+        DebugTools.Assert(!party.IsHost(oldHost.Session));
         DebugTools.Assert(party.IsHost(session));
 
         if (!isMember)
@@ -434,7 +434,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         var result = new List<CompletionOption>();
         foreach (var party in _parties)
         {
-            var hint = Loc.GetString("party-manager-party-completion-option", ("id", party.Id), ("host", party.Host.Name));
+            var hint = Loc.GetString("party-manager-party-completion-option", ("host", party.Host.Name));
             result.Add(new CompletionOption(party.Id.ToString(), hint));
         }
 

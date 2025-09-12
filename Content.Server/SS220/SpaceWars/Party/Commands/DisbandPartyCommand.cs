@@ -1,10 +1,13 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
+using Content.Server.Administration;
+using Content.Shared.Administration;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Console;
 
 namespace Content.Server.SS220.SpaceWars.Party.Commands;
 
+[AdminCommand(AdminFlags.Moderator)]
 public sealed class DisbandPartyCommand : LocalizedCommands
 {
     [Dependency] private readonly IPartyManager _party = default!;
