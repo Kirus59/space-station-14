@@ -14,7 +14,7 @@ public sealed class PartyAddMemberCommand : LocalizedCommands
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
 
-    public override string Command => SharedPartyManager.CommandsPrefix + "adduser";
+    public override string Command => SharedPartyManager.CommandsPrefix + "addmember";
     public override string Description => Loc.GetString("cmd-party-add-member-desc");
     public override string Help => Loc.GetString("cmd-party-add-member-help");
 

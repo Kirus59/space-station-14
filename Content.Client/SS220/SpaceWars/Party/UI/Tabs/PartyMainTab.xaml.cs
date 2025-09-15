@@ -49,6 +49,7 @@ public sealed partial class PartyMainTab : Control
     private void RefreshMembers()
     {
         var toRemove = _memberPanels.Keys.ToList();
+        MembersContainer.RemoveAllChildren();
 
         if (_party.LocalParty is { } party)
         {
@@ -67,13 +68,13 @@ public sealed partial class PartyMainTab : Control
                         Margin = new Thickness(5, 5, 5, 0)
                     };
 
-                    MembersContainer.AddChild(memberPanel);
                     _memberPanels.Add(member.UserId, memberPanel);
 
-                    if (_party.IsLocalPartyHost &&
-                        member.Role is not PartyMemberRole.Host)
+                    if (_party.IsLocalPartyHost && member.Role is not PartyMemberRole.Host)
                         memberPanel.BottomBox.AddChild(NewKickButton(member));
                 }
+
+                MembersContainer.AddChild(memberPanel);
             }
 
             var membersLimit = party.Settings.MembersLimit;
@@ -85,12 +86,7 @@ public sealed partial class PartyMainTab : Control
         }
 
         foreach (var key in toRemove)
-        {
-            if (_memberPanels.TryGetValue(key, out var panel))
-                MembersContainer.RemoveChild(panel);
-
             _memberPanels.Remove(key);
-        }
     }
 
     #region Chat
