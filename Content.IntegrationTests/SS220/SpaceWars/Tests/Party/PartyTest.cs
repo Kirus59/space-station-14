@@ -1,5 +1,6 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
+using Content.Client.SS220.SpaceWars.Party;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Server.Player;
 using Robust.Shared.Player;
@@ -156,6 +157,60 @@ public sealed class PartyTest
             Assert.That(clientPartyMng.LocalParty, Is.Null);
             Assert.That(clientPartyMng.LocalMember, Is.Null);
         });
+
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task TestPartyInvites()
+    {
+        await using var pair = await PoolManager.GetServerClient(_poolSettings);
+        var (server, client) = pair;
+        await pair.RunTicksSync(5);
+
+        var playerMng = server.ResolveDependency<IPlayerManager>();
+        var serverPartyMng = server.ResolveDependency<Server.SS220.SpaceWars.Party.IPartyManager>();
+        var clientPartyMng = client.ResolveDependency<Client.SS220.SpaceWars.Party.IPartyManager>();
+
+        var dummy = await server.AddDummySession();
+
+        ICommonSession session = default;
+        Server.SS220.SpaceWars.Party.Party serverParty = default;
+        await server.WaitPost(() =>
+        {
+            session = playerMng.GetSessionById(client.Session.UserId);
+            serverParty = serverPartyMng.CreateParty(session);
+        });
+        await pair.RunTicksSync(5);
+
+        await client.WaitPost(() => clientPartyMng.InviteUserRequest(dummy.Name));
+        await pair.RunTicksSync(5);
+
+        Server.SS220.SpaceWars.Party.IPartyInvite serverInvite = default;
+        await server.WaitAssertion(() =>
+        {
+            serverInvite = serverPartyMng.GetInvite(serverParty, dummy);
+            Assert.Multiple(() =>
+            {
+                Assert.That(serverInvite.Target, Is.EqualTo(dummy));
+                Assert.That(serverInvite.Party, Is.EqualTo(serverParty));
+                Assert.That(serverInvite.Status, Is.EqualTo(PartyInviteStatus.Sended));
+            });
+        });
+
+        await client.WaitAssertion(() =>
+        {
+            Assert.That(clientPartyMng.ReceivedInvites, Has.Count.EqualTo(1));
+
+            var invite = clientPartyMng.GetInvite(serverInvite.Id);
+            Assert.That(invite, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(invite.Kind, Is.EqualTo(PartyInviteKind.Sended));
+                Assert.That(invite.Target, Is.EqualTo(dummy.UserId));
+            });
+        });
+
 
         await pair.CleanReturnAsync();
     }

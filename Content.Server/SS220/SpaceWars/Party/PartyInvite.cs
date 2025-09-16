@@ -4,16 +4,74 @@ using Robust.Shared.Player;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
+public interface IPartyInvite : ISharedPartyInvite
+{
+    Party Party { get; }
+    ICommonSession Target { get; }
+    void SetStatus(PartyInviteStatus newStatus);
+    IPartyInviteState GetState();
+}
+
 public sealed class PartyInvite(uint id,
     Party party,
-    ICommonSession receiver,
-    PartyInviteStatus status = PartyInviteStatus.None) : SharedPartyInvite(id, status)
+    ICommonSession target,
+    PartyInviteStatus status = PartyInviteStatus.None) : IPartyInvite, IEquatable<PartyInvite>
 {
-    public readonly Party Party = party;
-    public readonly ICommonSession Receiver = receiver;
+    public uint Id { get; } = id;
+    public PartyInviteStatus Status { get; private set; } = status;
 
-    public PartyInviteState GetState()
+    public Party Party { get; } = party;
+    public ICommonSession Target { get; } = target;
+
+    public void SetStatus(PartyInviteStatus newStatus)
     {
-        return new PartyInviteState(Id, Party.Id, Party.Host.Session.Name, Receiver.UserId, Receiver.Name, Status);
+        Status = newStatus;
+    }
+
+    public IPartyInviteState GetState()
+    {
+        return new PartyInviteState(Id, Status, Party.Id, Target.UserId, Party.Host.Name, Target.Name);
+    }
+
+    public bool Equals(PartyInvite? other)
+    {
+        if (other is null)
+            return false;
+
+        return Id.Equals(other.Id);
+    }
+
+    public static bool Equals(PartyInvite? left, PartyInvite? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (left is null)
+            return false;
+
+        return left.Equals(right);
+    }
+
+    public static bool operator ==(PartyInvite? left, PartyInvite? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(PartyInvite? left, PartyInvite? right)
+    {
+        return !Equals(left, right);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not PartyInvite invite)
+            return false;
+
+        return Equals(invite);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
     }
 }

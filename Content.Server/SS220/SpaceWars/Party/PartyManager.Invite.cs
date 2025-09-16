@@ -19,18 +19,18 @@ public sealed partial class PartyManager
 
     public void InviteInitialize()
     {
-        SubscribeNetMessage<InviteUserRequestMessage>(OnInviteInPartyRequest);
-        SubscribeNetMessage<AcceptInviteRequestMessage>(OnAcceptInvite);
-        SubscribeNetMessage<DenyInviteRequestMessage>(OnDenyInvite);
-        SubscribeNetMessage<DeleteInviteRequestMessage>(OnDeleteInvite);
-        SubscribeNetMessage<SetReceiveInvitesStatusMessage>(OnSetReceiveInvitesStatus);
+        SubscribeNetMessage<MsgInviteUserRequest>(OnInviteInPartyRequest);
+        SubscribeNetMessage<MsgAcceptInviteRequest>(OnAcceptInvite);
+        SubscribeNetMessage<MsgDenyInviteRequest>(OnDenyInvite);
+        SubscribeNetMessage<MsgInviteRequest>(OnDeleteInvite);
+        SubscribeNetMessage<MsgSetReceiveInvitesStatus>(OnSetReceiveInvitesStatus);
     }
 
-    private void OnInviteInPartyRequest(InviteUserRequestMessage message, ICommonSession sender)
+    private void OnInviteInPartyRequest(MsgInviteUserRequest message, ICommonSession sender)
     {
         var success = TryInvite(out var responceMessage);
 
-        var responce = new InviteUserResponceMessage
+        var responce = new MsgInviteUserResponce
         {
             Id = message.Id,
             Success = success,
@@ -72,29 +72,29 @@ public sealed partial class PartyManager
         }
     }
 
-    private void OnAcceptInvite(AcceptInviteRequestMessage message, ICommonSession sender)
+    private void OnAcceptInvite(MsgAcceptInviteRequest message, ICommonSession sender)
     {
         if (!TryGetInvite(message.InviteId, out var invite))
             return;
 
-        if (sender != invite.Receiver)
+        if (sender != invite.Target)
             return;
 
         TryAcceptInvite(invite, force: true);
     }
 
-    private void OnDenyInvite(DenyInviteRequestMessage message, ICommonSession sender)
+    private void OnDenyInvite(MsgDenyInviteRequest message, ICommonSession sender)
     {
         if (!TryGetInvite(message.InviteId, out var invite))
             return;
 
-        if (sender != invite.Receiver)
+        if (sender != invite.Target)
             return;
 
         DenyInvite(invite);
     }
 
-    private void OnDeleteInvite(DeleteInviteRequestMessage message, ICommonSession sender)
+    private void OnDeleteInvite(MsgInviteRequest message, ICommonSession sender)
     {
         if (!TryGetInvite(message.InviteId, out var invite))
             return;
@@ -105,7 +105,7 @@ public sealed partial class PartyManager
         DeleteInvite(invite);
     }
 
-    private void OnSetReceiveInvitesStatus(SetReceiveInvitesStatusMessage message, ICommonSession sender)
+    private void OnSetReceiveInvitesStatus(MsgSetReceiveInvitesStatus message, ICommonSession sender)
     {
         if (message.ReceiveInvites)
             _doesNotReceiveInvites.Remove(sender);
@@ -113,7 +113,7 @@ public sealed partial class PartyManager
             _doesNotReceiveInvites.Add(sender);
     }
 
-    public bool TryAcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false)
+    public bool TryAcceptInvite(IPartyInvite invite, bool force = false, bool ignoreLimit = false)
     {
         try
         {
@@ -126,20 +126,20 @@ public sealed partial class PartyManager
         }
     }
 
-    public void AcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false)
+    public void AcceptInvite(IPartyInvite invite, bool force = false, bool ignoreLimit = false)
     {
         var party = invite.Party;
         if (!PartyExist(party))
-            throw new Exception($"Party \"{invite.Party.Id}\" doesn't exist!");
+            throw new ArgumentException($"Party \"{invite.Party.Id}\" doesn't exist!", nameof(invite));
 
         SetInviteStatus(invite, PartyInviteStatus.Accepted, updates: false);
-        AddMember(party, invite.Receiver, PartyMemberRole.Member, force, ignoreLimit);
+        AddMember(party, invite.Target, PartyMemberRole.Member, force, ignoreLimit);
 
-        DebugTools.Assert(party.ContainsMember(invite.Receiver));
+        DebugTools.Assert(party.ContainsMember(invite.Target));
         DeleteInvite(invite);
     }
 
-    public void DenyInvite(PartyInvite invite)
+    public void DenyInvite(IPartyInvite invite)
     {
         SetInviteStatus(invite, PartyInviteStatus.Denied);
         DeleteInvite(invite);
@@ -161,47 +161,49 @@ public sealed partial class PartyManager
         DeleteInvite(invite);
     }
 
-    public void DeleteInvite(PartyInvite invite)
+    public void DeleteInvite(IPartyInvite invite)
     {
-        SetInviteStatus(invite, PartyInviteStatus.Deleted, false);
+        if (invite is not PartyInvite partyInvite)
+            return;
 
-        var msg = new PartyInviteDeletedMessage(invite.Id);
-        SendNetMessage(msg, invite.Party.Host.Session);
-        SendNetMessage(msg, invite.Receiver);
+        SetInviteStatus(partyInvite, PartyInviteStatus.Deleted, false);
 
-        _invites.Remove(invite);
+        var msg = new MsgPartyInviteDeleted(partyInvite.Id);
+        SendNetMessage(msg, partyInvite.Party.Host.Session);
+        SendNetMessage(msg, partyInvite.Target);
+
+        _invites.Remove(partyInvite);
     }
 
-    public bool TryCreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out PartyInvite? invite)
+    public bool TryCreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out IPartyInvite? invite)
     {
         return TryCreateInvite(party, target, out _, out invite);
     }
 
-    public bool TryCreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite)
+    public bool TryCreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out IPartyInvite? invite)
     {
-        invite = null;
-
-        if (!InviteCheckout(party, target, out result))
+        invite = default;
+        if (!InviteAvailableCheckout(party, target, out result))
             return false;
 
         try
         {
             invite = CreateInvite(party, target, checkout: false);
+            return true;
         }
         catch
         {
-            invite = null;
+            invite = default;
+            return false;
         }
-
-        return invite != null;
     }
 
-    public PartyInvite CreateInvite(Party party, ICommonSession target, bool checkout = true)
+    public IPartyInvite CreateInvite(Party party, ICommonSession target, bool checkout = true)
     {
         if (!PartyExist(party))
-            throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!");
+            throw new ArgumentException($"Party \"{party.Id}\" doesn't exist!", nameof(party));
 
-        if (checkout && !InviteCheckout(party, target, out var result))
+        if (checkout && !InviteAvailableCheckout(party, target, out var result))
         {
             var exception = result switch
             {
@@ -223,7 +225,7 @@ public sealed partial class PartyManager
         return invite;
     }
 
-    public bool TryCreateAndSendInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite)
+    public bool TryCreateAndSendInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out IPartyInvite? invite)
     {
         if (!TryCreateInvite(party, target, out result, out invite))
             return false;
@@ -232,7 +234,7 @@ public sealed partial class PartyManager
         return true;
     }
 
-    public PartyInvite CreateAndSendInvite(Party party, ICommonSession target, bool checkout = true)
+    public IPartyInvite CreateAndSendInvite(Party party, ICommonSession target, bool checkout = true)
     {
         var invite = CreateInvite(party, target, checkout);
         SendInvite(invite);
@@ -240,21 +242,24 @@ public sealed partial class PartyManager
         return invite;
     }
 
-    public void SendInvite(PartyInvite invite)
+    public void SendInvite(IPartyInvite invite)
     {
         SetInviteStatus(invite, PartyInviteStatus.Sended, false);
 
-        var msg = new PartyInviteReceivedMessage(invite.GetState());
-        SendNetMessage(msg, invite.Party.Host.Session);
-        SendNetMessage(msg, invite.Receiver);
+        var state = invite.GetState();
+        var msgSended = new MsgPartyInviteSended(state);
+        SendNetMessage(msgSended, invite.Party.Host.Session);
+
+        var msgReceived = new MsgPartyInviteReceived(invite.GetState());
+        SendNetMessage(msgReceived, invite.Target);
     }
 
     public bool InviteAvailable(Party party, ICommonSession target)
     {
-        return InviteCheckout(party, target, out _);
+        return InviteAvailableCheckout(party, target, out _);
     }
 
-    public bool InviteCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result)
+    public bool InviteAvailableCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result)
     {
         if (!PartyExist(party))
         {
@@ -269,7 +274,7 @@ public sealed partial class PartyManager
         }
 
         var existedInvites = GetInvitesByParty(party);
-        if (existedInvites.Any(i => i.Receiver == target))
+        if (existedInvites.Any(i => i.Target == target))
         {
             result = PartyInviteCheckoutResult.AlreadyInvited;
             return false;
@@ -292,61 +297,46 @@ public sealed partial class PartyManager
         return true;
     }
 
-    public bool TryGetInvite(uint inviteId, [NotNullWhen(true)] out PartyInvite? invite)
+    public bool TryGetInvite(uint inviteId, [NotNullWhen(true)] out IPartyInvite? invite)
     {
         invite = GetInvite(inviteId);
         return invite != null;
     }
 
-    public bool TryGetInvite(Party party, ICommonSession receiver, [NotNullWhen(true)] out PartyInvite? invite)
+    public bool TryGetInvite(Party party, ICommonSession receiver, [NotNullWhen(true)] out IPartyInvite? invite)
     {
         invite = GetInvite(party, receiver);
         return invite != null;
     }
 
-    public PartyInvite? GetInvite(uint inviteId)
+    public IPartyInvite? GetInvite(uint inviteId)
     {
-        var result = _invites.Where(i => i.Id == inviteId);
-        var count = result.Count();
-
-        if (count <= 0)
-            return null;
-
-        DebugTools.Assert(count == 1);
-        return result.First();
+        return _invites.FirstOrDefault(i => i.Id == inviteId);
     }
 
-    public PartyInvite? GetInvite(Party party, ICommonSession receiver)
+    public IPartyInvite? GetInvite(Party party, ICommonSession target)
     {
-        var result = GetInvitesByParty(party).Where(i => i.Receiver == receiver);
-        var count = result.Count();
-
-        if (count <= 0)
-            return null;
-
-        DebugTools.Assert(count == 1);
-        return result.First();
+        return _invites.FirstOrDefault(i => i.Party == party && i.Target == target);
     }
 
-    public IEnumerable<PartyInvite> GetInvitesByParty(Party party)
+    public IEnumerable<IPartyInvite> GetInvitesByParty(Party party)
     {
         return _invites.Where(i => i.Party == party);
     }
 
-    public IEnumerable<PartyInvite> GetInvitesByReceiver(ICommonSession receiver)
+    public IEnumerable<IPartyInvite> GetInvitesByTarget(ICommonSession target)
     {
-        return _invites.Where(i => i.Receiver == receiver);
+        return _invites.Where(i => i.Target == target);
     }
 
-    public void SetInviteStatus(PartyInvite invite, PartyInviteStatus status, bool updates = true)
+    public void SetInviteStatus(IPartyInvite invite, PartyInviteStatus status, bool updates = true)
     {
         var oldStatus = invite.Status;
 
         if (oldStatus == status)
             return;
 
-        invite.Status = status;
-
+        invite.SetStatus(status);
         PartyInviteStatusChanged?.Invoke(new PartyInviteStatusChangedActionArgs(invite.Id, oldStatus, status));
 
         if (updates)
@@ -362,26 +352,26 @@ public sealed partial class PartyManager
 
     private void UpdateClientInvites(ICommonSession session)
     {
-        var states = GetInvitesByReceiver(session).Select(i => i.GetState()).ToList();
+        var states = GetInvitesByTarget(session).Select(i => i.GetState()).ToList();
 
         if (TryGetPartyByHost(session, out var party))
             states.AddRange(GetInvitesByParty(party).Select(i => i.GetState()));
 
-        var msg = new UpdateClientPartyInvitesMessage(states);
+        var msg = new MsgUpdateClientPartyInvites(states);
         SendNetMessage(msg, session);
     }
 
-    private void UpdateClientInviteState(PartyInvite invite)
+    private void UpdateClientInviteState(IPartyInvite invite)
     {
         UpdateClientInviteState(invite.Party.Host.Session, invite);
-        UpdateClientInviteState(invite.Receiver, invite);
+        UpdateClientInviteState(invite.Target, invite);
     }
 
-    private void UpdateClientInviteState(ICommonSession session, PartyInvite invite)
+    private void UpdateClientInviteState(ICommonSession session, IPartyInvite invite)
     {
-        DebugTools.Assert(invite.Party.Host.Session == session || invite.Receiver == session);
+        DebugTools.Assert(invite.Party.Host.Session == session || invite.Target == session);
 
-        var msg = new HandlePartyInviteStateMessage(invite.GetState());
+        var msg = new MsgHandlePartyInviteState(invite.GetState());
         SendNetMessage(msg, session);
     }
 }

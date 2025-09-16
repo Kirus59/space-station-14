@@ -5,28 +5,102 @@ using Robust.Shared.Utility;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
-public sealed class PartyInvite(PartyInviteState state, PartyInviteType inviteType = PartyInviteType.None) : SharedPartyInvite(state.Id, state.Status)
+public interface IPartyInvite : ISharedPartyInvite
 {
-    public readonly uint PartyId = state.PartyId;
-    public readonly NetUserId Receiver = state.Receiver;
+    uint PartyId { get; }
+    NetUserId Target { get; }
+    string SenderName { get; }
+    string TargetName { get; }
+    PartyInviteKind Kind { get; }
 
-    public string SenderName = state.SenderName;
-    public string ReceiverName = state.ReceiverName;
-    public PartyInviteType InviteType = inviteType;
+    void SetKind(PartyInviteKind kind);
+    void HandleState(IPartyInviteState state);
+}
 
-    public void HandleState(PartyInviteState state)
+public sealed class PartyInvite(uint id,
+    PartyInviteStatus status,
+    uint partyId,
+    NetUserId target,
+    string? senderName = null,
+    string? targetName = null,
+    PartyInviteKind kind = PartyInviteKind.Other) : IPartyInvite, IEquatable<PartyInvite>
+{
+    public uint Id { get; } = id;
+    public PartyInviteStatus Status { get; private set; } = status;
+
+    public uint PartyId { get; } = partyId;
+    public NetUserId Target { get; } = target;
+    public string SenderName { get; private set; } = senderName ?? string.Empty;
+    public string TargetName { get; private set; } = targetName ?? string.Empty;
+    public PartyInviteKind Kind { get; private set; } = kind;
+
+    public PartyInvite(PartyInviteState state, PartyInviteKind kind = PartyInviteKind.Other)
+        : this(state.Id, state.Status, state.PartyId, state.Target, state.SenderName, state.TargetName, kind) { }
+
+    public void SetKind(PartyInviteKind kind)
     {
-        DebugTools.AssertEqual(Id, state.Id);
+        Kind = kind;
+    }
 
-        Status = state.Status;
-        SenderName = state.SenderName;
-        ReceiverName = state.ReceiverName;
+    public void HandleState(IPartyInviteState state)
+    {
+        if (state is not PartyInviteState inviteState || inviteState.Id != Id)
+            return;
+
+        DebugTools.Assert(PartyId == inviteState.PartyId);
+        DebugTools.Assert(Target == inviteState.Target);
+
+        Status = inviteState.Status;
+        SenderName = inviteState.SenderName;
+        TargetName = inviteState.TargetName;
+    }
+
+    public bool Equals(PartyInvite? other)
+    {
+        if (other is null)
+            return false;
+
+        return Id.Equals(other.Id);
+    }
+
+    public static bool Equals(PartyInvite? left, PartyInvite? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (left is null)
+            return false;
+
+        return left.Equals(right);
+    }
+
+    public static bool operator ==(PartyInvite? left, PartyInvite? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(PartyInvite? left, PartyInvite? right)
+    {
+        return !Equals(left, right);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not PartyInvite invite)
+            return false;
+
+        return Equals(invite);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
     }
 }
 
-public enum PartyInviteType
+public enum PartyInviteKind
 {
-    None,
-    External,
-    Internal
+    Sended,
+    Received,
+    Other
 }

@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 namespace Content.Client.SS220.SpaceWars.Party.UI;
 
 [GenerateTypedNameReferences]
-public sealed partial class LocalPartyInvitesWindow : DefaultWindow
+public sealed partial class SendedPartyInvitesWindow : DefaultWindow
 {
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
 
-    public LocalPartyInvitesWindow()
+    public SendedPartyInvitesWindow()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
@@ -27,15 +27,27 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
         InputLine.PlaceHolder = Loc.GetString("ui-local-party-invites-window-inputline-placeholder");
         InviteButton.OnPressed += _ => SendInvite();
 
-        _party.InviteAdded += _ => Refresh();
-        _party.InviteRemoved += _ => Refresh();
+        _party.InviteAdded += invite =>
+        {
+            if (invite.Kind is not PartyInviteKind.Sended)
+                return;
+
+            Refresh();
+        };
+        _party.InviteRemoved += invite =>
+        {
+            if (invite.Kind is not PartyInviteKind.Sended)
+                return;
+
+            Refresh();
+        };
 
         Refresh();
     }
 
     public void Refresh()
     {
-        var invites = _party.InternalInvites;
+        var invites = _party.SendedInvites;
 
         var limit = _cfg.GetCVar(CCVars220.PartyInvitesLimit);
         var invitesCountInfo = Loc.GetString("ui-local-party-invites-window-sended-invites-count", ("count", invites.Count()), ("limit", limit));
@@ -44,7 +56,7 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
         InvitesContainer.DisposeAllChildren();
         foreach (var invite in invites)
         {
-            var control = new LocalPartyInvitePanel(invite)
+            var control = new SendedPartyInvitePanel(invite)
             {
                 Margin = new Thickness(5)
             };

@@ -6,21 +6,21 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager
 {
-    event Action<PartyInvite>? InviteAdded;
-    event Action<PartyInvite>? InviteRemoved;
-    event Action<PartyInvite>? InviteUpdated;
+    event Action<IPartyInvite>? InviteAdded;
+    event Action<IPartyInvite>? InviteRemoved;
+    event Action<IPartyInvite>? InviteUpdated;
 
-    IEnumerable<PartyInvite> ExternalInvites { get; }
-    IEnumerable<PartyInvite> InternalInvites { get; }
-    IEnumerable<PartyInvite> AllInvites { get; }
+    IReadOnlyList<IPartyInvite> SendedInvites { get; }
+    IReadOnlyList<IPartyInvite> ReceivedInvites { get; }
+    IReadOnlyList<IPartyInvite> AllInvites { get; }
 
     void InviteInitialize();
 
-    bool TryGetInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite);
-    PartyInvite? GetInvite(uint id);
+    bool TryGetInvite(uint id, [NotNullWhen(true)] out IPartyInvite? invite);
+    IPartyInvite? GetInvite(uint id);
 
     void InviteUserRequest(string username);
-    Task<InviteUserResponceMessage> InviteUserRequestAsync(string username);
+    Task<MsgInviteUserResponce> InviteUserRequestAsync(string username);
 
     void AcceptInviteRequest(uint inviteId);
 

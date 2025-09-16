@@ -8,37 +8,37 @@ public partial interface IPartyManager
 {
     event Action<PartyInviteStatusChangedActionArgs>? PartyInviteStatusChanged;
 
-    bool TryAcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false);
-    void AcceptInvite(PartyInvite invite, bool force = false, bool ignoreLimit = false);
+    bool TryAcceptInvite(IPartyInvite invite, bool force = false, bool ignoreLimit = false);
+    void AcceptInvite(IPartyInvite invite, bool force = false, bool ignoreLimit = false);
 
-    void DenyInvite(PartyInvite invite);
+    void DenyInvite(IPartyInvite invite);
 
     void DeleteInvite(uint inviteId);
-    void DeleteInvite(Party party, ICommonSession receiver);
-    void DeleteInvite(PartyInvite invite);
+    void DeleteInvite(Party party, ICommonSession target);
+    void DeleteInvite(IPartyInvite invite);
 
-    bool TryCreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out PartyInvite? invite);
-    bool TryCreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite);
-    PartyInvite CreateInvite(Party party, ICommonSession target, bool checkout = true);
+    bool TryCreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out IPartyInvite? invite);
+    bool TryCreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out IPartyInvite? invite);
+    IPartyInvite CreateInvite(Party party, ICommonSession target, bool checkout = true);
 
-    bool TryCreateAndSendInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite);
-    PartyInvite CreateAndSendInvite(Party party, ICommonSession target, bool checkout = true);
+    bool TryCreateAndSendInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out IPartyInvite? invite);
+    IPartyInvite CreateAndSendInvite(Party party, ICommonSession target, bool checkout = true);
 
-    void SendInvite(PartyInvite invite);
+    void SendInvite(IPartyInvite invite);
 
     bool InviteAvailable(Party party, ICommonSession target);
-    bool InviteCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result);
+    bool InviteAvailableCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result);
 
-    bool TryGetInvite(uint inviteId, [NotNullWhen(true)] out PartyInvite? invite);
-    bool TryGetInvite(Party party, ICommonSession receiver, [NotNullWhen(true)] out PartyInvite? invite);
+    bool TryGetInvite(uint inviteId, [NotNullWhen(true)] out IPartyInvite? invite);
+    bool TryGetInvite(Party party, ICommonSession target, [NotNullWhen(true)] out IPartyInvite? invite);
 
-    PartyInvite? GetInvite(uint inviteId);
-    PartyInvite? GetInvite(Party party, ICommonSession receiver);
+    IPartyInvite? GetInvite(uint inviteId);
+    IPartyInvite? GetInvite(Party party, ICommonSession target);
 
-    IEnumerable<PartyInvite> GetInvitesByParty(Party party);
-    IEnumerable<PartyInvite> GetInvitesByReceiver(ICommonSession receiver);
+    IEnumerable<IPartyInvite> GetInvitesByParty(Party party);
+    IEnumerable<IPartyInvite> GetInvitesByTarget(ICommonSession target);
 
-    void SetInviteStatus(PartyInvite invite, PartyInviteStatus status, bool updates = true);
+    void SetInviteStatus(IPartyInvite invite, PartyInviteStatus status, bool updates = true);
 }
 
 public enum PartyInviteCheckoutResult
@@ -52,4 +52,4 @@ public enum PartyInviteCheckoutResult
     DoesNotReseive
 }
 
-public record struct PartyInviteStatusChangedActionArgs(uint PartyId, PartyInviteStatus OldStatus, PartyInviteStatus NewStatus);
+public record struct PartyInviteStatusChangedActionArgs(uint Id, PartyInviteStatus OldStatus, PartyInviteStatus NewStatus);

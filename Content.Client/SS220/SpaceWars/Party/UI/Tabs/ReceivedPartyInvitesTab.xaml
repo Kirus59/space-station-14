@@ -1,4 +1,4 @@
-<tabs:ReceivedInvitesTab xmlns="https://spacestation14.io"
+<tabs:ReceivedPartyInvitesTab xmlns="https://spacestation14.io"
                          xmlns:tabs="clr-namespace:Content.Client.SS220.SpaceWars.Party.UI.Tabs"
                          MinSize="300 160">
     <BoxContainer Orientation="Vertical" HorizontalExpand="True">
@@ -10,4 +10,4 @@
         </PanelContainer>
         <CheckBox Name="ReceiveInvitesCheckbox"  Text="{Loc ui-received-invites-tab-invites-receive-invites-checkbox}" Pressed="True" Margin="5 0 0 5" />
     </BoxContainer>
-</tabs:ReceivedInvitesTab>
+</tabs:ReceivedPartyInvitesTab>

@@ -11,15 +11,15 @@ using Robust.Client.UserInterface.XAML;
 namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 
 [GenerateTypedNameReferences]
-public sealed partial class ReceivedInvitesTab : Control
+public sealed partial class ReceivedPartyInvitesTab : Control
 {
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
 
     private readonly QuickConfirmationWindow _confirmationWindow = new();
-    private readonly Dictionary<PartyInvite, ReceivedInvitePanel> _invitePanels = [];
+    private readonly Dictionary<IPartyInvite, ReceivedPartyInvitePanel> _invitePanels = [];
 
-    public ReceivedInvitesTab()
+    public ReceivedPartyInvitesTab()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
@@ -44,20 +44,20 @@ public sealed partial class ReceivedInvitesTab : Control
         InvitesContainer.RemoveAllChildren();
         _invitePanels.Clear();
 
-        foreach (var invite in _party.ExternalInvites)
+        foreach (var invite in _party.ReceivedInvites)
             AddInvite(invite);
     }
 
-    private void AddInvite(PartyInvite invite)
+    private void AddInvite(IPartyInvite invite)
     {
-        if (invite.InviteType is not PartyInviteType.External ||
-            invite.Receiver != _player.LocalUser)
+        if (invite.Kind is not PartyInviteKind.Received ||
+            invite.Target != _player.LocalUser)
             return;
 
         if (_invitePanels.ContainsKey(invite))
             return;
 
-        var panel = new ReceivedInvitePanel(invite)
+        var panel = new ReceivedPartyInvitePanel(invite)
         {
             Margin = new Thickness(5)
         };
@@ -68,10 +68,10 @@ public sealed partial class ReceivedInvitesTab : Control
         UpdateInvitesCountLabel();
     }
 
-    private void RemoveInvite(PartyInvite invite)
+    private void RemoveInvite(IPartyInvite invite)
     {
-        if (invite.InviteType is not PartyInviteType.External ||
-            invite.Receiver != _player.LocalUser)
+        if (invite.Kind is not PartyInviteKind.Received ||
+            invite.Target != _player.LocalUser)
             return;
 
         if (!_invitePanels.TryGetValue(invite, out var panel))

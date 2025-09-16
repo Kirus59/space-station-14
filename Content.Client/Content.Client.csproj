@@ -23,6 +23,20 @@
     <ProjectReference Include="..\RobustToolbox\Robust.Client\Robust.Client.csproj" />
     <ProjectReference Include="..\Content.Shared\Content.Shared.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\ReceivedPartyInvitePanel.xaml.cs">
+      <DependentUpon>ReceivedPartyInvitePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\CustomControls\SendedPartyInvitePanel.xaml.cs">
+      <DependentUpon>SendedPartyInvitePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\SendedPartyInvitesWindow.xaml.cs">
+      <DependentUpon>SendedPartyInvitesWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SS220\SpaceWars\Party\UI\Tabs\ReceivedPartyInvitesTab.xaml.cs">
+      <DependentUpon>ReceivedPartyInvitesTab.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
   <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
   <Import Project="..\RobustToolbox\MSBuild\XamlIL.targets" />
 </Project>

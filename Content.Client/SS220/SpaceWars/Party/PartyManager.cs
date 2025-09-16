@@ -122,7 +122,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public void SendInviteRequest(string username)
     {
-        var msg = new InviteUserRequestMessage(username);
+        var msg = new MsgInviteUserRequest(username);
         SendNetMessage(msg);
     }
 }

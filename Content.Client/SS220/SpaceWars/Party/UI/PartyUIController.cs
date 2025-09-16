@@ -38,9 +38,9 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
         _party.InviteRemoved += OnInviteUpdated;
     }
 
-    private void OnInviteUpdated(PartyInvite invite)
+    private void OnInviteUpdated(IPartyInvite invite)
     {
-        if (invite.InviteType is not PartyInviteType.External)
+        if (invite.Kind is not PartyInviteKind.Received)
             return;
 
         UnreadInfoReceived();

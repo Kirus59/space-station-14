@@ -11,21 +11,21 @@ using Robust.Shared.Utility;
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
 [GenerateTypedNameReferences]
-public sealed partial class ReceivedInvitePanel : PanelContainer
+public sealed partial class ReceivedPartyInvitePanel : PanelContainer
 {
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
 
-    public readonly PartyInvite Invite;
+    public readonly IPartyInvite Invite;
     private readonly QuickConfirmationWindow _confirmationWindow = new();
 
-    public ReceivedInvitePanel(PartyInvite invite)
+    public ReceivedPartyInvitePanel(IPartyInvite invite)
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        DebugTools.Assert(invite.InviteType is PartyInviteType.External);
-        DebugTools.AssertEqual(invite.Receiver, _player.LocalUser);
+        DebugTools.Assert(invite.Kind is PartyInviteKind.Received);
+        DebugTools.AssertEqual(invite.Target, _player.LocalUser);
         Invite = invite;
 
         _party.InviteUpdated += args =>

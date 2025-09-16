@@ -24,7 +24,7 @@ public sealed partial class PartyMainTab : Control
     private readonly Dictionary<NetUserId, PartyMemberPanel> _memberPanels = [];
 
     private readonly CreatePartyWindow _createPartyWindow = new();
-    private readonly LocalPartyInvitesWindow _localPartyInvitesWindow = new();
+    private readonly SendedPartyInvitesWindow _localPartyInvitesWindow = new();
     private readonly PartySettingsWindow _partySettingsWindow = new();
 
     public PartyMainTab()

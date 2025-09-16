@@ -3,67 +3,28 @@ using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
-[Serializable, NetSerializable]
-public abstract class SharedPartyInvite(uint id, PartyInviteStatus status = PartyInviteStatus.None)
+public interface ISharedPartyInvite
 {
-    public readonly uint Id = id;
-    public PartyInviteStatus Status = status;
+    uint Id { get; }
+    PartyInviteStatus Status { get; }
 
-    public override bool Equals(object? obj)
-    {
-        if (obj is not SharedPartyInvite other)
-            return false;
-
-        return Equals(other);
-    }
-
-    public bool Equals(SharedPartyInvite other)
-    {
-        if (ReferenceEquals(this, other))
-            return true;
-
-        return Id == other.Id;
-    }
-
-    public static bool Equals(SharedPartyInvite? invite1, SharedPartyInvite? invite2)
-    {
-        if (ReferenceEquals(invite1, invite2))
-            return true;
-
-        if (invite1 is null) return false;
-        if (invite2 is null) return false;
-
-        return invite1.Equals(invite2);
-    }
-
-    public static bool operator ==(SharedPartyInvite? left, SharedPartyInvite? right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(SharedPartyInvite? left, SharedPartyInvite? right)
-    {
-        return !Equals(left, right);
-    }
-
-    public override int GetHashCode()
-    {
-        return Id.GetHashCode();
-    }
-
-    public static string GetPartyInviteStatusName(PartyInviteStatus status)
+    static string GetPartyInviteStatusName(PartyInviteStatus status)
     {
         return Loc.GetString($"party-invite-status-{status.ToString().ToLower()}");
     }
 }
 
+public interface IPartyInviteState
+{
+}
+
 [Serializable, NetSerializable]
 public record struct PartyInviteState(uint Id,
+    PartyInviteStatus Status,
     uint PartyId,
+    NetUserId Target,
     string SenderName,
-    NetUserId Receiver,
-    string ReceiverName,
-    PartyInviteStatus Status);
+    string TargetName) : IPartyInviteState;
 
 [Serializable, NetSerializable]
 public enum PartyInviteStatus : byte

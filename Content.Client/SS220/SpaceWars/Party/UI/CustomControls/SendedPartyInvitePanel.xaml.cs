@@ -10,18 +10,19 @@ using System.Linq;
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
 [GenerateTypedNameReferences]
-public sealed partial class LocalPartyInvitePanel : PanelContainer
+public sealed partial class SendedPartyInvitePanel : PanelContainer
 {
     [Dependency] private readonly IPartyManager _party = default!;
 
-    public readonly PartyInvite Invite;
+    public readonly IPartyInvite Invite;
 
-    public LocalPartyInvitePanel(PartyInvite invite)
+    public SendedPartyInvitePanel(IPartyInvite invite)
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        DebugTools.Assert(_party.InternalInvites.Contains(invite));
+        DebugTools.Assert(invite.Kind is PartyInviteKind.Sended);
+        DebugTools.Assert(_party.SendedInvites.Contains(invite));
         DebugTools.AssertEqual(_party.LocalParty?.Id, invite.PartyId);
         Invite = invite;
 
@@ -44,9 +45,10 @@ public sealed partial class LocalPartyInvitePanel : PanelContainer
 
     public void Refresh()
     {
-        ReceiverLabel.SetMarkup(Loc.GetString("ui-local-party-invite-panel-receiver-label", ("receiver", Invite.ReceiverName)));
+        var receiverName = !string.IsNullOrEmpty(Invite.TargetName) ? Invite.TargetName : "unknown";
+        ReceiverLabel.SetMarkup(Loc.GetString("ui-local-party-invite-panel-receiver-label", ("receiver", Invite.TargetName)));
 
-        var status = SharedPartyInvite.GetPartyInviteStatusName(Invite.Status);
+        var status = ISharedPartyInvite.GetPartyInviteStatusName(Invite.Status);
         StatusLabel.SetMarkup(Loc.GetString("ui-local-party-invite-panel-status-label", ("status", status)));
     }
 }

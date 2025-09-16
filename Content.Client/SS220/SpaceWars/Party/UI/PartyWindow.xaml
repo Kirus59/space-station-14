@@ -5,6 +5,6 @@
                SetSize="700 300">
     <TabContainer Name="Tabs" Access="Public">
         <tabs:PartyMainTab  Name="PartyMainTab" VerticalExpand="True"/>
-        <tabs:ReceivedInvitesTab Name="ReceivedInvitesTab" VerticalExpand="True"/>
+        <tabs:ReceivedPartyInvitesTab Name="ReceivedInvitesTab" VerticalExpand="True"/>
     </TabContainer>
 </DefaultWindow>
