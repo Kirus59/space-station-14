@@ -9,13 +9,16 @@
   components:
   - type: HumanoidAppearance
     species: Resomi
+  - type: MovementSpeedModifier
+    baseWalkSpeed : 3.6
+    baseSprintSpeed : 4.5
   - type: Icon
     sprite: SS220/Mobs/Species/Resomi/parts.rsi
     state: full
   - type: Sprite
     noRot: true
     drawdepth: Mobs
-    scale: 0.9, 0.9    
+    scale: 0.9, 0.9
     layers:
     - map: [ "enum.HumanoidVisualLayers.Chest" ]
     - map: [ "enum.HumanoidVisualLayers.Head" ]
@@ -68,7 +71,6 @@
     damageModifierSet: Resomi
   # - type: TypingIndicator
   #   proto: resomi
-#  - type: ResomiAccent
   # - type: Vocal
     # sounds:
     #   Male: Resomi
@@ -80,23 +82,25 @@
   - type: DamageVisuals
     damageOverlayGroups:
       Brute:
-        sprite: SS220/Mobs/Effects/resomi_brute_damage.rsi
-        color: "#ff05ff"
+        sprite: Mobs/Effects/brute_damage.rsi
+        color: "#cfa7ff"
       Burn:
-        sprite: SS220/Mobs/Effects/resomi_burn_damage.rsi
+        sprite: Mobs/Effects/burn_damage.rsi
   - type: Perishable
   - type: Butcherable
     butcheringType: Spike
     spawned:
       - id: FoodMeat
-        amount: 5
+        amount: 3
+  - type: MobCollision
+    strength: 12
   - type: Fixtures
     fixtures:
       fix1:
         shape:
           !type:PhysShapeCircle
           radius: 0.25
-        density: 185
+        density: 62
         restitution: 0.0
         mask:
         - MobMask
@@ -113,23 +117,33 @@
     animation: WeaponArcClaw
     damage:
       types:
-        Slash: 5
-  - type: Temperature # Пошаманить потом
-    heatDamageThreshold: 320
-    coldDamageThreshold: 230
-    currentTemperature: 310.15
+  - type: ThermalRegulator
+    metabolismHeat: 100
+    radiatedHeat: 100
+    implicitHeatRegulation: 100
+    sweatHeatRegulation: 0
+    shiveringHeatRegulation: 500
+    normalBodyTemperature: 253.15
+    thermalRegulationTemperatureThreshold: 2
+  - type: Temperature
+    heatDamageThreshold: 305    # 305 K = 31.85 °C
+    coldDamageThreshold: 205    # 205 K = -68.15 °C
+    currentTemperature: 253.15
     specificHeat: 42
     coldDamage:
       types:
-        Cold : 0.05 #per second, scales with temperature & other constants
+        Cold : 0.04 #per second, scales with temperature & other constants
     heatDamage:
       types:
         Heat : 2 #per second, scales with temperature & other constants
   - type: TemperatureSpeed
     thresholds:
-      289: 0.8
-      275: 0.6
-      250: 0.4
+      155: 0.4
+      175: 0.6
+      200: 1.0
+      325: 1.0
+      350: 0.8
+      380: 0.6
   - type: Language
     availableLanguages:
     - id: Galactic
@@ -202,6 +216,14 @@
             state: suitstorage
   - type: Bloodstream
     bloodReagent: ResomiBlood
+    bloodlossDamage:
+      types:
+        Bloodloss: 0.5
+    bloodlossHealDamage:
+      types:
+        Bloodloss: -1
+    bloodMaxVolume: 180
+    chemicalMaxVolume: 150
 
 - type: entity
   categories: [ HideSpawnMenu ]
