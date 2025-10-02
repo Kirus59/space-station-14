@@ -223,7 +223,7 @@
       types:
         Bloodloss: -1
     bloodMaxVolume: 180
-    bloodCurrentVolume: 150
+    chemicalMaxVolume: 150
 
 - type: entity
   categories: [ HideSpawnMenu ]
