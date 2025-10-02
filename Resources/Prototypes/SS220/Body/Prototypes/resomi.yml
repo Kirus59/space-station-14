@@ -17,7 +17,7 @@
       organs:
         heart: OrganAnimalHeart
         lungs: OrganHumanLungs
-        stomach: OrganTajaranStomach # Мясо + Растительность
+        stomach: OrganResomiStomach
         liver: OrganAnimalLiver
         kidneys: OrganHumanKidneys
       connections:
