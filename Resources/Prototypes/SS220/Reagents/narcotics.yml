@@ -64,7 +64,7 @@
             Cerebral: 2.0
             Poison: 3.0
     Narcotic:
-      metabolismRate: 0.5
+      metabolismRate: 0.1
       effects:
       - !type:MovespeedModifier
         walkSpeedModifier: 1.2
