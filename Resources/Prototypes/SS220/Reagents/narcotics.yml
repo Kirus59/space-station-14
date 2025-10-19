@@ -35,8 +35,6 @@
           hallucinationMinTime: 2
           hallucinationMaxTime: 10
           totalDuration: 2
-          componentName: EyeProtection
-          itemSlot: EYES
           checkPockets: false
       - !type:HealthChange
           damage:
@@ -87,8 +85,6 @@
           hallucinationMinTime: 2
           hallucinationMaxTime: 10
           totalDuration: 3
-          componentName: EyeProtection
-          itemSlot: EYES
           checkPockets: false
       - !type:MobThresholdsChange
         statusEffectId: MobThresholdsCriticalMorphine
@@ -164,8 +160,6 @@
           hallucinationMinTime: 2
           hallucinationMaxTime: 10
           totalDuration: 8
-          componentName: EyeProtection
-          itemSlot: EYES
           checkPockets: false
     Medicine:
       metabolismRate: 0.5
