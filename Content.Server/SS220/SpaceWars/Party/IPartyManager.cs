@@ -1,4 +1,4 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Console;
 using Robust.Shared.Player;
@@ -16,20 +16,13 @@ public partial interface IPartyManager : ISharedPartyManager
 
     IReadOnlyCollection<Party> Parties { get; }
 
-    bool TryCreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettingsState? settings = null, bool force = false);
+    bool CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false);
 
-    Party CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false);
+    bool CreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettingsState? settings = null, bool force = false);
 
-    void DisbandParty(Party party, bool updates = true);
+    bool DisbandParty(Party party, bool updates = true);
 
-    bool TryAddMember(Party party,
-        ICommonSession session,
-        PartyMemberRole role = PartyMemberRole.Member,
-        bool force = false,
-        bool ignoreLimit = false,
-        bool updates = true,
-        bool notify = true);
-    void AddMember(Party party,
+    bool AddMember(Party party,
         ICommonSession session,
         PartyMemberRole role = PartyMemberRole.Member,
         bool force = false,
@@ -37,14 +30,11 @@ public partial interface IPartyManager : ISharedPartyManager
         bool updates = true,
         bool notify = true);
 
+    bool RemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true);
 
-    bool TryRemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true);
-    void RemoveMember(Party party, ICommonSession session, bool updates = true, bool notify = true);
+    bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
 
-    bool TrySetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
-    void SetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
-
-    void SetStatus(Party party, PartyStatus newStatus, bool updates = true);
+    bool SetStatus(Party party, PartyStatus newStatus, bool updates = true);
 
     void EnsureNotPartyMember(ICommonSession session, bool updates = true);
 
@@ -53,11 +43,15 @@ public partial interface IPartyManager : ISharedPartyManager
     bool PartyExist(Party? party);
 
     bool TryGetPartyById(uint id, [NotNullWhen(true)] out Party? party);
+
     bool TryGetPartyByHost(ICommonSession host, [NotNullWhen(true)] out Party? party);
+
     bool TryGetPartyByMember(ICommonSession member, [NotNullWhen(true)] out Party? party);
 
     Party? GetPartyById(uint id);
+
     Party? GetPartyByHost(ICommonSession session);
+
     Party? GetPartyByMember(ICommonSession session);
 
     IEnumerable<CompletionOption> GetPartiesCompletionOptions();

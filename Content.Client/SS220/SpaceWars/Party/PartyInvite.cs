@@ -5,7 +5,7 @@ using Robust.Shared.Utility;
 
 namespace Content.Client.SS220.SpaceWars.Party;
 
-public interface IPartyInvite : ISharedPartyInvite
+public interface IPartyInvite<T> : ISharedPartyInvite where T : IPartyInviteState
 {
     uint PartyId { get; }
     NetUserId Target { get; }
@@ -14,7 +14,7 @@ public interface IPartyInvite : ISharedPartyInvite
     PartyInviteKind Kind { get; }
 
     void SetKind(PartyInviteKind kind);
-    void HandleState(IPartyInviteState state);
+    void HandleState(T state);
 }
 
 public sealed class PartyInvite(uint id,
@@ -23,7 +23,7 @@ public sealed class PartyInvite(uint id,
     NetUserId target,
     string? senderName = null,
     string? targetName = null,
-    PartyInviteKind kind = PartyInviteKind.Other) : IPartyInvite, IEquatable<PartyInvite>
+    PartyInviteKind kind = PartyInviteKind.Other) : IPartyInvite<PartyInviteState>, IEquatable<PartyInvite>
 {
     public uint Id { get; } = id;
     public PartyInviteStatus Status { get; private set; } = status;
@@ -42,17 +42,17 @@ public sealed class PartyInvite(uint id,
         Kind = kind;
     }
 
-    public void HandleState(IPartyInviteState state)
+    public void HandleState(PartyInviteState state)
     {
-        if (state is not PartyInviteState inviteState || inviteState.Id != Id)
+        if (state.Id != Id)
             return;
 
-        DebugTools.Assert(PartyId == inviteState.PartyId);
-        DebugTools.Assert(Target == inviteState.Target);
+        DebugTools.Assert(PartyId == state.PartyId);
+        DebugTools.Assert(Target == state.Target);
 
-        Status = inviteState.Status;
-        SenderName = inviteState.SenderName;
-        TargetName = inviteState.TargetName;
+        Status = state.Status;
+        SenderName = state.SenderName;
+        TargetName = state.TargetName;
     }
 
     public bool Equals(PartyInvite? other)

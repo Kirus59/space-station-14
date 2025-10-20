@@ -48,7 +48,7 @@ public sealed partial class SendedPartyInvitePanel : PanelContainer
         var receiverName = !string.IsNullOrEmpty(Invite.TargetName) ? Invite.TargetName : "unknown";
         ReceiverLabel.SetMarkup(Loc.GetString("ui-local-party-invite-panel-receiver-label", ("receiver", Invite.TargetName)));
 
-        var status = ISharedPartyInvite.GetPartyInviteStatusName(Invite.Status);
+        var status = SharedPartyManager.GetPartyInviteStatusName(Invite.Status);
         StatusLabel.SetMarkup(Loc.GetString("ui-local-party-invite-panel-status-label", ("status", status)));
     }
 }

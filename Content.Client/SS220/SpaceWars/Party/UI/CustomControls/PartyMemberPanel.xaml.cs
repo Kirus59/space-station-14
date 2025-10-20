@@ -42,7 +42,7 @@ public sealed partial class PartyMemberPanel : PanelContainer
     public void Refresh()
     {
         UsernameLabel.Text = Member.Username;
-        PartyRoleLabel.Text = SharedPartyMember.GetPartyMemberRoleName(Member.Role);
+        PartyRoleLabel.Text = SharedPartyManager.GetPartyMemberRoleName(Member.Role);
 
         var roleBackground = GetRoleColor(Member.Role);
         if (roleBackground != null)

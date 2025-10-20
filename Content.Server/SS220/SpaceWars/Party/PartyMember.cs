@@ -4,16 +4,25 @@ using Robust.Shared.Enums;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public sealed class PartyMember(ICommonSession session, uint partyId, PartyMemberRole role) : SharedPartyMember(role), IEquatable<PartyMember>
+[method: Access([typeof(PartyManager), typeof(Party)])]
+public sealed class PartyMember(Party party, ICommonSession session, PartyMemberRole role = PartyMemberRole.Invalid) : IEquatable<PartyMember>
 {
+    public readonly Party Party = party;
     public readonly ICommonSession Session = session;
-    public readonly uint PartyId = partyId;
     public string Name => Session.Name;
+
+    public PartyMemberRole Role { get; private set; } = role;
+
+    [Access([typeof(PartyManager), typeof(Party)])]
+    public void SetRole(PartyMemberRole role)
+    {
+        Role = role;
+    }
 
     public PartyMemberState GetState()
     {
         var connected = Session.Status is SessionStatus.Connected or SessionStatus.InGame;
-        return new PartyMemberState(Session.UserId, Session.Name, Role, connected);
+        return new PartyMemberState(Party.Id, Session.UserId, Session.Name, Role, connected);
     }
 
     public override bool Equals(object? obj)

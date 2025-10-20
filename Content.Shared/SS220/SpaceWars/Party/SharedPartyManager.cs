@@ -154,4 +154,14 @@ public abstract partial class SharedPartyManager : ISharedPartyManager
             Callback.Invoke((TMsg)message, (TSession)session);
         }
     }
+
+    public static string GetPartyInviteStatusName(PartyInviteStatus status)
+    {
+        return Loc.GetString($"party-invite-status-{status.ToString().ToLower()}");
+    }
+
+    public static string GetPartyMemberRoleName(PartyMemberRole role)
+    {
+        return Loc.GetString($"party-member-role-{role.ToString().ToLower()}");
+    }
 }

@@ -117,15 +117,15 @@ public sealed class MsgInviteUserResponce() : PartyResponceMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgUpdateClientPartyInvites(List<IPartyInviteState> states) : PartyMessage
+public sealed class MsgUpdateClientPartyInvites(List<PartyInviteState> states) : PartyMessage
 {
-    public readonly List<IPartyInviteState> States = states;
+    public readonly List<PartyInviteState> States = states;
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgHandlePartyInviteState(IPartyInviteState state) : PartyMessage
+public sealed class MsgHandlePartyInviteState(PartyInviteState state) : PartyMessage
 {
-    public readonly IPartyInviteState State = state;
+    public readonly PartyInviteState State = state;
 }
 
 [Serializable, NetSerializable]
@@ -135,15 +135,15 @@ public sealed class MsgPartyInviteDeleted(uint inviteId) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgPartyInviteSended(IPartyInviteState state) : PartyMessage
+public sealed class MsgPartyInviteSended(PartyInviteState state) : PartyMessage
 {
-    public readonly IPartyInviteState State = state;
+    public readonly PartyInviteState State = state;
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgPartyInviteReceived(IPartyInviteState state) : PartyMessage
+public sealed class MsgPartyInviteReceived(PartyInviteState state) : PartyMessage
 {
-    public readonly IPartyInviteState State = state;
+    public readonly PartyInviteState State = state;
 }
 
 [Serializable, NetSerializable]

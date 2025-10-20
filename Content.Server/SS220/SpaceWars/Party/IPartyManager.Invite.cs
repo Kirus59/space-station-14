@@ -1,3 +1,4 @@
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Player;
 using System.Diagnostics.CodeAnalysis;
@@ -8,37 +9,39 @@ public partial interface IPartyManager
 {
     event Action<PartyInviteStatusChangedActionArgs>? PartyInviteStatusChanged;
 
-    bool TryAcceptInvite(IPartyInvite invite, bool force = false, bool ignoreLimit = false);
-    void AcceptInvite(IPartyInvite invite, bool force = false, bool ignoreLimit = false);
+    bool AcceptInvite(PartyInvite invite, bool ignoreLimit = false);
 
-    void DenyInvite(IPartyInvite invite);
+    void DenyInvite(PartyInvite invite);
 
-    void DeleteInvite(uint inviteId);
-    void DeleteInvite(Party party, ICommonSession target);
-    void DeleteInvite(IPartyInvite invite);
+    bool CreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out PartyInvite? invite);
 
-    bool TryCreateInvite(Party party, ICommonSession target, [NotNullWhen(true)] out IPartyInvite? invite);
-    bool TryCreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out IPartyInvite? invite);
-    IPartyInvite CreateInvite(Party party, ICommonSession target, bool checkout = true);
+    bool CreateInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out PartyInvite? invite);
 
-    bool TryCreateAndSendInvite(Party party, ICommonSession target, out PartyInviteCheckoutResult result, [NotNullWhen(true)] out IPartyInvite? invite);
-    IPartyInvite CreateAndSendInvite(Party party, ICommonSession target, bool checkout = true);
+    bool DeleteInvite(uint inviteId);
 
-    void SendInvite(IPartyInvite invite);
+    bool DeleteInvite(Party party, ICommonSession receiver);
+
+    bool DeleteInvite(PartyInvite invite);
 
     bool InviteAvailable(Party party, ICommonSession target);
-    bool InviteAvailableCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result);
 
-    bool TryGetInvite(uint inviteId, [NotNullWhen(true)] out IPartyInvite? invite);
-    bool TryGetInvite(Party party, ICommonSession target, [NotNullWhen(true)] out IPartyInvite? invite);
+    bool InviteAvailableCheckout(Party party, ICommonSession target, out PartyInviteCheckoutResult result, bool ingoreMembersLimit = false);
 
-    IPartyInvite? GetInvite(uint inviteId);
-    IPartyInvite? GetInvite(Party party, ICommonSession target);
+    bool TryGetInvite(uint inviteId, [NotNullWhen(true)] out PartyInvite? invite);
 
-    IEnumerable<IPartyInvite> GetInvitesByParty(Party party);
-    IEnumerable<IPartyInvite> GetInvitesByTarget(ICommonSession target);
+    bool TryGetInvite(Party party, ICommonSession receiver, [NotNullWhen(true)] out PartyInvite? invite);
 
-    void SetInviteStatus(IPartyInvite invite, PartyInviteStatus status, bool updates = true);
+    PartyInvite? GetInvite(uint inviteId);
+
+    PartyInvite? GetInvite(Party party, ICommonSession target);
+
+    IEnumerable<PartyInvite> GetInvitesByParty(Party party);
+
+    IEnumerable<PartyInvite> GetInvitesByTarget(ICommonSession target);
+
+    void SetInviteStatus(PartyInvite invite, PartyInviteStatus status, bool updates = true);
+
+    bool InviteExist(PartyInvite? invite);
 }
 
 public enum PartyInviteCheckoutResult
@@ -47,7 +50,8 @@ public enum PartyInviteCheckoutResult
 
     PartyNotExist,
     AlreadyMember,
-    LimitReached,
+    InvitesLimitReached,
+    MembersLimitReached,
     AlreadyInvited,
     DoesNotReseive
 }

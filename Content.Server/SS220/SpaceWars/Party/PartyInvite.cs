@@ -4,33 +4,36 @@ using Robust.Shared.Player;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public interface IPartyInvite : ISharedPartyInvite
-{
-    Party Party { get; }
-    ICommonSession Target { get; }
-    void SetStatus(PartyInviteStatus newStatus);
-    IPartyInviteState GetState();
-}
-
-public sealed class PartyInvite(uint id,
+[method: Access(typeof(PartyManager))]
+public sealed class PartyInvite(
+    uint id,
     Party party,
     ICommonSession target,
-    PartyInviteStatus status = PartyInviteStatus.None) : IPartyInvite, IEquatable<PartyInvite>
+    PartyInviteStatus status = PartyInviteStatus.Invalid) : IEquatable<PartyInvite>
 {
-    public uint Id { get; } = id;
+    public readonly uint Id = id;
+    public readonly Party Party = party;
+    public readonly ICommonSession Target = target;
+
     public PartyInviteStatus Status { get; private set; } = status;
 
-    public Party Party { get; } = party;
-    public ICommonSession Target { get; } = target;
-
+    [Access(typeof(PartyManager))]
     public void SetStatus(PartyInviteStatus newStatus)
     {
         Status = newStatus;
     }
 
-    public IPartyInviteState GetState()
+    public PartyInviteState GetState()
     {
         return new PartyInviteState(Id, Status, Party.Id, Target.UserId, Party.Host.Name, Target.Name);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not PartyInvite invite)
+            return false;
+
+        return Equals(invite);
     }
 
     public bool Equals(PartyInvite? other)
@@ -60,14 +63,6 @@ public sealed class PartyInvite(uint id,
     public static bool operator !=(PartyInvite? left, PartyInvite? right)
     {
         return !Equals(left, right);
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not PartyInvite invite)
-            return false;
-
-        return Equals(invite);
     }
 
     public override int GetHashCode()

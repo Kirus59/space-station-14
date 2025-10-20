@@ -59,7 +59,7 @@ public sealed class PartyAddMemberCommand : LocalizedCommands
                 return;
             }
 
-            if (party.LimitReached)
+            if (party.MembersLimitReached)
             {
                 shell.WriteLine(Loc.GetString("cmd-party-add-member-members-limit-reached"));
                 return;

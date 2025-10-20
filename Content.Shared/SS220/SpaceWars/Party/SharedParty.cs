@@ -1,74 +1,70 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
+using Robust.Shared.Network;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.SS220.SpaceWars.Party;
 
+#region Party
 [Serializable, NetSerializable]
-public abstract class SharedParty(uint id) : IEquatable<SharedParty>
-{
-    public readonly uint Id = id;
-    public PartyStatus Status { get; protected set; } = PartyStatus.None;
-
-    [Access(typeof(SharedPartyManager))]
-    public virtual void SetStatus(PartyStatus newStatus)
-    {
-        Status = newStatus;
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not SharedParty other)
-            return false;
-
-        return Equals(other);
-    }
-
-    public bool Equals(SharedParty? other)
-    {
-        if (other is null)
-            return false;
-
-        return Id == other.Id;
-    }
-
-    public override int GetHashCode()
-    {
-        return Id.GetHashCode();
-    }
-
-    public static bool Equals(SharedParty? party1, SharedParty? party2)
-    {
-        if (ReferenceEquals(party1, party2))
-            return true;
-
-        if (party1 is null) return false;
-
-        return party1.Equals(party2);
-    }
-
-    public static bool operator ==(SharedParty? left, SharedParty? right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(SharedParty? left, SharedParty? right)
-    {
-        return !Equals(left, right);
-    }
-}
-
-[Serializable, NetSerializable]
-public record struct PartyState(uint Id,
+public record struct PartyState(
+    uint Id,
     PartyMemberState Host,
     List<PartyMemberState> Members,
+    List<PartyInviteState> Invites,
     PartySettingsState Settings,
     PartyStatus Status);
 
 [Serializable, NetSerializable]
 public enum PartyStatus : byte
 {
-    None,
+    Invalid,
     Running,
     Disbanding,
     Disbanded
 }
+#endregion
+
+#region PartyMember
+[Serializable, NetSerializable]
+public record struct PartyMemberState(uint PartyId, NetUserId UserId, string Username, PartyMemberRole Role, bool Connected);
+
+[Serializable, NetSerializable]
+public enum PartyMemberRole : byte
+{
+    Invalid,
+
+    /// <summary>
+    /// Default role of the party member
+    /// </summary>
+    Member,
+
+    /// <summary>
+    /// Host of the party
+    /// </summary>
+    Host
+}
+#endregion
+
+#region PartyInvite
+[Serializable, NetSerializable]
+public record struct PartyInviteState(
+    uint Id,
+    PartyInviteStatus Status,
+    uint PartyId,
+    NetUserId Target,
+    string SenderName,
+    string TargetName);
+
+[Serializable, NetSerializable]
+public enum PartyInviteStatus : byte
+{
+    Invalid,
+    Created,
+    Sended,
+
+    Accepted,
+    Denied,
+
+    Deleted
+}
+#endregion

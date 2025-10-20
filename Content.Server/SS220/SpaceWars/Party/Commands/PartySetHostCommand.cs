@@ -59,7 +59,7 @@ public sealed class PartySetHostCommand : LocalizedCommands
                 return;
             }
 
-            if (party.LimitReached)
+            if (party.MembersLimitReached)
             {
                 shell.WriteLine(Loc.GetString("cmd-party-set-host-members-limit-reached"));
                 return;

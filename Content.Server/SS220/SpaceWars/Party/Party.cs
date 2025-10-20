@@ -6,21 +6,30 @@ using System.Linq;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public sealed class Party : SharedParty, IDisposable
+public sealed class Party : IEquatable<Party>, IDisposable
 {
+    public readonly uint Id;
+    public PartyStatus Status { get; private set; } = PartyStatus.Invalid;
+
     public PartyMember Host { get; private set; }
 
     public IReadOnlyCollection<PartyMember> Members => _members;
     private readonly HashSet<PartyMember> _members = [];
 
+    public IReadOnlyCollection<PartyInvite> Invites => _invites;
+    private readonly HashSet<PartyInvite> _invites = [];
+
     public PartySettings Settings;
-    public bool LimitReached => Members.Count >= Settings.MembersLimit;
+    public bool MembersLimitReached => Members.Count >= Settings.MembersLimit;
 
     private bool _disposed;
 
-    public Party(uint id, ICommonSession host, PartySettingsState? settingsState = null) : base(id)
+    [Access(typeof(PartyManager))]
+    public Party(uint id, ICommonSession host, PartySettingsState? settingsState = null)
     {
-        Host = new PartyMember(host, Id, PartyMemberRole.Host);
+        Id = id;
+
+        Host = new PartyMember(this, host, PartyMemberRole.Host);
         _members.Add(Host);
 
         Settings = new(this);
@@ -29,50 +38,74 @@ public sealed class Party : SharedParty, IDisposable
     }
 
     [Access(typeof(PartyManager))]
-    public PartyMember SetHost(ICommonSession session, bool ignoreLimit = false)
+    public void SetStatus(PartyStatus status)
     {
-        DebugTools.Assert(!_disposed);
+        Status = status;
+    }
 
-        if (Host.Session == session)
-            return Host;
-
-        var oldHost = Host;
-        if (!TryFindMember(session, out var newHost))
-        {
-            if (!ignoreLimit)
-                LimitCheckout(true);
-
-            newHost = new PartyMember(session, Id, PartyMemberRole.Host);
-            _members.Add(newHost);
-        }
-        else
-            newHost.Role = PartyMemberRole.Host;
-
-        Host = newHost;
-        oldHost.Role = PartyMemberRole.Member;
-
-        return newHost;
+    public bool SetHost(ICommonSession session, bool ignoreLimit = false)
+    {
+        return SetHost(session, out _, ignoreLimit);
     }
 
     [Access(typeof(PartyManager))]
-    public PartyMember AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
+    public bool SetHost(ICommonSession session, [NotNullWhen(true)] out PartyMember? host, bool ignoreLimit = false)
     {
         DebugTools.Assert(!_disposed);
 
-        if (TryFindMember(session, out var member))
-            return member;
+        host = null;
+        if (Host.Session == session)
+            return false;
 
+        var oldHost = Host;
+        if (TryFindMember(session, out host))
+        {
+            host.SetRole(PartyMemberRole.Host);
+        }
+        else
+        {
+            if (!ignoreLimit && MembersLimitReached)
+                return false;
+
+            host = new PartyMember(this, session, PartyMemberRole.Host);
+            _members.Add(host);
+        }
+
+        Host = host;
+        oldHost.SetRole(PartyMemberRole.Member);
+        return true;
+    }
+
+    [Access(typeof(PartyManager))]
+    public bool AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
+    {
+        return AddMember(session, role, out _, ignoreLimit);
+    }
+
+    [Access(typeof(PartyManager))]
+    public bool AddMember(ICommonSession session, PartyMemberRole role, [NotNullWhen(true)] out PartyMember? member, bool ignoreLimit = false)
+    {
+        DebugTools.Assert(!_disposed);
+
+        member = null;
+        if (!CanAddMember(session, role, ignoreLimit))
+            return false;
+
+        member = new PartyMember(this, session, role);
+        return _members.Add(member);
+    }
+
+    public bool CanAddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
+    {
+        /// Cannot add member with the <see cref="PartyMemberRole.Host"/> role.
+        /// Should use <see cref="SetHost(ICommonSession, bool)"/> to set a new party host
         if (role is PartyMemberRole.Host)
-            throw new ArgumentException($"Cannot add member with the {PartyMemberRole.Host} role. " +
-                $"Use the \"{nameof(SetHost)}\" function to set a new party host");
+            return false;
 
-        if (!ignoreLimit)
-            LimitCheckout(true);
+        if (TryFindMember(session, out _))
+            return false;
 
-        member = new PartyMember(session, Id, role);
-        _members.Add(member);
-
-        return member;
+        return ignoreLimit || !MembersLimitReached;
     }
 
     public bool ContainsMember(ICommonSession session)
@@ -137,17 +170,70 @@ public sealed class Party : SharedParty, IDisposable
         _disposed = true;
     }
 
+    [Access(typeof(PartyManager))]
+    public bool AddInvite(PartyInvite invite)
+    {
+        DebugTools.Assert(!_disposed);
+        return _invites.Add(invite);
+    }
+
+    [Access(typeof(PartyManager))]
+    public bool RemoveInvite(PartyInvite invite)
+    {
+        DebugTools.Assert(!_disposed);
+        return _invites.Remove(invite);
+    }
+
     public PartyState GetState()
     {
         DebugTools.Assert(!_disposed);
-        return new PartyState(Id, Host.GetState(), [.. _members.Select(x => x.GetState())], Settings.GetState(), Status);
+        return new PartyState(
+            Id,
+            Host.GetState(),
+            [.. _members.Select(x => x.GetState())],
+            [.. _invites.Select(x => x.GetState())],
+            Settings.GetState(),
+            Status);
     }
 
-    private bool LimitCheckout(bool throwException = false)
+    public override bool Equals(object? obj)
     {
-        if (LimitReached && throwException)
-            throw new Exception("The party has reached the limit of members!");
+        if (obj is not Party other)
+            return false;
 
-        return LimitReached;
+        return Equals(other);
+    }
+
+    public bool Equals(Party? other)
+    {
+        if (other is null)
+            return false;
+
+        return Id == other.Id;
+    }
+
+    public static bool Equals(Party? party1, Party? party2)
+    {
+        if (ReferenceEquals(party1, party2))
+            return true;
+
+        if (party1 is null) return false;
+
+        return party1.Equals(party2);
+    }
+
+    public static bool operator ==(Party? left, Party? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(Party? left, Party? right)
+    {
+        return !Equals(left, right);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
     }
 }
