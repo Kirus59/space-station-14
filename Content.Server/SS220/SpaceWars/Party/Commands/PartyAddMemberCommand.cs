@@ -1,5 +1,4 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
-
 using Content.Server.Administration;
 using Content.Shared.Administration;
 using Content.Shared.SS220.SpaceWars.Party;
@@ -55,7 +54,7 @@ public sealed class PartyAddMemberCommand : LocalizedCommands
         {
             if (_party.IsAnyPartyMember(session))
             {
-                shell.WriteLine(Loc.GetString("cmd-party-add-member-user-is-another-party-member", ("user", session.Name)));
+                shell.WriteLine(Loc.GetString("cmd-party-add-member-user-is-another-party-member", ("username", session.Name)));
                 return;
             }
 
@@ -66,16 +65,13 @@ public sealed class PartyAddMemberCommand : LocalizedCommands
             }
         }
 
-        try
+        if (!_party.AddMember(party, session, force: force, ignoreLimit: force))
         {
-            _party.AddMember(party, session, force: force, ignoreLimit: force);
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-success"));
-        }
-        catch (Exception e)
-        {
-            shell.WriteLine(e.Message);
+            shell.WriteLine(Loc.GetString("cmd-party-add-member-fail", ("partyId", party.Id), ("username", session.Name)));
             return;
         }
+
+        shell.WriteLine(Loc.GetString("cmd-party-add-member-success", ("partyId", party.Id), ("username", session.Name)));
     }
 
     public override CompletionResult GetCompletion(IConsoleShell shell, string[] args)

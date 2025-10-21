@@ -26,7 +26,7 @@ public sealed partial class PartyManager
         SubscribeNetMessage<MsgInviteUserRequest>(OnInviteInPartyRequest);
         SubscribeNetMessage<MsgAcceptInviteRequest>(OnAcceptInvite);
         SubscribeNetMessage<MsgDenyInviteRequest>(OnDenyInvite);
-        SubscribeNetMessage<MsgInviteRequest>(OnDeleteInvite);
+        SubscribeNetMessage<MsgDeleteInviteRequest>(OnDeleteInvite);
         SubscribeNetMessage<MsgSetReceiveInvitesStatus>(OnSetReceiveInvitesStatus);
 
         _cfg.OnValueChanged(CCVars220.PartyInvitesLimit, value => _invitesLimit = value, true);
@@ -101,7 +101,7 @@ public sealed partial class PartyManager
         DenyInvite(invite);
     }
 
-    private void OnDeleteInvite(MsgInviteRequest message, ICommonSession sender)
+    private void OnDeleteInvite(MsgDeleteInviteRequest message, ICommonSession sender)
     {
         if (!TryGetInvite(message.InviteId, out var invite))
             return;
@@ -287,7 +287,7 @@ public sealed partial class PartyManager
         if (oldStatus == status)
             return;
 
-        invite.SetStatus(status);
+        invite.Status = status;
         PartyInviteStatusChanged?.Invoke(new PartyInviteStatusChangedActionArgs(invite.Id, oldStatus, status));
 
         if (updates)
@@ -316,7 +316,7 @@ public sealed partial class PartyManager
         if (TryGetPartyByHost(session, out var party))
             states.AddRange(GetInvitesByParty(party).Select(i => i.GetState()));
 
-        var msg = new MsgUpdateClientPartyInvites(states);
+        var msg = new MsgUpdateReceivedPartyInvitesList(states);
         SendNetMessage(msg, session);
     }
 

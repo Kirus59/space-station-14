@@ -25,7 +25,7 @@ public sealed partial class PartyManager
         SubscribeNetMessage<MsgPartyInviteReceived>(OnPartyInviteReceivedMessage);
         SubscribeNetMessage<MsgPartyInviteDeleted>(OnPartyInviteDeletedMessage);
         SubscribeNetMessage<MsgHandlePartyInviteState>(OnUpdateClientPartyInviteMessage);
-        SubscribeNetMessage<MsgUpdateClientPartyInvites>(OnUpdateClientPartyInvitesMessage);
+        SubscribeNetMessage<MsgUpdateReceivedPartyInvitesList>(OnUpdateClientPartyInvitesMessage);
     }
 
     private void OnPartyInviteSendedMessage(MsgPartyInviteSended message)
@@ -57,7 +57,7 @@ public sealed partial class PartyManager
         HandleInviteState(state);
     }
 
-    private void OnUpdateClientPartyInvitesMessage(MsgUpdateClientPartyInvites message)
+    private void OnUpdateClientPartyInvitesMessage(MsgUpdateReceivedPartyInvitesList message)
     {
         var toRemove = _invites.Select(i => i.Id).ToList();
         foreach (var state in message.States)
@@ -144,7 +144,7 @@ public sealed partial class PartyManager
         if (!ReceivedInvites.Any(i => i.Id == inviteId))
             return;
 
-        var msg = new MsgInviteRequest(inviteId);
+        var msg = new MsgDeleteInviteRequest(inviteId);
         SendNetMessage(msg);
     }
 

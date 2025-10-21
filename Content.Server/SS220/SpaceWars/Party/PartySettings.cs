@@ -1,45 +1,24 @@
-
-using Content.Shared.SS220.CCVars;
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
-using Robust.Shared.Configuration;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-public sealed class PartySettings : SharedPartySettings
+public struct PartySettings()
 {
-    private readonly Party _party;
-    private readonly IConfigurationManager _cfg;
+    public int MembersLimit;
 
-    public override int MembersLimit
+    public PartySettings(PartySettingsState state) : this()
     {
-        get => _membersLimit;
-        set => _membersLimit = Math.Clamp(value, _party.Members.Count, _cfg.GetCVar(CCVars220.PartyMembersLimit));
-    }
-    private int _membersLimit;
-
-    public PartySettings(Party party, IConfigurationManager? cfg = null)
-    {
-        _party = party;
-        _cfg = cfg ?? IoCManager.Resolve<IConfigurationManager>();
-
-        _membersLimit = _cfg.GetCVar(CCVars220.PartyMembersLimit);
+        MembersLimit = state.MembersLimit;
     }
 
-    public PartySettings(Party party, PartySettingsState state, IConfigurationManager? cfg = null)
-    {
-        _party = party;
-        _cfg = cfg ?? IoCManager.Resolve<IConfigurationManager>();
-
-        HandleState(state);
-    }
-
-    public PartySettingsState GetState()
+    public readonly PartySettingsState GetState()
     {
         return new PartySettingsState(MembersLimit);
     }
 
-    public void HandleState(PartySettingsState state)
+    public static implicit operator PartySettings(PartySettingsState state)
     {
-        MembersLimit = state.MembersLimit;
+        return new PartySettings(state);
     }
 }

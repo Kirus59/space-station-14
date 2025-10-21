@@ -1,10 +1,10 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Player;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-[method: Access(typeof(PartyManager))]
+[Access([typeof(PartyManager), typeof(Party)], Other = AccessPermissions.ReadExecute)]
 public sealed class PartyInvite(
     uint id,
     Party party,
@@ -15,13 +15,7 @@ public sealed class PartyInvite(
     public readonly Party Party = party;
     public readonly ICommonSession Target = target;
 
-    public PartyInviteStatus Status { get; private set; } = status;
-
-    [Access(typeof(PartyManager))]
-    public void SetStatus(PartyInviteStatus newStatus)
-    {
-        Status = newStatus;
-    }
+    public PartyInviteStatus Status = status;
 
     public PartyInviteState GetState()
     {

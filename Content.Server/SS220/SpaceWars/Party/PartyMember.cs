@@ -1,23 +1,18 @@
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Player;
 using Robust.Shared.Enums;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
-[method: Access([typeof(PartyManager), typeof(Party)])]
+[Access([typeof(PartyManager), typeof(Party)], Other = AccessPermissions.ReadExecute)]
 public sealed class PartyMember(Party party, ICommonSession session, PartyMemberRole role = PartyMemberRole.Invalid) : IEquatable<PartyMember>
 {
     public readonly Party Party = party;
     public readonly ICommonSession Session = session;
     public string Name => Session.Name;
 
-    public PartyMemberRole Role { get; private set; } = role;
-
-    [Access([typeof(PartyManager), typeof(Party)])]
-    public void SetRole(PartyMemberRole role)
-    {
-        Role = role;
-    }
+    public PartyMemberRole Role = role;
 
     public PartyMemberState GetState()
     {

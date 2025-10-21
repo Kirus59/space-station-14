@@ -1,5 +1,4 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
-
 using Content.Server.Administration;
 using Content.Shared.Administration;
 using Content.Shared.SS220.SpaceWars.Party;
@@ -46,26 +45,23 @@ public sealed class PartyRemoveMemberCommand : LocalizedCommands
 
         if (!party.ContainsMember(session))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-user-is-not-in-party", ("user", session.Name), ("partyId", party.Id)));
+            shell.WriteLine(Loc.GetString("cmd-party-remove-member-user-is-not-in-party", ("username", session.Name), ("partyId", party.Id)));
             return;
         }
 
         if (party.IsHost(session))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-user-is-host", ("user", session.Name), ("partyId", party.Id)));
+            shell.WriteLine(Loc.GetString("cmd-party-remove-member-user-is-host", ("username", session.Name), ("partyId", party.Id)));
             return;
         }
 
-        try
+        if (!_party.RemoveMember(party, session))
         {
-            _party.RemoveMember(party, session);
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-success"));
-        }
-        catch (Exception e)
-        {
-            shell.WriteLine(e.Message);
+            shell.WriteLine(Loc.GetString("cmd-party-remove-member-fail", ("partyId", party.Id), ("username", session.Name)));
             return;
         }
+
+        shell.WriteLine(Loc.GetString("cmd-party-remove-member-success", ("partyId", party.Id), ("username", session.Name)));
     }
 
     public override CompletionResult GetCompletion(IConsoleShell shell, string[] args)

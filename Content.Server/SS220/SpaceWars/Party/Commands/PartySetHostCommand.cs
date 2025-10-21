@@ -66,16 +66,13 @@ public sealed class PartySetHostCommand : LocalizedCommands
             }
         }
 
-        try
+        if (!_party.SetHost(party, session, force: force))
         {
-            _party.SetHost(party, session, force: force);
-            shell.WriteLine(Loc.GetString("cmd-party-set-host-success"));
-        }
-        catch (Exception e)
-        {
-            shell.WriteLine(e.Message);
+            shell.WriteLine(Loc.GetString("cmd-party-set-host-success", ("partyId", party.Id), ("username", session.Name)));
             return;
         }
+
+        shell.WriteLine(Loc.GetString("cmd-party-set-host-fail", ("partyId", party.Id), ("username", session.Name)));
     }
 
     public override CompletionResult GetCompletion(IConsoleShell shell, string[] args)

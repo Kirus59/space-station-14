@@ -30,19 +30,30 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     private uint _nextPartyId = 0;
 
+    private int _membersLimit;
+
+    private PartySettings DefaultSetting => new()
+    {
+        MembersLimit = _membersLimit
+    };
+
     public override void Initialize()
     {
         base.Initialize();
 
         _playerManager.PlayerStatusChanged += OnPlayerStatusChanged;
 
-        _cfg.OnValueChanged(CCVars220.PartyMembersLimit, _ => ResetSettings(), true);
+        _cfg.OnValueChanged(CCVars220.PartyMembersLimit, value =>
+        {
+            _membersLimit = value;
+            ResetSettings();
+        }, true);
 
-        SubscribeNetMessage<CreatePartyRequestMessage>(OnCreatePartyRequest);
-        SubscribeNetMessage<DisbandPartyRequestMessage>(OnDisbandPartyRequest);
-        SubscribeNetMessage<LeavePartyRequestMessage>(OnLeavePartyMessage);
-        SubscribeNetMessage<KickFromPartyRequestMessage>(OnKickFromPartyRequest);
-        SubscribeNetMessage<SetPartySettingsRequestMessage>(OnSetSettingsRequest);
+        SubscribeNetMessage<MsgCreatePartyRequest>(OnCreatePartyRequest);
+        SubscribeNetMessage<MsgDisbandPartyRequest>(OnDisbandPartyRequest);
+        SubscribeNetMessage<MsgLeavePartyRequest>(OnLeavePartyMessage);
+        SubscribeNetMessage<MsgKickFromPartyRequest>(OnKickFromPartyRequest);
+        SubscribeNetMessage<MsgSetPartySettingsRequest>(OnSetSettingsRequest);
 
         InviteInitialize();
     }
@@ -61,12 +72,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         UpdateClient(e.Session, party);
     }
 
-    private void OnCreatePartyRequest(CreatePartyRequestMessage message, ICommonSession sender)
+    private void OnCreatePartyRequest(MsgCreatePartyRequest message, ICommonSession sender)
     {
         CreateParty(sender, message.SettingsState);
     }
 
-    private void OnDisbandPartyRequest(DisbandPartyRequestMessage message, ICommonSession sender)
+    private void OnDisbandPartyRequest(MsgDisbandPartyRequest message, ICommonSession sender)
     {
         if (!TryGetPartyByHost(sender, out var party))
             return;
@@ -74,12 +85,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         DisbandParty(party);
     }
 
-    private void OnLeavePartyMessage(LeavePartyRequestMessage message, ICommonSession sender)
+    private void OnLeavePartyMessage(MsgLeavePartyRequest message, ICommonSession sender)
     {
         EnsureNotPartyMember(sender);
     }
 
-    private void OnKickFromPartyRequest(KickFromPartyRequestMessage message, ICommonSession sender)
+    private void OnKickFromPartyRequest(MsgKickFromPartyRequest message, ICommonSession sender)
     {
         if (!TryGetPartyByHost(sender, out var party))
             return;
@@ -90,12 +101,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         RemoveMember(party, session);
     }
 
-    private void OnSetSettingsRequest(SetPartySettingsRequestMessage message, ICommonSession sender)
+    private void OnSetSettingsRequest(MsgSetPartySettingsRequest message, ICommonSession sender)
     {
         if (!TryGetPartyByHost(sender, out var party))
             return;
 
-        SetSettings(party, message.State);
+        SetPartySettings(party, message.State);
     }
 
     public bool CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false)
@@ -103,7 +114,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         return CreateParty(host, out _, settings, force);
     }
 
-    public bool CreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettingsState? settings = null, bool force = false)
+    public bool CreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettings? settings = null, bool force = false)
     {
         party = null;
         if (force)
@@ -117,15 +128,13 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         DebugTools.Assert(PartyExist(party));
         DebugTools.Assert(party.IsHost(host));
 
-        if (settings != null)
-            SetSettings(party, settings.Value, false);
+        settings ??= DefaultSetting;
+        SetPartySettings(party, settings.Value, false);
 
         SetStatus(party, PartyStatus.Running, false);
 
-        UpdateClientParty(party);
         UserJoinedParty?.Invoke(party.Host);
-
-        PartyUpdated?.Invoke(party);
+        Dirty(party);
 
         return true;
     }
@@ -191,10 +200,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         UserJoinedParty?.Invoke(member);
 
         if (updates)
-        {
-            UpdateClientParty(party);
-            PartyUpdated?.Invoke(party);
-        }
+            Dirty(party);
 
         DeleteInvite(party, session);
         UpdateClientInvites(session);
@@ -231,9 +237,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (updates)
         {
             UpdateClientParty(session, null);
-            UpdateClientParty(party);
-
-            PartyUpdated?.Invoke(party);
+            Dirty(party);
         }
 
         return true;
@@ -262,10 +266,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             UserJoinedParty?.Invoke(party.Host);
 
         if (updates)
-        {
-            UpdateClientParty(party);
-            PartyUpdated?.Invoke(party);
-        }
+            Dirty(party);
 
         DeleteInvite(party, session);
 
@@ -284,17 +285,14 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (oldStatus == newStatus)
             return true;
 
-        party.SetStatus(newStatus);
+        party.Status = newStatus;
         DebugTools.Assert(party.Status == newStatus);
 
         var args = new PartyStatusChangedActionArgs(party.Id, oldStatus, newStatus);
         PartyStatusChanged?.Invoke(args);
 
         if (updates)
-        {
-            UpdateClientParty(party);
-            PartyUpdated?.Invoke(party);
-        }
+            Dirty(party);
 
         return true;
     }
@@ -438,7 +436,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     {
         DebugTools.Assert(party == GetPartyByMember(session));
 
-        var ev = new UpdateClientPartyMessage(party?.GetState());
+        var ev = new MsgUpdateClientParty(party?.GetState());
         SendNetMessage(ev, session);
     }
 
@@ -476,19 +474,16 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     private void ResetSettings(Party party)
     {
-        var state = party.Settings.GetState();
-        SetSettings(party, state);
+        SetPartySettings(party, party.Settings);
     }
 
-    public void SetSettings(Party party, PartySettingsState state, bool updates = true)
+    public void SetPartySettings(Party party, PartySettings settings, bool updates = true)
     {
-        party.Settings.HandleState(state);
+        settings.MembersLimit = Math.Clamp(settings.MembersLimit, 0, _membersLimit);
+        party.Settings = settings;
 
         if (updates)
-        {
-            UpdateClientParty(party);
-            PartyUpdated?.Invoke(party);
-        }
+            Dirty(party);
     }
     #endregion
 }

@@ -1,3 +1,4 @@
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
@@ -6,41 +7,42 @@ using System.Linq;
 
 namespace Content.Server.SS220.SpaceWars.Party;
 
+[Access(typeof(PartyManager))]
 public sealed class Party : IEquatable<Party>, IDisposable
 {
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public readonly uint Id;
-    public PartyStatus Status { get; private set; } = PartyStatus.Invalid;
 
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
+    public PartyStatus Status = PartyStatus.Invalid;
+
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public PartyMember Host { get; private set; }
 
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public IReadOnlyCollection<PartyMember> Members => _members;
     private readonly HashSet<PartyMember> _members = [];
 
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public IReadOnlyCollection<PartyInvite> Invites => _invites;
     private readonly HashSet<PartyInvite> _invites = [];
 
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public PartySettings Settings;
+
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public bool MembersLimitReached => Members.Count >= Settings.MembersLimit;
 
     private bool _disposed;
 
-    [Access(typeof(PartyManager))]
-    public Party(uint id, ICommonSession host, PartySettingsState? settingsState = null)
+    public Party(uint id, ICommonSession host, PartySettings? settings = null)
     {
         Id = id;
 
         Host = new PartyMember(this, host, PartyMemberRole.Host);
         _members.Add(Host);
 
-        Settings = new(this);
-        if (settingsState is { } state)
-            Settings.HandleState(state);
-    }
-
-    [Access(typeof(PartyManager))]
-    public void SetStatus(PartyStatus status)
-    {
-        Status = status;
+        Settings = settings ?? new();
     }
 
     public bool SetHost(ICommonSession session, bool ignoreLimit = false)
@@ -48,7 +50,6 @@ public sealed class Party : IEquatable<Party>, IDisposable
         return SetHost(session, out _, ignoreLimit);
     }
 
-    [Access(typeof(PartyManager))]
     public bool SetHost(ICommonSession session, [NotNullWhen(true)] out PartyMember? host, bool ignoreLimit = false)
     {
         DebugTools.Assert(!_disposed);
@@ -60,7 +61,7 @@ public sealed class Party : IEquatable<Party>, IDisposable
         var oldHost = Host;
         if (TryFindMember(session, out host))
         {
-            host.SetRole(PartyMemberRole.Host);
+            host.Role = PartyMemberRole.Host;
         }
         else
         {
@@ -72,17 +73,15 @@ public sealed class Party : IEquatable<Party>, IDisposable
         }
 
         Host = host;
-        oldHost.SetRole(PartyMemberRole.Member);
+        oldHost.Role = PartyMemberRole.Member;
         return true;
     }
 
-    [Access(typeof(PartyManager))]
     public bool AddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
     {
         return AddMember(session, role, out _, ignoreLimit);
     }
 
-    [Access(typeof(PartyManager))]
     public bool AddMember(ICommonSession session, PartyMemberRole role, [NotNullWhen(true)] out PartyMember? member, bool ignoreLimit = false)
     {
         DebugTools.Assert(!_disposed);
@@ -95,19 +94,7 @@ public sealed class Party : IEquatable<Party>, IDisposable
         return _members.Add(member);
     }
 
-    public bool CanAddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
-    {
-        /// Cannot add member with the <see cref="PartyMemberRole.Host"/> role.
-        /// Should use <see cref="SetHost(ICommonSession, bool)"/> to set a new party host
-        if (role is PartyMemberRole.Host)
-            return false;
-
-        if (TryFindMember(session, out _))
-            return false;
-
-        return ignoreLimit || !MembersLimitReached;
-    }
-
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public bool ContainsMember(ICommonSession session)
     {
         DebugTools.Assert(!_disposed);
@@ -131,7 +118,6 @@ public sealed class Party : IEquatable<Party>, IDisposable
         return true;
     }
 
-    [Access(typeof(PartyManager))]
     public bool RemoveMember(ICommonSession session)
     {
         DebugTools.Assert(!_disposed);
@@ -142,7 +128,6 @@ public sealed class Party : IEquatable<Party>, IDisposable
         return RemoveMember(member);
     }
 
-    [Access(typeof(PartyManager))]
     public bool RemoveMember(PartyMember member)
     {
         DebugTools.Assert(!_disposed);
@@ -154,13 +139,13 @@ public sealed class Party : IEquatable<Party>, IDisposable
         return _members.Remove(member);
     }
 
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
     public bool IsHost(ICommonSession session)
     {
         DebugTools.Assert(!_disposed);
         return Host.Session == session;
     }
 
-    [Access(typeof(PartyManager))]
     public void Dispose()
     {
         if (_disposed)
@@ -170,14 +155,12 @@ public sealed class Party : IEquatable<Party>, IDisposable
         _disposed = true;
     }
 
-    [Access(typeof(PartyManager))]
     public bool AddInvite(PartyInvite invite)
     {
         DebugTools.Assert(!_disposed);
         return _invites.Add(invite);
     }
 
-    [Access(typeof(PartyManager))]
     public bool RemoveInvite(PartyInvite invite)
     {
         DebugTools.Assert(!_disposed);
@@ -235,5 +218,18 @@ public sealed class Party : IEquatable<Party>, IDisposable
     public override int GetHashCode()
     {
         return Id.GetHashCode();
+    }
+
+    private bool CanAddMember(ICommonSession session, PartyMemberRole role, bool ignoreLimit = false)
+    {
+        /// Cannot add member with the <see cref="PartyMemberRole.Host"/> role.
+        /// Should use <see cref="SetHost(ICommonSession, bool)"/> to set a new party host
+        if (role is PartyMemberRole.Host)
+            return false;
+
+        if (TryFindMember(session, out _))
+            return false;
+
+        return ignoreLimit || !MembersLimitReached;
     }
 }

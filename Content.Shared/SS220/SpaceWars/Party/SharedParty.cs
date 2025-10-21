@@ -68,3 +68,8 @@ public enum PartyInviteStatus : byte
     Deleted
 }
 #endregion
+
+#region Settings
+[Serializable, NetSerializable]
+public record struct PartySettingsState(int MembersLimit);
+#endregion

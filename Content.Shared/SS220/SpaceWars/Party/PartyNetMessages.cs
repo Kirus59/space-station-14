@@ -49,36 +49,36 @@ public abstract class PartyResponceMessage : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class CreatePartyRequestMessage(PartySettingsState? settingsState = null) : PartyMessage
+public sealed class MsgCreatePartyRequest(PartySettingsState? settingsState = null) : PartyMessage
 {
     public readonly PartySettingsState? SettingsState = settingsState;
 }
 
 [Serializable, NetSerializable]
-public sealed class DisbandPartyRequestMessage() : PartyMessage
+public sealed class MsgDisbandPartyRequest() : PartyMessage
 {
 }
 
 [Serializable, NetSerializable]
-public sealed class LeavePartyRequestMessage() : PartyMessage
+public sealed class MsgLeavePartyRequest() : PartyMessage
 {
 }
 
 [Serializable, NetSerializable]
-public sealed class KickFromPartyRequestMessage(NetUserId userId) : PartyMessage
+public sealed class MsgKickFromPartyRequest(NetUserId userId) : PartyMessage
 {
     public readonly NetUserId UserId = userId;
 }
 
 [Serializable, NetSerializable]
-public sealed class UpdateClientPartyMessage(PartyState? state) : PartyMessage
+public sealed class MsgUpdateClientParty(PartyState? state) : PartyMessage
 {
     public readonly PartyState? State = state;
 }
 
 #region Settings
 [Serializable, NetSerializable]
-public sealed class SetPartySettingsRequestMessage(PartySettingsState state) : PartyMessage
+public sealed class MsgSetPartySettingsRequest(PartySettingsState state) : PartyMessage
 {
     public readonly PartySettingsState State = state;
 }
@@ -98,7 +98,7 @@ public sealed class MsgDenyInviteRequest(uint inviteId) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgInviteRequest(uint inviteId) : PartyMessage
+public sealed class MsgDeleteInviteRequest(uint inviteId) : PartyMessage
 {
     public readonly uint InviteId = inviteId;
 }
@@ -117,7 +117,7 @@ public sealed class MsgInviteUserResponce() : PartyResponceMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgUpdateClientPartyInvites(List<PartyInviteState> states) : PartyMessage
+public sealed class MsgUpdateReceivedPartyInvitesList(List<PartyInviteState> states) : PartyMessage
 {
     public readonly List<PartyInviteState> States = states;
 }
@@ -135,12 +135,6 @@ public sealed class MsgPartyInviteDeleted(uint inviteId) : PartyMessage
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgPartyInviteSended(PartyInviteState state) : PartyMessage
-{
-    public readonly PartyInviteState State = state;
-}
-
-[Serializable, NetSerializable]
 public sealed class MsgPartyInviteReceived(PartyInviteState state) : PartyMessage
 {
     public readonly PartyInviteState State = state;
@@ -155,7 +149,7 @@ public sealed class MsgSetReceiveInvitesStatus(bool receiveInvites) : PartyMessa
 
 #region Chat
 [Serializable, NetSerializable]
-public sealed class PartyChatMessage(string message) : PartyMessage
+public sealed class MsgPartyChatMessage(string message) : PartyMessage
 {
     public readonly string Message = message;
 }

@@ -42,13 +42,13 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     {
         base.Initialize();
 
-        SubscribeNetMessage<UpdateClientPartyMessage>(OnUpdatePartyMessage);
+        SubscribeNetMessage<MsgUpdateClientParty>(OnUpdatePartyMessage);
 
         InviteInitialize();
         ChatInitialize();
     }
 
-    private void OnUpdatePartyMessage(UpdateClientPartyMessage message)
+    private void OnUpdatePartyMessage(MsgUpdateClientParty message)
     {
         var state = message.State;
         if (state is null)
@@ -92,31 +92,31 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     public void CreatePartyRequest(PartySettingsState? settings = null)
     {
-        var msg = new CreatePartyRequestMessage(settings);
+        var msg = new MsgCreatePartyRequest(settings);
         SendNetMessage(msg);
     }
 
     public void DisbandPartyRequest()
     {
-        var msg = new DisbandPartyRequestMessage();
+        var msg = new MsgDisbandPartyRequest();
         SendNetMessage(msg);
     }
 
     public void LeavePartyRequest()
     {
-        var msg = new LeavePartyRequestMessage();
+        var msg = new MsgLeavePartyRequest();
         SendNetMessage(msg);
     }
 
     public void KickFromPartyRequest(NetUserId userId)
     {
-        var msg = new KickFromPartyRequestMessage(userId);
+        var msg = new MsgKickFromPartyRequest(userId);
         SendNetMessage(msg);
     }
 
     public void SetSettingsRequest(PartySettingsState settingsState)
     {
-        var msg = new SetPartySettingsRequestMessage(settingsState);
+        var msg = new MsgSetPartySettingsRequest(settingsState);
         SendNetMessage(msg);
     }
 

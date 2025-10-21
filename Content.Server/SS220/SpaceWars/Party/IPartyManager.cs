@@ -18,7 +18,7 @@ public partial interface IPartyManager : ISharedPartyManager
 
     bool CreateParty(ICommonSession host, PartySettingsState? settings = null, bool force = false);
 
-    bool CreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettingsState? settings = null, bool force = false);
+    bool CreateParty(ICommonSession host, [NotNullWhen(true)] out Party? party, PartySettings? settings = null, bool force = false);
 
     bool DisbandParty(Party party, bool updates = true);
 
@@ -57,7 +57,7 @@ public partial interface IPartyManager : ISharedPartyManager
     IEnumerable<CompletionOption> GetPartiesCompletionOptions();
 
     #region Settings
-    void SetSettings(Party party, PartySettingsState state, bool updates = true);
+    void SetPartySettings(Party party, PartySettings state, bool updates = true);
     #endregion
 }
 

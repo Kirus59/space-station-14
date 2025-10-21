@@ -1,5 +1,4 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
-
 using Content.Server.Administration;
 using Content.Shared.Administration;
 using Content.Shared.SS220.SpaceWars.Party;
@@ -46,16 +45,13 @@ public sealed class CreatePartyCommand : LocalizedCommands
             return;
         }
 
-        try
+        if (!_party.CreateParty(host, out var party, force: force))
         {
-            var party = _party.CreateParty(host, force: force);
-            shell.WriteLine(Loc.GetString("cmd-create-party-success", ("id", party.Id)));
-        }
-        catch (Exception e)
-        {
-            shell.WriteLine(e.Message);
+            shell.WriteLine(Loc.GetString("cmd-create-party-fail"));
             return;
         }
+
+        shell.WriteLine(Loc.GetString("cmd-create-party-success", ("id", party.Id)));
     }
 
     public override CompletionResult GetCompletion(IConsoleShell shell, string[] args)
