@@ -1,4 +1,4 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Client.SS220.SpaceWars.Party.UI;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Client.Player;
@@ -14,14 +14,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     [Dependency] private readonly IPlayerManager _player = default!;
     [Dependency] private readonly IUserInterfaceManager _ui = default!;
 
-    public event Action? CurrentPartyUpdated;
+    public event Action<Party?>? LocalPartyChanged;
+    public event Action<Party>? LocalPartyUpdated;
 
     public PartyUIController UIController => _ui.GetUIController<PartyUIController>();
 
     public Party? LocalParty { get; private set; }
-
-    public bool IsLocalPartyHost => LocalMember is { } member && member.Role is PartyMemberRole.Host;
-
     public PartyMember? LocalMember
     {
         get
@@ -38,6 +36,20 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         }
     }
 
+    public bool IsLocalPartyHost
+    {
+        get
+        {
+            if (LocalParty is not { } party)
+                return false;
+
+            if (_player.LocalUser is not { } userId)
+                return false;
+
+            return party.IsHost(userId);
+        }
+    }
+
     public override void Initialize()
     {
         base.Initialize();
@@ -50,44 +62,27 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
     private void OnUpdatePartyMessage(MsgUpdateClientParty message)
     {
-        var state = message.State;
-        if (state is null)
+        if (message.State is not { } state)
         {
-            if (LocalParty is not null)
-            {
-                LocalParty = null;
-                CurrentPartyUpdated?.Invoke();
-                UIController.RefreshWindow();
-            }
+            LocalParty = null;
+            LocalPartyChanged?.Invoke(null);
+            UIController.RefreshWindow();
 
             return;
         }
 
-        if (LocalParty is null)
-            LocalParty = new Party(state.Value);
-        else if (LocalParty.Id != state.Value.Id)
+        if (LocalParty is not { } party || party.Id != state.Id)
         {
-            LocalParty.Dispose();
-            LocalParty = new Party(state.Value);
+            LocalParty = new(state);
+            LocalPartyChanged?.Invoke(LocalParty);
+            UIController.RefreshWindow();
+
+            return;
         }
-        else
-            LocalParty.HandleState(state.Value);
 
-        CurrentPartyUpdated?.Invoke();
+        HandlePartyState(party, state);
+        LocalPartyUpdated?.Invoke(LocalParty);
         UIController.RefreshWindow();
-    }
-
-    private void SendNetMessage(PartyMessage message)
-    {
-        if (_player.LocalSession is { } session)
-            message.Sender = session.UserId;
-
-        var msg = new PartyNetMessage
-        {
-            Message = message,
-        };
-
-        _net.ClientSendMessage(msg);
     }
 
     public void CreatePartyRequest(PartySettingsState? settings = null)
@@ -124,5 +119,25 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     {
         var msg = new MsgInviteUserRequest(username);
         SendNetMessage(msg);
+    }
+
+    private void SendNetMessage(PartyMessage message)
+    {
+        if (_player.LocalSession is { } session)
+            message.Sender = session.UserId;
+
+        var msg = new PartyNetMessage
+        {
+            Message = message,
+        };
+
+        _net.ClientSendMessage(msg);
+    }
+
+    private void HandlePartyState(Party party, PartyState state)
+    {
+        DebugTools.Assert(party.Id == state.Id);
+
+        party.Status == state.Status;
     }
 }

@@ -1,4 +1,4 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Client.Gameplay;
 using Content.Client.Lobby;
 using Content.Client.Lobby.UI;
@@ -30,18 +30,21 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
     {
         base.Initialize();
 
-        _party.CurrentPartyUpdated += () => UnreadInfoReceived();
+        _party.LocalPartyChanged += OnLocalPartyChanged;
         _party.ChatMessageReceived += _ => UnreadInfoReceived();
 
-        _party.InviteAdded += OnInviteUpdated;
-        _party.InviteUpdated += OnInviteUpdated;
-        _party.InviteRemoved += OnInviteUpdated;
+        _party.ReceivedInviteAdded += _ => UnreadInfoReceived();
+        _party.ReceivedInviteRemoved += _ => UnreadInfoReceived();
     }
 
-    private void OnInviteUpdated(IPartyInvite invite)
+    private void OnLocalPartyChanged(Party? party)
     {
-        if (invite.Kind is not PartyInviteKind.Received)
-            return;
+        if (party != null)
+        {
+            party.HostChanged += _ => UnreadInfoReceived();
+            party.MemberAdded += _ => UnreadInfoReceived();
+            party.MemberRemoved += _ => UnreadInfoReceived();
+        }
 
         UnreadInfoReceived();
     }

@@ -1,4 +1,4 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Utility;
 using System.Diagnostics.CodeAnalysis;
@@ -9,39 +9,24 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public sealed partial class PartyManager
 {
-    public event Action<IPartyInvite>? InviteAdded;
-    public event Action<IPartyInvite>? InviteRemoved;
-    public event Action<IPartyInvite>? InviteUpdated;
+    public event Action<PartyInvite>? ReceivedInviteAdded;
+    public event Action<PartyInvite>? ReceivedInviteRemoved;
+    public event Action<PartyInvite>? ReceivedInviteUpdated;
 
-    public IReadOnlyList<IPartyInvite> SendedInvites => [.. _invites.Where(i => i.Kind is PartyInviteKind.Sended)];
-    public IReadOnlyList<IPartyInvite> ReceivedInvites => [.. _invites.Where(i => i.Kind is PartyInviteKind.Received)];
-    public IReadOnlyList<IPartyInvite> AllInvites => [.. _invites];
-
-    private readonly HashSet<PartyInvite> _invites = [];
+    public IReadOnlyList<PartyInvite> ReceivedInvites => [.. _receiveInvites];
+    private readonly HashSet<PartyInvite> _receiveInvites = [];
 
     public void InviteInitialize()
     {
-        SubscribeNetMessage<MsgPartyInviteSended>(OnPartyInviteSendedMessage);
         SubscribeNetMessage<MsgPartyInviteReceived>(OnPartyInviteReceivedMessage);
         SubscribeNetMessage<MsgPartyInviteDeleted>(OnPartyInviteDeletedMessage);
         SubscribeNetMessage<MsgHandlePartyInviteState>(OnUpdateClientPartyInviteMessage);
         SubscribeNetMessage<MsgUpdateReceivedPartyInvitesList>(OnUpdateClientPartyInvitesMessage);
     }
 
-    private void OnPartyInviteSendedMessage(MsgPartyInviteSended message)
-    {
-        if (message.State is not PartyInviteState state)
-            return;
-
-        AddInvite(state, PartyInviteKind.Sended);
-    }
-
     private void OnPartyInviteReceivedMessage(MsgPartyInviteReceived message)
     {
-        if (message.State is not PartyInviteState state)
-            return;
-
-        AddInvite(state, PartyInviteKind.Received);
+        AddInvite(message.State);
     }
 
     private void OnPartyInviteDeletedMessage(MsgPartyInviteDeleted message)
@@ -51,25 +36,18 @@ public sealed partial class PartyManager
 
     private void OnUpdateClientPartyInviteMessage(MsgHandlePartyInviteState message)
     {
-        if (message.State is not PartyInviteState state)
-            return;
-
-        HandleInviteState(state);
+        HandleInviteState(message.State);
     }
 
     private void OnUpdateClientPartyInvitesMessage(MsgUpdateReceivedPartyInvitesList message)
     {
-        var toRemove = _invites.Select(i => i.Id).ToList();
+        var toRemove = _receiveInvites.Select(i => i.Id).ToList();
         foreach (var state in message.States)
         {
-            if (state is not PartyInviteState inviteState)
-                continue;
+            toRemove.Remove(state.Id);
 
-            var id = inviteState.Id;
-            toRemove.Remove(id);
-
-            if (!InviteExist(id))
-                AddInvite(inviteState);
+            if (!InviteExist(state.Id))
+                AddInvite(state);
         }
 
         foreach (var id in toRemove)
@@ -81,15 +59,15 @@ public sealed partial class PartyManager
         return TryGetInvite(id, out _);
     }
 
-    public bool TryGetInvite(uint id, [NotNullWhen(true)] out IPartyInvite? invite)
+    public bool TryGetInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite)
     {
         invite = GetInvite(id);
         return invite != null;
     }
 
-    public IPartyInvite? GetInvite(uint id)
+    public PartyInvite? GetInvite(uint id)
     {
-        return _invites.FirstOrDefault(i => i.Id == id);
+        return _receiveInvites.FirstOrDefault(i => i.Id == id);
     }
 
     public void InviteUserRequest(string username)
@@ -118,33 +96,33 @@ public sealed partial class PartyManager
         return responce;
     }
 
-    public void AcceptInviteRequest(uint inviteId)
+    public void AcceptInviteRequest(uint id)
     {
-        if (!ReceivedInvites.Any(i => i.Id == inviteId))
+        if (!InviteExist(id))
             return;
 
-        var msg = new MsgAcceptInviteRequest(inviteId);
+        var msg = new MsgAcceptInviteRequest(id);
         SendNetMessage(msg);
     }
 
-    public void DenyInviteRequest(uint inviteId)
+    public void DenyInviteRequest(uint id)
     {
-        if (!ReceivedInvites.Any(i => i.Id == inviteId))
+        if (!InviteExist(id))
             return;
 
-        var msg = new MsgDenyInviteRequest(inviteId);
+        var msg = new MsgDenyInviteRequest(id);
         SendNetMessage(msg);
     }
 
-    public void DeleteInviteRequest(uint inviteId)
+    public void DeleteInviteRequest(uint id)
     {
         if (!IsLocalPartyHost)
             return;
 
-        if (!ReceivedInvites.Any(i => i.Id == inviteId))
+        if (!InviteExist(id))
             return;
 
-        var msg = new MsgDeleteInviteRequest(inviteId);
+        var msg = new MsgDeleteInviteRequest(id);
         SendNetMessage(msg);
     }
 
@@ -154,21 +132,21 @@ public sealed partial class PartyManager
         SendNetMessage(msg);
     }
 
-    private bool AddInvite(PartyInviteState state, PartyInviteKind kind = PartyInviteKind.Other)
+    private bool AddInvite(PartyInviteState state)
     {
         if (InviteExist(state.Id))
             return false;
 
-        var invite = new PartyInvite(state, kind);
+        var invite = new PartyInvite(state);
         return AddInvite(invite);
     }
 
     private bool AddInvite(PartyInvite invite)
     {
-        var result = _invites.Add(invite);
+        var result = _receiveInvites.Add(invite);
 
         if (result)
-            InviteAdded?.Invoke(invite);
+            ReceivedInviteAdded?.Invoke(invite);
 
         return result;
     }
@@ -183,25 +161,25 @@ public sealed partial class PartyManager
 
     private bool RemoveInvite(PartyInvite invite)
     {
-        var result = _invites.Remove(invite);
+        var result = _receiveInvites.Remove(invite);
 
         if (result)
-            InviteRemoved?.Invoke(invite);
+            ReceivedInviteRemoved?.Invoke(invite);
 
         return result;
     }
 
     private void HandleInviteState(PartyInviteState state)
     {
-        if (TryGetInvite(state.Id, out var invite) && invite is PartyInvite partyInvite)
-            HandleInviteState(partyInvite, state);
+        if (TryGetInvite(state.Id, out var invite))
+            HandleInviteState(invite, state);
     }
 
     private void HandleInviteState(PartyInvite invite, PartyInviteState state)
     {
-        DebugTools.Assert(_invites.Contains(invite));
+        DebugTools.Assert(_receiveInvites.Contains(invite));
 
         invite.HandleState(state);
-        InviteUpdated?.Invoke(invite);
+        ReceivedInviteUpdated?.Invoke(invite);
     }
 }

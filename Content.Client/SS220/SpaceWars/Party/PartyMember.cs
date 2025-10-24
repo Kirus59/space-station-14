@@ -1,15 +1,25 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Network;
-using Robust.Shared.Utility;
 
 namespace Content.Client.SS220.SpaceWars.Party;
-public sealed class PartyMember(PartyMemberState state) : SharedPartyMember(state.Role), IEquatable<PartyMember>
-{
-    public readonly NetUserId UserId = state.UserId;
 
-    public string Username = state.Username;
-    public bool Connected = state.Connected;
+[Access(typeof(PartyManager), typeof(Party), Other = AccessPermissions.ReadExecute)]
+public sealed class PartyMember() : IEquatable<PartyMember>
+{
+    public readonly NetUserId UserId;
+
+    public string Username = string.Empty;
+    public PartyMemberRole Role = PartyMemberRole.Invalid;
+    public bool Connected;
+
+    public PartyMember(PartyMemberState state) : this()
+    {
+        UserId = state.UserId;
+        Role = state.Role;
+        Username = state.Username;
+        Connected = state.Connected;
+    }
 
     public override bool Equals(object? obj)
     {
@@ -29,9 +39,6 @@ public sealed class PartyMember(PartyMemberState state) : SharedPartyMember(stat
 
     public static bool Equals(PartyMember? member1, PartyMember? member2)
     {
-        if (ReferenceEquals(member1, member2))
-            return true;
-
         if (member1 is null) return false;
 
         return member1.Equals(member2);
@@ -52,12 +59,14 @@ public sealed class PartyMember(PartyMemberState state) : SharedPartyMember(stat
         return UserId.GetHashCode();
     }
 
+    [Access(typeof(PartyManager), typeof(Party))]
     public void HandleState(PartyMemberState state)
     {
-        DebugTools.AssertEqual(state.UserId, UserId);
+        if (UserId != state.UserId)
+            return;
 
         Username = state.Username;
-        Connected = state.Connected;
         Role = state.Role;
+        Connected = state.Connected;
     }
 }
