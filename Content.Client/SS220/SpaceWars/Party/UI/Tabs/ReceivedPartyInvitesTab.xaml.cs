@@ -20,12 +20,14 @@ public sealed partial class ReceivedPartyInvitesTab : Control
     private readonly QuickConfirmationWindow _confirmationWindow = new();
     private readonly Dictionary<PartyInvite, ReceivedPartyInvitePanel> _invitePanels = [];
 
+    private static readonly Vector2 ConfirmationWindowSize = new(400, 80);
+
     public ReceivedPartyInvitesTab()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        InvitesPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(32, 32, 40) };
+        InvitesPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = PartyUIController.DefaultInnerBackgroundColor };
 
         _party.ReceivedInviteAdded += AddInvite;
         _party.ReceivedInviteRemoved += RemoveInvite;
@@ -35,7 +37,7 @@ public sealed partial class ReceivedPartyInvitesTab : Control
             _party.SetReceiveInvitesStatus(button.Pressed);
         };
 
-        _confirmationWindow.SetSize = new Vector2(400, 80);
+        _confirmationWindow.SetSize = ConfirmationWindowSize;
 
         Refresh();
     }

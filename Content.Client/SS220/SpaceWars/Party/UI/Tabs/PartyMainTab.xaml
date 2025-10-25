@@ -6,9 +6,6 @@
         <Control VerticalExpand="True" Margin="0 0 0 5">
             <BoxContainer Orientation="Horizontal" VerticalExpand="True">
                 <PanelContainer Name="MembersPanel" Margin="5 5 5 0" MinSize="280 150">
-                    <PanelContainer.PanelOverride>
-                        <gfx:StyleBoxFlat BackgroundColor="#202028" />
-                    </PanelContainer.PanelOverride>
                     <BoxContainer Orientation="Vertical" VerticalExpand="True">
                         <ScrollContainer HScrollEnabled="False" VerticalExpand="True">
                             <BoxContainer Name="MembersContainer" Orientation="Vertical"/>
@@ -17,19 +14,12 @@
                     </BoxContainer>
                 </PanelContainer>
                 <PanelContainer Name="ChatPanel" HorizontalExpand="True" Margin="5 5 5 0" MinSize="200 150">
-                    <PanelContainer.PanelOverride>
-                        <gfx:StyleBoxFlat BackgroundColor="#202028" />
-                    </PanelContainer.PanelOverride>
                     <ScrollContainer HScrollEnabled="False" VerticalExpand="True">
                         <BoxContainer Name="ChatBox" Orientation="Vertical"/>
                     </ScrollContainer>
                 </PanelContainer>
             </BoxContainer>
-            <PanelContainer Name="NotMemberOverlay" MouseFilter="Stop">
-                <PanelContainer.PanelOverride>
-                    <gfx:StyleBoxFlat BackgroundColor="#121214e6" />
-                </PanelContainer.PanelOverride>
-            </PanelContainer>
+            <PanelContainer Name="NotMemberOverlay" MouseFilter="Stop"/>
             <RichTextLabel Name="NotMemberLabel" Text="{Loc 'ui-party-main-tab-not-member-lable'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Control>
         <BoxContainer Orientation="Horizontal" Name="ButtonContainer" MinSize="20 20" Margin="5 0 0 0">

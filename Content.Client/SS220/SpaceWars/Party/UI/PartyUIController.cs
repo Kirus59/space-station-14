@@ -26,6 +26,9 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
     private bool _bindsRegistered;
     private bool _hasUnreadInfo;
 
+    public static readonly Color DefaultBackgroundColor = new(60, 60, 60);
+    public static readonly Color DefaultInnerBackgroundColor = new(32, 32, 40);
+
     public override void Initialize()
     {
         base.Initialize();

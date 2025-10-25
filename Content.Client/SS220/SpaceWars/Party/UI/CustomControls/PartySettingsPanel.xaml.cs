@@ -16,6 +16,8 @@ public sealed partial class PartySettingsPanel : PanelContainer
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
 
+    private int _partyMembersLimit;
+
     public PartySettingsPanel()
     {
         RobustXamlLoader.Load(this);
@@ -26,7 +28,7 @@ public sealed partial class PartySettingsPanel : PanelContainer
 
     public void Refresh()
     {
-        MembersLimitLineEdit.SetText((_party.LocalParty?.Settings.MembersLimit ?? _cfg.GetCVar(CCVars220.PartyMembersLimit)).ToString());
+        MembersLimitLineEdit.SetText((_party.LocalParty?.Settings.MembersLimit ?? _partyMembersLimit).ToString());
     }
 
     public PartySettingsState GetSettingsState()
@@ -36,5 +38,25 @@ public sealed partial class PartySettingsPanel : PanelContainer
             state.MembersLimit = membersLimit;
 
         return state;
+    }
+
+    protected override void EnteredTree()
+    {
+        base.EnteredTree();
+
+        _cfg.OnValueChanged(CCVars220.PartyInvitesLimit, OnPartyMembersLimitChanged, true);
+    }
+
+    protected override void ExitedTree()
+    {
+        base.ExitedTree();
+
+        _cfg.UnsubValueChanged(CCVars220.PartyInvitesLimit, OnPartyMembersLimitChanged);
+    }
+
+    private void OnPartyMembersLimitChanged(int value)
+    {
+        _partyMembersLimit = value;
+        Refresh();
     }
 }

@@ -40,7 +40,7 @@ public sealed partial class ReceivedPartyInvitePanel : PanelContainer
         AcceptButton.OnPressed += _ => Accept();
         DenyButton.OnPressed += _ => Deny();
 
-        PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(60, 60, 60) };
+        PanelOverride = new StyleBoxFlat { BackgroundColor = PartyUIController.DefaultBackgroundColor };
 
         Refresh();
     }

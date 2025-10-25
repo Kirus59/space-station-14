@@ -17,12 +17,19 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
 
+    private int _invitesLimit;
+
+    private static readonly Thickness LocalPartyInvitePanelThickness = new(5);
+
+    private static readonly TimeSpan DefaultFailReasonShowTime = TimeSpan.FromSeconds(10);
+    private static readonly Color FailReasonColor = Color.Red;
+
     public LocalPartyInvitesWindow()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
 
-        InvitesPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(32, 32, 40) };
+        InvitesPanel.PanelOverride = new StyleBoxFlat { BackgroundColor = PartyUIController.DefaultInnerBackgroundColor };
         InputLine.PlaceHolder = Loc.GetString("ui-local-party-invites-window-inputline-placeholder");
         InviteButton.OnPressed += _ => SendInvite();
 
@@ -52,15 +59,14 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
 
         var invites = party.Invites;
 
-        var limit = _cfg.GetCVar(CCVars220.PartyInvitesLimit);
-        var invitesCountInfo = Loc.GetString("ui-local-party-invites-window-sended-invites-count", ("count", invites.Count), ("limit", limit));
+        var invitesCountInfo = Loc.GetString("ui-local-party-invites-window-sended-invites-count", ("count", invites.Count), ("limit", _invitesLimit));
         InvitesCountLabel.Text = invitesCountInfo;
 
         foreach (var invite in invites)
         {
             var control = new LocalPartyInvitePanel(invite)
             {
-                Margin = new Thickness(5)
+                Margin = LocalPartyInvitePanelThickness
             };
             InvitesContainer.AddChild(control);
         }
@@ -86,12 +92,32 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
         }
     }
 
+    protected override void EnteredTree()
+    {
+        base.EnteredTree();
+
+        _cfg.OnValueChanged(CCVars220.PartyInvitesLimit, OnInvitesLimitChanged, true);
+    }
+
+    protected override void ExitedTree()
+    {
+        base.ExitedTree();
+
+        _cfg.UnsubValueChanged(CCVars220.PartyInvitesLimit, OnInvitesLimitChanged);
+    }
+
+    private void OnInvitesLimitChanged(int value)
+    {
+        _invitesLimit = value;
+        Refresh();
+    }
+
     private void AddFailReason(string reason, TimeSpan? showTime = null)
     {
-        showTime ??= TimeSpan.FromSeconds(10);
+        showTime ??= DefaultFailReasonShowTime;
 
         var msg = new FormattedMessage();
-        msg.PushColor(Color.Red);
+        msg.PushColor(FailReasonColor);
         msg.AddText(reason);
         msg.Pop();
 

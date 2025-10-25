@@ -43,7 +43,7 @@ public sealed partial class LocalPartyInvitePanel : PanelContainer
             _party.DeleteInviteRequest(Invite.Id);
         };
 
-        PanelOverride = new StyleBoxFlat { BackgroundColor = new Color(60, 60, 60) };
+        PanelOverride = new StyleBoxFlat { BackgroundColor = PartyUIController.DefaultBackgroundColor };
         Refresh();
     }
 
