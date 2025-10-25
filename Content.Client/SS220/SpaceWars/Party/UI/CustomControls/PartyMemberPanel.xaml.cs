@@ -47,7 +47,6 @@ public sealed partial class PartyMemberPanel : PanelContainer
         ConnectionStatusIcon.TexturePath = ConnectionStatusIconTexturePath;
         ConnectionStatusIcon.TextureScale = ConnectionStatusIconScale;
 
-
         Refresh();
     }
 
@@ -61,7 +60,8 @@ public sealed partial class PartyMemberPanel : PanelContainer
             PartyRolePanel.PanelOverride = new StyleBoxFlat() { BackgroundColor = roleBackground.Value };
 
         ConnectionStatusIcon.ModulateSelfOverride = Member.Connected ? ConnectionStatusIconConnectedColor : ConnectionStatusIconDisconnectedColor;
-        ConnectionStatusLabel.Text = Member.Connected ? Loc.GetString("ui-party-member-panel-member-connected")
+        ConnectionStatusLabel.Text = Member.Connected
+            ? Loc.GetString("ui-party-member-panel-member-connected")
             : Loc.GetString("ui-party-member-panel-member-disconnected");
     }
 

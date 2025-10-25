@@ -162,7 +162,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         _parties.Remove(party);
         UpdateClientParty(party.Host.Session, null);
 
-        SetStatus(party, PartyStatus.Disbanded, false);
+        party.Status = PartyStatus.Disbanded;
         DebugTools.Assert(!PartyExist(party));
 
         PartyUpdated?.Invoke(party);

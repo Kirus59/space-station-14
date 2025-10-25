@@ -13,6 +13,7 @@ public sealed partial class PartyManager
 {
     public event Action<PartyInviteStatusChangedActionArgs>? PartyInviteStatusChanged;
 
+    public IReadOnlyList<PartyInvite> Invites => [.. _invites];
     private readonly HashSet<PartyInvite> _invites = [];
     private readonly HashSet<ICommonSession> _doesNotReceiveInvites = [];
 

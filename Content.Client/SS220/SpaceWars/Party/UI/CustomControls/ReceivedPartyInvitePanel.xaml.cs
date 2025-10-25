@@ -63,15 +63,15 @@ public sealed partial class ReceivedPartyInvitePanel : PanelContainer
             };
 
             _confirmationWindow.SetMessage(message);
-            _confirmationWindow.OnConfirmed += () => _party.AcceptInviteRequest(Invite.Id);
+            _confirmationWindow.OnConfirmed += () => _party.AcceptReceivedInviteRequest(Invite.Id);
             _confirmationWindow.OpenCentered();
         }
         else
-            _party.AcceptInviteRequest(Invite.Id);
+            _party.AcceptReceivedInviteRequest(Invite.Id);
     }
 
     private void Deny()
     {
-        _party.DenyInviteRequest(Invite.Id);
+        _party.DenyReceivedInviteRequest(Invite.Id);
     }
 }

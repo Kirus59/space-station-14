@@ -16,7 +16,7 @@ public sealed class Party
     public PartyStatus Status;
 
     public IReadOnlyList<PartyMember> Members => [.. _members.Values];
-    private Dictionary<NetUserId, PartyMember> _members = [];
+    private readonly Dictionary<NetUserId, PartyMember> _members = [];
 
     public IReadOnlyList<PartyInvite> Invites => [.. _invites.Values];
     private readonly Dictionary<uint, PartyInvite> _invites = [];
@@ -72,6 +72,11 @@ public sealed class Party
     public bool IsHost(NetUserId userId)
     {
         return Host.UserId == userId;
+    }
+
+    public bool TryGetInvite(uint id, [NotNullWhen(true)] out PartyInvite? invte)
+    {
+        return _invites.TryGetValue(id, out invte);
     }
 
     [Access(typeof(PartyManager))]

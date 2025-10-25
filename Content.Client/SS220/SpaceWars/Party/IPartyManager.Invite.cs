@@ -16,6 +16,11 @@ public partial interface IPartyManager
     void InviteInitialize();
 
     /// <summary>
+    /// Is the received invite with specified <paramref name="id"/> exist
+    /// </summary>
+    bool ReceivedInviteExist(uint id);
+
+    /// <summary>
     /// Tries to get a received invite by specified <paramref name="id"/>
     /// </summary>
     bool TryGetReceivedInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite);
@@ -38,17 +43,17 @@ public partial interface IPartyManager
     /// <summary>
     /// Sends the request to accept the received invite with specified <paramref name="inviteId"/>
     /// </summary>
-    void AcceptInviteRequest(uint inviteId);
+    void AcceptReceivedInviteRequest(uint inviteId);
 
     /// <summary>
     /// Sends the request to deny the received invite with specified <paramref name="inviteId"/>
     /// </summary>
-    void DenyInviteRequest(uint inviteId);
+    void DenyReceivedInviteRequest(uint inviteId);
 
     /// <summary>
-    /// Sends the request to delete the received invite with specified <paramref name="inviteId"/>
+    /// Sends the request to delete the local party invite with specified <paramref name="inviteId"/>
     /// </summary>
-    void DeleteInviteRequest(uint inviteId);
+    void DeleteLocalPartyInviteRequest(uint inviteId);
 
     void SetReceiveInvitesStatus(bool receiveInvites);
 }

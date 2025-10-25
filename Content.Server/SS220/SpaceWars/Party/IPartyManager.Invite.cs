@@ -9,6 +9,8 @@ public partial interface IPartyManager
 {
     event Action<PartyInviteStatusChangedActionArgs>? PartyInviteStatusChanged;
 
+    IReadOnlyList<PartyInvite> Invites { get; }
+
     /// <summary>
     /// Accepts the <paramref name="invite"/>
     /// </summary>

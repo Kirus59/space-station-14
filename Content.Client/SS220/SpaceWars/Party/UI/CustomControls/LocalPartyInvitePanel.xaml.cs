@@ -40,7 +40,7 @@ public sealed partial class LocalPartyInvitePanel : PanelContainer
 
         CancelButton.OnPressed += _ =>
         {
-            _party.DeleteInviteRequest(Invite.Id);
+            _party.DeleteLocalPartyInviteRequest(Invite.Id);
         };
 
         PanelOverride = new StyleBoxFlat { BackgroundColor = PartyUIController.DefaultBackgroundColor };

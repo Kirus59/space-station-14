@@ -38,7 +38,7 @@ public sealed partial class PartyManager
             HandleReceivedInviteState(state);
     }
 
-    public bool InviteExist(uint id)
+    public bool ReceivedInviteExist(uint id)
     {
         return TryGetReceivedInvite(id, out _);
     }
@@ -80,30 +80,33 @@ public sealed partial class PartyManager
         return responce;
     }
 
-    public void AcceptInviteRequest(uint id)
+    public void AcceptReceivedInviteRequest(uint id)
     {
-        if (!InviteExist(id))
+        if (!ReceivedInviteExist(id))
             return;
 
         var msg = new MsgAcceptInviteRequest(id);
         SendNetMessage(msg);
     }
 
-    public void DenyInviteRequest(uint id)
+    public void DenyReceivedInviteRequest(uint id)
     {
-        if (!InviteExist(id))
+        if (!ReceivedInviteExist(id))
             return;
 
         var msg = new MsgDenyInviteRequest(id);
         SendNetMessage(msg);
     }
 
-    public void DeleteInviteRequest(uint id)
+    public void DeleteLocalPartyInviteRequest(uint id)
     {
+        if (LocalParty is not { } party)
+            return;
+
         if (!IsLocalPartyHost)
             return;
 
-        if (!InviteExist(id))
+        if (!party.TryGetInvite(id, out _))
             return;
 
         var msg = new MsgDeleteInviteRequest(id);
@@ -121,18 +124,18 @@ public sealed partial class PartyManager
         return _validReceivedInviteStatuses.Contains(status);
     }
 
-    private bool AddInvite(PartyInviteState state)
+    private bool AddReceivedInvite(PartyInviteState state)
     {
         var invite = new PartyInvite(state);
-        return AddInvite(invite);
+        return AddReceivedInvite(invite);
     }
 
-    private bool AddInvite(PartyInvite invite)
+    private bool AddReceivedInvite(PartyInvite invite)
     {
         if (!IsValidReceivedInviteStatus(invite.Status))
             return false;
 
-        if (InviteExist(invite.Id))
+        if (ReceivedInviteExist(invite.Id))
             return false;
 
         _receiveInvites.Add(invite.Id, invite);
@@ -175,7 +178,7 @@ public sealed partial class PartyManager
             if (!IsValidReceivedInviteStatus(state.Status))
                 return;
 
-            AddInvite(state);
+            AddReceivedInvite(state);
         }
     }
 }
