@@ -404,6 +404,26 @@ public sealed class PartyTest
             Assert.That(invite, Is.Null);
         });
 
+        // Check invite deletion after deny
+        await pair.RunSeconds((float)Server.SS220.SpaceWars.Party.PartyManager.DeleteAfterDenyDelay.TotalSeconds);
+
+        await server.WaitAssertion(() =>
+        {
+            Assert.That(serverPartyMng.Invites, Has.Count.EqualTo(0));
+            serverPartyMng.TryGetInvite(serverParty, dummy, out serverInvite);
+
+            Assert.That(serverInvite, Is.Null);
+        });
+
+        await client.WaitAssertion(() =>
+        {
+            Assert.That(clientPartyMng.ReceivedInvites, Has.Count.EqualTo(0));
+
+            clientPartyMng.TryGetReceivedInvite(inviteId, out var invite);
+            Assert.That(invite, Is.Null);
+        });
+
+
         await pair.CleanReturnAsync();
 
         async Task ServerCreateNewInvite()

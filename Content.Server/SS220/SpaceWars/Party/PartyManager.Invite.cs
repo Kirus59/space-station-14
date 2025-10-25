@@ -20,7 +20,7 @@ public sealed partial class PartyManager
     private uint _nextInviteId = 0;
     private int _invitesLimit = 0;
 
-    private static readonly TimeSpan DeleteAfterDenyDelay = TimeSpan.FromSeconds(5);
+    public static readonly TimeSpan DeleteAfterDenyDelay = TimeSpan.FromSeconds(5);
 
     public void InviteInitialize()
     {
