@@ -480,6 +480,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     public void SetPartySettings(Party party, PartySettings settings, bool updates = true)
     {
         settings.MembersLimit = Math.Clamp(settings.MembersLimit, 0, _membersLimit);
+
         party.Settings = settings;
 
         if (updates)

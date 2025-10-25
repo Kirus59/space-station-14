@@ -1,1 +1,1 @@
-ui-paty-window-title = Окно пати
+ui-paty-window-title = Окно команды

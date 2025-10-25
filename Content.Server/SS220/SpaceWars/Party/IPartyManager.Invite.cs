@@ -106,7 +106,6 @@ public partial interface IPartyManager
 public enum PartyInviteCheckoutResult
 {
     Available,
-
     PartyNotExist,
     AlreadyMember,
     InvitesLimitReached,

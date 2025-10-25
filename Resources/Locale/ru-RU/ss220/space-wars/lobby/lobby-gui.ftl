@@ -1,1 +1,1 @@
-ui-lobby-party-button = Пати
+ui-lobby-party-button = Команда

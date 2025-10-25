@@ -1,2 +1,2 @@
-party-member-role-host = Хост
+party-member-role-host = Лидер
 party-member-role-member = Участник

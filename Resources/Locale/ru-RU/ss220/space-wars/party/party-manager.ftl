@@ -1,4 +1,4 @@
-party-manager-user-join-party-message = { $username } присоединился к пати!
-party-manager-user-left-party-message = { $username } покинул пати.
+party-manager-user-join-party-message = { $username } присоединился к команде!
+party-manager-user-left-party-message = { $username } покинул команду.
 
-party-manager-party-completion-option-hint = Хост: { $host }
+party-manager-party-completion-option-hint = Лидер: { $host }
