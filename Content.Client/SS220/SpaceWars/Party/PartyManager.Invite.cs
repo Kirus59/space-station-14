@@ -40,17 +40,17 @@ public sealed partial class PartyManager
 
     public bool InviteExist(uint id)
     {
-        return TryGetInvite(id, out _);
+        return TryGetReceivedInvite(id, out _);
     }
 
-    public bool TryGetInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite)
+    public bool TryGetReceivedInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite)
     {
         return _receiveInvites.TryGetValue(id, out invite);
     }
 
-    public PartyInvite? GetInvite(uint id)
+    public PartyInvite? GetReceivedInvite(uint id)
     {
-        TryGetInvite(id, out var invite);
+        TryGetReceivedInvite(id, out var invite);
         return invite;
     }
 
@@ -159,7 +159,7 @@ public sealed partial class PartyManager
 
     private void HandleReceivedInviteState(PartyInviteState state)
     {
-        if (TryGetInvite(state.Id, out var exist))
+        if (TryGetReceivedInvite(state.Id, out var exist))
         {
             if (!IsValidReceivedInviteStatus(state.Status))
             {

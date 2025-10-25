@@ -17,13 +17,28 @@ public partial interface IPartyManager : ISharedPartyManager
 
     PartyMember? LocalMember { get; }
 
+    /// <summary>
+    /// Sends the request to create a new party with specified <paramref name="settings"/>
+    /// </summary>
     void CreatePartyRequest(PartySettingsState? settings = null);
 
+    /// <summary>
+    /// Sends the request to disband the <see cref="LocalParty"/>
+    /// </summary>
     void DisbandPartyRequest();
 
+    /// <summary>
+    /// Sends the request to leave the <see cref="LocalParty"/>
+    /// </summary>
     void LeavePartyRequest();
 
+    /// <summary>
+    /// Sends the request to kick a specified member from the <see cref="LocalParty"/>
+    /// </summary>
     void KickFromPartyRequest(NetUserId userId);
 
+    /// <summary>
+    /// Sends the request to set a new settings in the <see cref="LocalParty"/>
+    /// </summary>
     void SetSettingsRequest(PartySettingsState settingsState);
 }

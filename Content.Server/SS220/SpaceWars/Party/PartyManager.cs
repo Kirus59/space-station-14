@@ -288,7 +288,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         party.Status = newStatus;
         DebugTools.Assert(party.Status == newStatus);
 
-        var args = new PartyStatusChangedActionArgs(party.Id, oldStatus, newStatus);
+        var args = new PartyStatusChangedActionArgs(party, oldStatus, newStatus);
         PartyStatusChanged?.Invoke(args);
 
         if (updates)

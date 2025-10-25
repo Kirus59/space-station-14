@@ -15,16 +15,39 @@ public partial interface IPartyManager
 
     void InviteInitialize();
 
-    bool TryGetInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite);
-    PartyInvite? GetInvite(uint id);
+    /// <summary>
+    /// Tries to get a received invite by specified <paramref name="id"/>
+    /// </summary>
+    bool TryGetReceivedInvite(uint id, [NotNullWhen(true)] out PartyInvite? invite);
 
+    /// <summary>
+    /// Gets a received invite by specified <paramref name="id"/>
+    /// </summary>
+    PartyInvite? GetReceivedInvite(uint id);
+
+    /// <summary>
+    /// Sends the request to invite a user with specified <paramref name="username"/> in the <see cref="LocalParty"/>
+    /// </summary>
     void InviteUserRequest(string username);
+
+    /// <summary>
+    /// Sends the request to invite a user with specified <paramref name="username"/> in the <see cref="LocalParty"/>
+    /// </summary>
     Task<MsgInviteUserResponce> InviteUserRequestAsync(string username);
 
+    /// <summary>
+    /// Sends the request to accept the received invite with specified <paramref name="inviteId"/>
+    /// </summary>
     void AcceptInviteRequest(uint inviteId);
 
+    /// <summary>
+    /// Sends the request to deny the received invite with specified <paramref name="inviteId"/>
+    /// </summary>
     void DenyInviteRequest(uint inviteId);
 
+    /// <summary>
+    /// Sends the request to delete the received invite with specified <paramref name="inviteId"/>
+    /// </summary>
     void DeleteInviteRequest(uint inviteId);
 
     void SetReceiveInvitesStatus(bool receiveInvites);
