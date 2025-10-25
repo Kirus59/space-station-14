@@ -1,4 +1,4 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Lidgren.Network;
 using Robust.Shared.Network;
 using Robust.Shared.Serialization;
@@ -123,19 +123,7 @@ public sealed class MsgUpdateReceivedPartyInvitesList(List<PartyInviteState> sta
 }
 
 [Serializable, NetSerializable]
-public sealed class MsgHandlePartyInviteState(PartyInviteState state) : PartyMessage
-{
-    public readonly PartyInviteState State = state;
-}
-
-[Serializable, NetSerializable]
-public sealed class MsgPartyInviteDeleted(uint inviteId) : PartyMessage
-{
-    public readonly uint InviteId = inviteId;
-}
-
-[Serializable, NetSerializable]
-public sealed class MsgPartyInviteReceived(PartyInviteState state) : PartyMessage
+public sealed class MsgHandleReceivedPartyInviteState(PartyInviteState state) : PartyMessage
 {
     public readonly PartyInviteState State = state;
 }

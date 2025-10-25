@@ -1,4 +1,4 @@
-
+// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 using Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 using Content.Client.SS220.UserInterface.Utility;
 using Content.Client.Stylesheets;
@@ -24,7 +24,7 @@ public sealed partial class PartyMainTab : Control
     private readonly Dictionary<NetUserId, PartyMemberPanel> _memberPanels = [];
 
     private readonly CreatePartyWindow _createPartyWindow = new();
-    private readonly SendedPartyInvitesWindow _localPartyInvitesWindow = new();
+    private readonly LocalPartyInvitesWindow _localPartyInvitesWindow = new();
     private readonly PartySettingsWindow _partySettingsWindow = new();
 
     public PartyMainTab()

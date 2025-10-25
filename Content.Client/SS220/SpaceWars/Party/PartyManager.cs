@@ -80,7 +80,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return;
         }
 
-        HandlePartyState(party, state);
+        party.HandleState(state);
         LocalPartyUpdated?.Invoke(LocalParty);
         UIController.RefreshWindow();
     }
@@ -134,10 +134,10 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         _net.ClientSendMessage(msg);
     }
 
-    private void HandlePartyState(Party party, PartyState state)
+    private static void HandlePartyState(Party party, PartyState state)
     {
         DebugTools.Assert(party.Id == state.Id);
 
-        party.Status == state.Status;
+        party.Status = state.Status;
     }
 }

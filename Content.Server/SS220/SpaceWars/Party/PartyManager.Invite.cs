@@ -160,8 +160,8 @@ public sealed partial class PartyManager
 
         Dirty(party);
 
-        var msgReceived = new MsgPartyInviteReceived(invite.GetState());
-        SendNetMessage(msgReceived, invite.Target);
+        var msg = new MsgHandleReceivedPartyInviteState(invite.GetState());
+        SendNetMessage(msg, invite.Target);
 
         return true;
     }
@@ -194,7 +194,7 @@ public sealed partial class PartyManager
         Dirty(party);
 
         SetInviteStatus(invite, PartyInviteStatus.Deleted, false);
-        var msg = new MsgPartyInviteDeleted(invite.Id);
+        var msg = new MsgHandleReceivedPartyInviteState(invite.GetState());
         SendNetMessage(msg, invite.Target);
 
         return true;
@@ -330,7 +330,7 @@ public sealed partial class PartyManager
     {
         DebugTools.Assert(invite.Party.Host.Session == session || invite.Target == session);
 
-        var msg = new MsgHandlePartyInviteState(invite.GetState());
+        var msg = new MsgHandleReceivedPartyInviteState(invite.GetState());
         SendNetMessage(msg, session);
     }
 }

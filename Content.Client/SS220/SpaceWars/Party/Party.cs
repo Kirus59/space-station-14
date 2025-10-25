@@ -18,7 +18,7 @@ public sealed class Party
     public IReadOnlyList<PartyMember> Members => [.. _members.Values];
     private Dictionary<NetUserId, PartyMember> _members = [];
 
-    public IReadOnlyList<PartyInvite> Inites => [.. _invites.Values];
+    public IReadOnlyList<PartyInvite> Invites => [.. _invites.Values];
     private readonly Dictionary<uint, PartyInvite> _invites = [];
 
     public PartySettings Settings;
@@ -30,11 +30,11 @@ public sealed class Party
 
     public event Action<PartyMember>? MemberAdded;
     public event Action<PartyMember>? MemberUpdated;
-    public event Action<NetUserId>? MemberRemoved;
+    public event Action<PartyMember>? MemberRemoved;
 
     public event Action<PartyInvite>? InviteAdded;
     public event Action<PartyInvite>? InviteUpdated;
-    public event Action<uint>? InviteRemoved;
+    public event Action<PartyInvite>? InviteRemoved;
 
     public Party(PartyState state)
     {
@@ -106,7 +106,7 @@ public sealed class Party
 
     private void UpdateMembers(List<PartyMemberState> memberStates)
     {
-        var toRemove = _members.Keys.ToList();
+        var toRemove = _members.Values.ToList();
         foreach (var state in memberStates)
         {
             var userId = state.UserId;
@@ -114,6 +114,7 @@ public sealed class Party
             {
                 exist.HandleState(state);
                 MemberUpdated?.Invoke(exist);
+                toRemove.Remove(exist);
             }
             else
             {
@@ -121,42 +122,39 @@ public sealed class Party
                 _members.Add(userId, member);
                 MemberAdded?.Invoke(member);
             }
-
-            toRemove.Remove(userId);
         }
 
-        foreach (var userId in toRemove)
+        foreach (var member in toRemove)
         {
-            if (toRemove.Remove(userId))
-                MemberRemoved?.Invoke(userId);
+            if (_members.Remove(member.UserId))
+                MemberRemoved?.Invoke(member);
         }
 
     }
 
     private void UpdateInvites(List<PartyInviteState> inviteStates)
     {
-        var toRemove = _invites.Keys.ToList();
+        var toRemove = _invites.Values.ToList();
         foreach (var state in inviteStates)
         {
             if (_invites.TryGetValue(state.Id, out var exist))
             {
                 exist.HandleState(state);
                 InviteUpdated?.Invoke(exist);
+                toRemove.Remove(exist);
             }
             else
             {
                 var invite = new PartyInvite(state);
                 _invites.Add(state.Id, invite);
-                InviteUpdated?.Invoke(invite);
+                InviteAdded?.Invoke(invite);
             }
-
-            toRemove.Remove(state.Id);
         }
 
-        foreach (var id in toRemove)
+        foreach (var invite in toRemove)
         {
-            if (_invites.Remove(id))
-                InviteRemoved?.Invoke(id);
+            if (_invites.Remove(invite.Id))
+                InviteRemoved?.Invoke(invite);
         }
     }
 }
