@@ -131,12 +131,16 @@ public sealed class Party : IEquatable<Party>, IDisposable
     public bool RemoveMember(PartyMember member)
     {
         DebugTools.Assert(!_disposed);
-
-        if (Host == member)
-            throw new Exception($"\"Cannot remove user with the {PartyMemberRole.Host} role. " +
-                $"Use the \"{nameof(SetHost)}\" function to set a new party host and then remove this user.\"");
+        DebugTools.Assert(!IsHost(member));
 
         return _members.Remove(member);
+    }
+
+    [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
+    public bool IsHost(PartyMember member)
+    {
+        DebugTools.Assert(!_disposed);
+        return IsHost(member.Session);
     }
 
     [Access(typeof(PartyManager), Other = AccessPermissions.ReadExecute)]
