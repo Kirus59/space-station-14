@@ -54,7 +54,7 @@ public sealed partial class PartyMemberPanel : PanelContainer
 
         var kickButtonTooltip = new Tooltip();
         kickButtonTooltip.SetMessage(FormattedMessage.FromMarkupPermissive(Loc.GetString("ui-party-main-tab-kick-button-tooltip")));
-        kickButtonTooltip.TooltipSupplier = _ => kickButtonTooltip;
+        KickButton.TooltipSupplier = _ => kickButtonTooltip;
 
         Refresh();
     }
