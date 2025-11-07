@@ -33,9 +33,6 @@ public sealed partial class PartyMainTab : Control
     private static readonly Thickness MemberPanelThickness = new(5, 5, 5, 0);
     private static readonly Thickness ChatMessageLabelThickness = new(5, 2, 5, 0);
 
-    private static readonly Vector2 KickButtonSize = new(25, 25);
-    private static readonly Thickness KickButtonThickness = new(0, 0, 5, 0);
-
     public PartyMainTab()
     {
         RobustXamlLoader.Load(this);
@@ -84,9 +81,6 @@ public sealed partial class PartyMainTab : Control
                     };
 
                     _memberPanels.Add(member.UserId, memberPanel);
-
-                    if (_party.IsLocalPartyHost && member.Role is not PartyMemberRole.Host)
-                        memberPanel.BottomBox.AddChild(NewKickButton(member));
                 }
 
                 MembersContainer.AddChild(memberPanel);
@@ -220,27 +214,6 @@ public sealed partial class PartyMainTab : Control
             var pos = _userInterface.MousePositionScaled.Position;
             _partySettingsWindow.Open(pos);
         };
-        return button;
-    }
-
-    private TextureButton NewKickButton(PartyMember member)
-    {
-        var button = new TextureButton()
-        {
-            MinSize = KickButtonSize,
-            Margin = KickButtonThickness,
-            VerticalAlignment = VAlignment.Center
-        };
-        button.AddStyleClass(DefaultWindow.StyleClassWindowCloseButton);
-        button.OnPressed += _ =>
-        {
-            _party.KickFromPartyRequest(member.UserId);
-        };
-
-        var tooltip = new Tooltip();
-        tooltip.SetMessage(FormattedMessage.FromMarkupPermissive(Loc.GetString("ui-party-main-tab-kick-button-tooltip")));
-        button.TooltipSupplier = _ => tooltip;
-
         return button;
     }
     #endregion

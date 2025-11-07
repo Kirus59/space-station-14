@@ -2,7 +2,7 @@ ui-party-main-tab-name = Главная
 
 ui-party-main-tab-members-limit-label = Всего участников: { $count }/{ $limit }
 ui-party-main-tab-create-party-button = Создать команду
-ui-party-main-tab-disband-party-button = Расформировать команду
+ui-party-main-tab-disband-party-button = Распустить команду
 ui-party-main-tab-leave-party-button = Покинуть команду
 ui-party-main-tab-local-party-invites-button = Приглашения
 ui-party-main-tab-settings-button = Настройки
