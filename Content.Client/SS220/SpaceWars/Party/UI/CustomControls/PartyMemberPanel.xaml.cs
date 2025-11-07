@@ -8,7 +8,6 @@ using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Utility;
 using System.Numerics;
-using static Robust.Client.Input.Mouse;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
@@ -53,9 +52,9 @@ public sealed partial class PartyMemberPanel : PanelContainer
 
         KickButton.OnPressed += _ => _party.KickFromPartyRequest(member.UserId);
 
-        var kickBurronTooltip = new Tooltip();
-        kickBurronTooltip.SetMessage(FormattedMessage.FromMarkupPermissive(Loc.GetString("ui-party-main-tab-kick-button-tooltip")));
-        KickButton.TooltipSupplier = _ => kickBurronTooltip;
+        var kickButtonTooltip = new Tooltip();
+        kickButtonTooltip.SetMessage(FormattedMessage.FromMarkupPermissive(Loc.GetString("ui-party-main-tab-kick-button-tooltip")));
+        kickButtonTooltip.TooltipSupplier = _ => kickButtonTooltip;
 
         Refresh();
     }
