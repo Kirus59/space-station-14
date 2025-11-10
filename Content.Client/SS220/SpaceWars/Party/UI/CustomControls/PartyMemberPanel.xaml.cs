@@ -50,11 +50,15 @@ public sealed partial class PartyMemberPanel : PanelContainer
         ConnectionStatusIcon.TexturePath = ConnectionStatusIconTexturePath;
         ConnectionStatusIcon.TextureScale = ConnectionStatusIconScale;
 
-        KickButton.OnPressed += _ => _party.KickFromPartyRequest(member.UserId);
+        var setHostButtonTooltip = new Tooltip();
+        setHostButtonTooltip.SetMessage(FormattedMessage.FromMarkupPermissive(Loc.GetString("ui-party-main-tab-set-host-button-tooltip")));
+        SetHostButton.TooltipSupplier = _ => setHostButtonTooltip;
+        SetHostButton.OnPressed += _ => _party.SetPartyHostRequest(member.UserId);
 
         var kickButtonTooltip = new Tooltip();
         kickButtonTooltip.SetMessage(FormattedMessage.FromMarkupPermissive(Loc.GetString("ui-party-main-tab-kick-button-tooltip")));
         KickButton.TooltipSupplier = _ => kickButtonTooltip;
+        KickButton.OnPressed += _ => _party.KickFromPartyRequest(member.UserId);
 
         Refresh();
     }
@@ -73,7 +77,9 @@ public sealed partial class PartyMemberPanel : PanelContainer
             ? Loc.GetString("ui-party-member-panel-member-connected")
             : Loc.GetString("ui-party-member-panel-member-disconnected");
 
-        KickButton.Visible = _party.IsLocalPartyHost && Member.Role is not PartyMemberRole.Host;
+        var hostButtonsVisible = _party.IsLocalPartyHost && Member.Role is not PartyMemberRole.Host;
+        SetHostButton.Visible = hostButtonsVisible;
+        KickButton.Visible = hostButtonsVisible;
     }
 
     private static Color? GetRoleColor(PartyMemberRole role)

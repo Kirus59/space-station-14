@@ -103,6 +103,12 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         SendNetMessage(msg);
     }
 
+    public void SetPartyHostRequest(NetUserId userId)
+    {
+        var msg = new MsgSetPartyHostRequest(userId);
+        SendNetMessage(msg);
+    }
+
     public void KickFromPartyRequest(NetUserId userId)
     {
         var msg = new MsgKickFromPartyRequest(userId);

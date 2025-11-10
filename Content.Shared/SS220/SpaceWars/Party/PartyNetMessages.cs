@@ -65,6 +65,12 @@ public sealed class MsgLeavePartyRequest() : PartyMessage
 }
 
 [Serializable, NetSerializable]
+public sealed class MsgSetPartyHostRequest(NetUserId userId) : PartyMessage
+{
+    public readonly NetUserId UserId = userId;
+}
+
+[Serializable, NetSerializable]
 public sealed class MsgKickFromPartyRequest(NetUserId userId) : PartyMessage
 {
     public readonly NetUserId UserId = userId;

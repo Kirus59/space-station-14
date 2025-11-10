@@ -49,12 +49,6 @@ public sealed class PartyRemoveMemberCommand : LocalizedCommands
             return;
         }
 
-        if (party.IsHost(session))
-        {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-user-is-host", ("username", session.Name), ("partyId", party.Id)));
-            return;
-        }
-
         if (!_party.RemoveMember(party, session))
         {
             shell.WriteLine(Loc.GetString("cmd-party-remove-member-fail", ("partyId", party.Id), ("username", session.Name)));

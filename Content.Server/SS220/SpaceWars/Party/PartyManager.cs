@@ -52,6 +52,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         SubscribeNetMessage<MsgCreatePartyRequest>(OnCreatePartyRequest);
         SubscribeNetMessage<MsgDisbandPartyRequest>(OnDisbandPartyRequest);
         SubscribeNetMessage<MsgLeavePartyRequest>(OnLeavePartyMessage);
+        SubscribeNetMessage<MsgSetPartyHostRequest>(OnSetPartyHostRequest);
         SubscribeNetMessage<MsgKickFromPartyRequest>(OnKickFromPartyRequest);
         SubscribeNetMessage<MsgSetPartySettingsRequest>(OnSetSettingsRequest);
 
@@ -88,6 +89,17 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     private void OnLeavePartyMessage(MsgLeavePartyRequest message, ICommonSession sender)
     {
         EnsureNotPartyMember(sender);
+    }
+
+    private void OnSetPartyHostRequest(MsgSetPartyHostRequest message, ICommonSession sender)
+    {
+        if (!TryGetPartyByHost(sender, out var party))
+            return;
+
+        if (!_playerManager.TryGetSessionById(message.UserId, out var session))
+            return;
+
+        SetHost(party, session);
     }
 
     private void OnKickFromPartyRequest(MsgKickFromPartyRequest message, ICommonSession sender)
@@ -212,13 +224,19 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (!PartyExist(party))
             return false;
 
-        /// Cannot remove user with the <see cref="PartyMemberRole.Host"/>} role.
-        /// Use the <see cref="SetHost(Party, ICommonSession, bool, bool)"/> function to set a new party host and then remove this user
-        if (party.IsHost(session))
-            return false;
-
         if (!party.TryFindMember(session, out var member))
             return false;
+
+        if (party.IsHost(member))
+        {
+            var possibleHosts = party.Members.ToList();
+            possibleHosts.Remove(member);
+            if (possibleHosts.Count <= 0)
+                return DisbandParty(party);
+
+            if (!SetHost(party, possibleHosts.First().Session, updates: false))
+                return false;
+        }
 
         if (!party.RemoveMember(member))
             return false;
@@ -243,7 +261,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         return true;
     }
 
-    public bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true)
+    public bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true, bool notify = true)
     {
         if (!PartyExist(party))
             return false;
@@ -252,15 +270,24 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
             return true;
 
         var isMember = party.ContainsMember(session);
-        if (force)
-            EnsureNotPartyMember(session);
-        else if (!isMember && IsAnyPartyMember(session))
-            return false;
+        if (!isMember)
+        {
+            if (force)
+                EnsureNotPartyMember(session);
+            else if (IsAnyPartyMember(session))
+                return false;
+        }
 
         var oldHost = party.Host;
         party.SetHost(session, ignoreLimit: force);
         DebugTools.Assert(!party.IsHost(oldHost.Session));
         DebugTools.Assert(party.IsHost(session));
+
+        if (notify)
+        {
+            var chatMessage = Loc.GetString("party-manager-user-became-host-message", ("username", session.Name));
+            ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+        }
 
         if (!isMember)
             UserJoinedParty?.Invoke(party.Host);
@@ -302,11 +329,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         if (!TryGetPartyByMember(session, out var party))
             return;
 
-        if (party.IsHost(session))
-            DisbandParty(party);
-        else
-            RemoveMember(party, session, updates);
-
+        RemoveMember(party, session, updates);
         DebugTools.Assert(!IsAnyPartyMember(session));
     }
 

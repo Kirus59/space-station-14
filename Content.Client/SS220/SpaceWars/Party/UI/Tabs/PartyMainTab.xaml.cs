@@ -10,6 +10,7 @@ using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Network;
 using Robust.Shared.Utility;
 using System.Linq;
+using System.Numerics;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI.Tabs;
 
@@ -30,6 +31,11 @@ public sealed partial class PartyMainTab : Control
     private static readonly Thickness MemberPanelThickness = new(5, 5, 5, 0);
     private static readonly Thickness ChatMessageLabelThickness = new(5, 2, 5, 0);
 
+    private static readonly ConfirmableButtonState ConfirmableButtonFirstClickState =
+        new(Loc.GetString("ui-party-main-tab-confirmable-button-are-you-sure"), StyleNano.ButtonColorCautionDefault);
+
+    private Vector2 MousePosition => _userInterface.MousePositionScaled.Position;
+
     public PartyMainTab()
     {
         RobustXamlLoader.Load(this);
@@ -44,6 +50,18 @@ public sealed partial class PartyMainTab : Control
 
         MembersContainer.OnResized += RefreshMembers;
 
+        LeavePartyButton.SetClickState(0, new ConfirmableButtonState(Loc.GetString("ui-party-main-tab-leave-party-button"), null));
+        LeavePartyButton.SetClickState(1, ConfirmableButtonFirstClickState);
+
+        DisbandPartyButton.SetClickState(0, new ConfirmableButtonState(Loc.GetString("ui-party-main-tab-disband-party-button"), null));
+        DisbandPartyButton.SetClickState(1, ConfirmableButtonFirstClickState);
+
+        CreatePartyButton.OnPressed += _ => _createPartyWindow.Open(MousePosition);
+        LeavePartyButton.OnConfirmed += _party.LeavePartyRequest;
+        DisbandPartyButton.OnConfirmed += _party.DisbandPartyRequest;
+        PartyInvitesButton.OnPressed += _ => _localPartyInvitesWindow.Open(MousePosition);
+        PartySettingsButton.OnPressed += _ => _partySettingsWindow.Open(MousePosition);
+
         Refresh();
     }
 
@@ -53,6 +71,14 @@ public sealed partial class PartyMainTab : Control
         RefreshChat();
         RefreshButtons();
         RefreshNotMemberOverlay();
+
+        if (_party.LocalParty is null)
+        {
+            _localPartyInvitesWindow.Close();
+            _partySettingsWindow.Close();
+        }
+        else
+            _createPartyWindow.Close();
     }
 
     private void RefreshMembers()
@@ -119,101 +145,19 @@ public sealed partial class PartyMainTab : Control
 
     private void RefreshButtons()
     {
-        ButtonContainer.RemoveAllChildren();
+        var inParty = _party.LocalParty is not null;
+        CreatePartyButton.Visible = !inParty;
+        LeavePartyButton.Visible = inParty;
 
-        switch (_party.LocalParty)
-        {
-            case null:
-                ButtonContainer.AddChild(NewCreatePartyButton());
-                break;
+        var isHost = _party.IsLocalPartyHost;
+        DisbandPartyButton.Visible = isHost;
+        PartyInvitesButton.Visible = isHost;
+        PartySettingsButton.Visible = isHost;
 
-            case not null when _party.IsLocalPartyHost:
-                ButtonContainer.AddChild(NewDisbandPartyButton());
-                ButtonContainer.AddChild(NewLocalPartyInvitesButton());
-                ButtonContainer.AddChild(NewSettingsButton());
-                break;
-
-            case not null:
-                ButtonContainer.AddChild(NewLeavePartyButton());
-                break;
-        }
+        LeavePartyButton.SetOnlyStyleClass(ContainerButton.StyleClassButton);
+        if (isHost)
+            LeavePartyButton.AddStyleClass(StyleBase.ButtonOpenRight);
     }
-
-    #region Buttons
-    private Button NewCreatePartyButton()
-    {
-        var button = new Button
-        {
-            Text = Loc.GetString("ui-party-main-tab-create-party-button")
-        };
-        button.OnPressed += _ =>
-        {
-            var pos = _userInterface.MousePositionScaled.Position;
-            _createPartyWindow.Open(pos);
-        };
-        return button;
-    }
-
-    private ConfirmableButton NewDisbandPartyButton()
-    {
-        var text = Loc.GetString("ui-party-main-tab-disband-party-button");
-        var button = new ConfirmableButton(text, null)
-        {
-            ClicksForConfirm = 2
-        };
-
-        var firstClickText = Loc.GetString("ui-party-main-tab-confirmable-button-are-you-sure");
-        button.SetClickState(1, new ConfirmableButtonState(firstClickText, StyleNano.ButtonColorCautionDefault));
-        button.OnConfirmed += _party.DisbandPartyRequest;
-
-        return button;
-    }
-
-    private ConfirmableButton NewLeavePartyButton()
-    {
-        var text = Loc.GetString("ui-party-main-tab-leave-party-button");
-        var button = new ConfirmableButton(text, null)
-        {
-            ClicksForConfirm = 2
-        };
-
-        var firstClickText = Loc.GetString("ui-party-main-tab-confirmable-button-are-you-sure");
-        button.SetClickState(1, new ConfirmableButtonState(firstClickText, StyleNano.ButtonColorCautionDefault));
-        button.OnConfirmed += _party.LeavePartyRequest;
-
-        return button;
-    }
-
-    private Button NewLocalPartyInvitesButton()
-    {
-        var button = new Button
-        {
-            Text = Loc.GetString("ui-party-main-tab-local-party-invites-button")
-        };
-
-        button.OnPressed += _ =>
-        {
-            var pos = _userInterface.MousePositionScaled.Position;
-            _localPartyInvitesWindow.Open(pos);
-        };
-        return button;
-    }
-
-    private Button NewSettingsButton()
-    {
-        var button = new Button
-        {
-            Text = Loc.GetString("ui-party-main-tab-settings-button")
-        };
-
-        button.OnPressed += _ =>
-        {
-            var pos = _userInterface.MousePositionScaled.Position;
-            _partySettingsWindow.Open(pos);
-        };
-        return button;
-    }
-    #endregion
 
     private void RefreshNotMemberOverlay()
     {

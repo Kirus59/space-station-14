@@ -6,8 +6,6 @@ cmd-party-remove-member-invalid-argument-1 = Не удалось спарсит�
 cmd-party-remove-member-invalid-party-id = Не удалось найти команду с id { $id }.
 cmd-party-remove-member-invalid-username = Не удалось найти игрока с именем { $username }.
 cmd-party-remove-member-user-is-not-in-party = Игрок { $username } не является участником команды { $partyId }.
-cmd-party-remove-member-user-is-host = Игрок { $username } является лидером команды { $partyId }!
-    Используйте команду 'party:disband' для роспуска команды или 'party:sethost' для назначения нового лидера и только после этого исключайте игрока.
 
 cmd-party-remove-member-success = Игрок { $username } успешно исключён из команды { $partyId }!
 cmd-party-remove-member-fail = Не удалось исключить игрока { $username } из команды { $partyId }.
