@@ -67,7 +67,7 @@ public partial interface IPartyManager : ISharedPartyManager
     /// <param name="force">Should the <paramref name="session"/> be removed from other party or not</param>
     /// <param name="updates">Should party update events be triggered or not</param>
     /// <returns><see langword="true"/> if the <paramref name="session"/> was set as the host in the <paramref name="party"/></returns>
-    bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true);
+    bool SetHost(Party party, ICommonSession session, bool force = false, bool updates = true, bool notify = true);
 
     /// <summary>
     /// Sets a new status of the <paramref name="party"/>
