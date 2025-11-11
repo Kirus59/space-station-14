@@ -1,4 +1,5 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
+using Content.Shared.Chat;
 using Content.Shared.SS220.CCVars;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Shared.Player;
@@ -157,14 +158,31 @@ public sealed partial class PartyManager
 
         // Notify dependent systems about the invite creation before it is sent
         SetInviteStatus(invite, PartyInviteStatus.Created, updates: false);
-        SetInviteStatus(invite, PartyInviteStatus.Sended, updates: false);
-
         Dirty(party);
 
         var msg = new MsgHandleReceivedPartyInviteState(invite.GetState());
         SendNetMessage(msg, invite.Target);
 
+        SetInviteStatus(invite, PartyInviteStatus.Sended);
+
+        NotifyHost();
+        NotifyTarget();
+
         return true;
+
+        void NotifyHost()
+        {
+            var inGameChatMessage = Loc.GetString("party-manager-invite-sended-ingame-chat-message", ("username", target.Name));
+            var wrappedMessage = Loc.GetString("chat-manager-server-wrap-message", ("message", inGameChatMessage));
+            _chat.ChatMessageToOne(ChatChannel.Server, inGameChatMessage, wrappedMessage, default, false, party.Host.Session.Channel);
+        }
+
+        void NotifyTarget()
+        {
+            var inGameChatMessage = Loc.GetString("party-manager-invite-received-ingame-chat-message", ("username", party.Host.Name));
+            var wrappedMessage = Loc.GetString("chat-manager-server-wrap-message", ("message", inGameChatMessage));
+            _chat.ChatMessageToOne(ChatChannel.Server, inGameChatMessage, wrappedMessage, default, false, target.Channel);
+        }
     }
 
     public bool DeleteInvite(uint inviteId)

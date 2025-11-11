@@ -1,4 +1,6 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
+using Content.Server.Chat.Managers;
+using Content.Shared.Chat;
 using Content.Shared.SS220.CCVars;
 using Content.Shared.SS220.SpaceWars.Party;
 using Robust.Server.Player;
@@ -18,6 +20,7 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     [Dependency] private readonly IPlayerManager _playerManager = default!;
     [Dependency] private readonly IConfigurationManager _cfg = default!;
     [Dependency] private readonly INetManager _net = default!;
+    [Dependency] private readonly IChatManager _chat = default!;
 
     public event Action<PartyStatusChangedActionArgs>? PartyStatusChanged;
     public event Action<Party>? PartyUpdated;
@@ -207,6 +210,15 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         {
             var chatMessage = Loc.GetString("party-manager-user-join-party-message", ("username", session.Name));
             ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+
+            var wrappedMessage = Loc.GetString("chat-manager-server-wrap-message", ("message", chatMessage));
+            foreach (var target in party.Members)
+            {
+                if (target == member)
+                    continue;
+
+                _chat.ChatMessageToOne(ChatChannel.Server, chatMessage, wrappedMessage, default, false, target.Session.Channel);
+            }
         }
 
         UserJoinedParty?.Invoke(member);
@@ -247,6 +259,15 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
         {
             var chatMessage = Loc.GetString("party-manager-user-left-party-message", ("username", session.Name));
             ChatMessageToParty(chatMessage, party, PartyChatMessageType.Info);
+
+            var wrappedMessage = Loc.GetString("chat-manager-server-wrap-message", ("message", chatMessage));
+            foreach (var target in party.Members)
+            {
+                if (target == member)
+                    continue;
+
+                _chat.ChatMessageToOne(ChatChannel.Server, chatMessage, wrappedMessage, default, false, target.Session.Channel);
+            }
         }
 
         UserLeavedParty?.Invoke(member);

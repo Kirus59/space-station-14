@@ -1,5 +1,7 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
+using Content.Shared.Chat;
 using Content.Shared.SS220.SpaceWars.Party;
+using JetBrains.FormatRipper.Elf;
 using Robust.Shared.Player;
 using Robust.Shared.Utility;
 
@@ -26,7 +28,7 @@ public sealed partial class PartyManager
         SendPartyChatMessage(message, session);
     }
 
-    public void SendPartyChatMessage(string message, ICommonSession session)
+    private void SendPartyChatMessage(string message, ICommonSession session)
     {
         var msg = new MsgPartyChatMessage(message);
         SendNetMessage(msg, session);
