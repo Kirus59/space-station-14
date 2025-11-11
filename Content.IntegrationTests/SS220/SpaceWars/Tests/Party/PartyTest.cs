@@ -10,7 +10,7 @@ public sealed class PartyTest
     private readonly PoolSettings _poolSettings = new() { Connected = true, DummyTicker = true, };
 
     [Test]
-    public async Task TestCreateChangeMembersDisbandParty()
+    public async Task TestCreateChangeDisbandParty()
     {
         await using var pair = await PoolManager.GetServerClient(_poolSettings);
         var (server, client) = pair;
@@ -131,6 +131,37 @@ public sealed class PartyTest
         });
 
         await server.RemoveDummySession(dummy);
+
+
+        // Remove host test
+        await server.WaitAssertion(() =>
+        {
+            serverPartyMng.AddMember(serverParty, dummy);
+            serverPartyMng.SetHost(serverParty, dummy);
+            Assert.Multiple(() =>
+            {
+                Assert.That(serverParty.IsHost(dummy), Is.True);
+                Assert.That(serverParty.IsHost(session), Is.False);
+            });
+
+            serverPartyMng.RemoveMember(serverParty, dummy);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serverPartyMng.PartyExist(serverParty), Is.True);
+                Assert.That(serverParty.IsHost(session));
+                Assert.That(serverPartyMng.GetPartyByHost(session), Is.EqualTo(serverParty));
+
+                Assert.That(serverPartyMng.GetPartyByHost(dummy), Is.Null);
+                Assert.That(serverPartyMng.GetPartyByMember(dummy), Is.Null);
+            });
+        });
+        await pair.RunTicksSync(5);
+        Assert.Multiple(() =>
+        {
+            Assert.That(clientPartyMng.LocalParty, Is.Not.Null);
+            Assert.That(clientPartyMng.IsLocalPartyHost, Is.True);
+        });
 
 
         // Disband party test
