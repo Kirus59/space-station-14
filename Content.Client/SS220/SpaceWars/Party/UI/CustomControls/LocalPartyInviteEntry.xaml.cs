@@ -11,13 +11,13 @@ using System.Linq;
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
 [GenerateTypedNameReferences]
-public sealed partial class LocalPartyInvitePanel : PanelContainer
+public sealed partial class LocalPartyInviteEntry : PanelContainer
 {
     [Dependency] private readonly IPartyManager _party = default!;
 
     public readonly PartyInvite Invite;
 
-    public LocalPartyInvitePanel(PartyInvite invite)
+    public LocalPartyInviteEntry(PartyInvite invite)
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
@@ -27,21 +27,7 @@ public sealed partial class LocalPartyInvitePanel : PanelContainer
 
         Invite = invite;
 
-        if (_party.LocalParty is { } party)
-        {
-            party.InviteUpdated += args =>
-            {
-                if (args != Invite)
-                    return;
-
-                Refresh();
-            };
-        }
-
-        CancelButton.OnPressed += _ =>
-        {
-            _party.DeleteLocalPartyInviteRequest(Invite.Id);
-        };
+        CancelButton.OnPressed += _ => _party.DeleteLocalPartyInviteRequest(Invite.Id);
 
         PanelOverride = new StyleBoxFlat { BackgroundColor = PartyUIController.DefaultBackgroundColor };
         Refresh();

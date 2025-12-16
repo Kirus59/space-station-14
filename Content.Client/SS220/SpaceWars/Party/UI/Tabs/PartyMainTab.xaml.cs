@@ -20,11 +20,11 @@ public sealed partial class PartyMainTab : Control
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IUserInterfaceManager _userInterface = default!;
 
-    private readonly Dictionary<NetUserId, PartyMemberPanel> _memberPanels = [];
+    private readonly Dictionary<NetUserId, PartyMemberEntry> _memberPanels = [];
 
-    private readonly CreatePartyWindow _createPartyWindow = new();
-    private readonly LocalPartyInvitesWindow _localPartyInvitesWindow = new();
-    private readonly PartySettingsWindow _partySettingsWindow = new();
+    public CreatePartyWindow? CreatePartyWindow { get; private set; } = null;
+    public LocalPartyInvitesWindow? LocalPartyInvitesWindow { get; private set; } = null;
+    public PartySettingsWindow? PartySettingsWindow { get; private set; } = null;
 
     private static readonly Color NotMemberOverlayColor = new(18, 18, 20, 230);
 
@@ -46,8 +46,6 @@ public sealed partial class PartyMainTab : Control
 
         NotMemberOverlay.PanelOverride = new StyleBoxFlat { BackgroundColor = NotMemberOverlayColor };
 
-        _party.ChatMessageReceived += AddChatMessage;
-
         MembersContainer.OnResized += RefreshMembers;
 
         LeavePartyButton.SetClickState(0, new ConfirmableButtonState(Loc.GetString("ui-party-main-tab-leave-party-button"), null));
@@ -56,11 +54,11 @@ public sealed partial class PartyMainTab : Control
         DisbandPartyButton.SetClickState(0, new ConfirmableButtonState(Loc.GetString("ui-party-main-tab-disband-party-button"), null));
         DisbandPartyButton.SetClickState(1, ConfirmableButtonFirstClickState);
 
-        CreatePartyButton.OnPressed += _ => _createPartyWindow.Open(MousePosition);
+        CreatePartyButton.OnPressed += _ => EnsureCreatePartyWindow().Open(MousePosition);
         LeavePartyButton.OnConfirmed += _party.LeavePartyRequest;
         DisbandPartyButton.OnConfirmed += _party.DisbandPartyRequest;
-        PartyInvitesButton.OnPressed += _ => _localPartyInvitesWindow.Open(MousePosition);
-        PartySettingsButton.OnPressed += _ => _partySettingsWindow.Open(MousePosition);
+        PartyInvitesButton.OnPressed += _ => EnsureLocalPartyInvitesWindow().Open(MousePosition);
+        PartySettingsButton.OnPressed += _ => EnsurePartySettingsWindow().Open(MousePosition);
 
         Refresh();
     }
@@ -74,11 +72,13 @@ public sealed partial class PartyMainTab : Control
 
         if (_party.LocalParty is null)
         {
-            _localPartyInvitesWindow.Close();
-            _partySettingsWindow.Close();
+            LocalPartyInvitesWindow?.Close();
+            PartySettingsWindow?.Close();
         }
         else
-            _createPartyWindow.Close();
+            CreatePartyWindow?.Close();
+
+        LocalPartyInvitesWindow?.Refresh();
     }
 
     private void RefreshMembers()
@@ -119,6 +119,15 @@ public sealed partial class PartyMainTab : Control
 
         foreach (var key in toRemove)
             _memberPanels.Remove(key);
+    }
+
+    protected override void ExitedTree()
+    {
+        base.ExitedTree();
+
+        CreatePartyWindow?.Close();
+        LocalPartyInvitesWindow?.Close();
+        PartySettingsWindow?.Close();
     }
 
     #region Chat
@@ -164,5 +173,35 @@ public sealed partial class PartyMainTab : Control
         var visible = _party.LocalParty is null;
         NotMemberOverlay.Visible = visible;
         NotMemberLabel.Visible = visible;
+    }
+
+    private CreatePartyWindow EnsureCreatePartyWindow()
+    {
+        if (CreatePartyWindow != null)
+            return CreatePartyWindow;
+
+        CreatePartyWindow = new();
+        CreatePartyWindow.OnClose += () => CreatePartyWindow = null;
+        return CreatePartyWindow;
+    }
+
+    private LocalPartyInvitesWindow EnsureLocalPartyInvitesWindow()
+    {
+        if (LocalPartyInvitesWindow != null)
+            return LocalPartyInvitesWindow;
+
+        LocalPartyInvitesWindow = new();
+        LocalPartyInvitesWindow.OnClose += () => LocalPartyInvitesWindow = null;
+        return LocalPartyInvitesWindow;
+    }
+
+    private PartySettingsWindow EnsurePartySettingsWindow()
+    {
+        if (PartySettingsWindow != null)
+            return PartySettingsWindow;
+
+        PartySettingsWindow = new();
+        PartySettingsWindow.OnClose += () => PartySettingsWindow = null;
+        return PartySettingsWindow;
     }
 }

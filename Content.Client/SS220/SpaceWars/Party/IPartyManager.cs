@@ -7,12 +7,15 @@ namespace Content.Client.SS220.SpaceWars.Party;
 
 public partial interface IPartyManager : ISharedPartyManager
 {
-    event Action<Party?>? LocalPartyChanged;
+    event Action<(Party? Old, Party? New)>? LocalPartyChanged;
     event Action<Party>? LocalPartyUpdated;
 
     PartyUIController UIController { get; }
 
     Party? LocalParty { get; }
+
+    PartyEventsHandler LocalPartyEvents { get; }
+
     bool IsLocalPartyHost { get; }
 
     PartyMember? LocalMember { get; }
@@ -46,4 +49,20 @@ public partial interface IPartyManager : ISharedPartyManager
     /// Sends a request to set a new settings in the <see cref="LocalParty"/>
     /// </summary>
     void SetSettingsRequest(PartySettingsState settingsState);
+}
+
+public sealed class PartyEventsHandler()
+{
+    public Action<(PartyStatus Old, PartyStatus New)>? StatusChanged;
+
+    public Action<(PartyMember Old, PartyMember New)>? HostChanged;
+    public Action<PartyMember>? HostUpdated;
+
+    public Action<PartyMember>? MemberAdded;
+    public Action<PartyMember>? MemberUpdated;
+    public Action<PartyMember>? MemberRemoved;
+
+    public Action<PartyInvite>? InviteAdded;
+    public Action<PartyInvite>? InviteUpdated;
+    public Action<PartyInvite>? InviteRemoved;
 }

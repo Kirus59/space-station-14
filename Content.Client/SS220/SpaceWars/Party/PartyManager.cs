@@ -14,12 +14,15 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     [Dependency] private readonly IPlayerManager _player = default!;
     [Dependency] private readonly IUserInterfaceManager _ui = default!;
 
-    public event Action<Party?>? LocalPartyChanged;
+    public event Action<(Party? Old, Party? New)>? LocalPartyChanged;
     public event Action<Party>? LocalPartyUpdated;
 
     public PartyUIController UIController => _ui.GetUIController<PartyUIController>();
 
     public Party? LocalParty { get; private set; }
+
+    public PartyEventsHandler LocalPartyEvents { get; private set; } = new();
+
     public PartyMember? LocalMember
     {
         get
@@ -64,8 +67,13 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
     {
         if (message.State is not { } state)
         {
+            var oldParty = LocalParty;
+            if (oldParty != null)
+                oldParty.EventsHandler = null;
+
             LocalParty = null;
-            LocalPartyChanged?.Invoke(null);
+
+            LocalPartyChanged?.Invoke((oldParty, LocalParty));
             UIController.RefreshWindow();
 
             return;
@@ -73,8 +81,13 @@ public sealed partial class PartyManager : SharedPartyManager, IPartyManager
 
         if (LocalParty is not { } party || party.Id != state.Id)
         {
-            LocalParty = new(state);
-            LocalPartyChanged?.Invoke(LocalParty);
+            var oldParty = LocalParty;
+            LocalParty = new(state)
+            {
+                EventsHandler = LocalPartyEvents
+            };
+
+            LocalPartyChanged?.Invoke((LocalParty, oldParty));
             UIController.RefreshWindow();
 
             return;

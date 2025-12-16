@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Robust.Client.UserInterface.Controllers;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Input.Binding;
+using Robust.Shared.Timing;
 using static Robust.Client.UserInterface.Controls.BaseButton;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI;
@@ -18,37 +19,94 @@ namespace Content.Client.SS220.SpaceWars.Party.UI;
 public sealed class PartyUIController : UIController, IOnStateChanged<GameplayState>, IOnStateChanged<LobbyState>
 {
     [Dependency] private readonly IPartyManager _party = default!;
+    [Dependency] private readonly IGameTiming _gameTiming = default!;
 
     private PartyWindow? _window;
     private MenuButton? GamePartyButton => UIManager.GetActiveUIWidgetOrNull<GameTopMenuBar>()?.PartyButton;
     private Button? LobbyPartyButton => (UIManager.ActiveScreen as LobbyGui)?.PartyButton;
 
-    private bool _bindsRegistered;
-    private bool _hasUnreadInfo;
-
     public static readonly Color DefaultBackgroundColor = new(60, 60, 60);
     public static readonly Color DefaultInnerBackgroundColor = new(32, 32, 40);
+
+    private static readonly TimeSpan ClosedWindowLifeTime = TimeSpan.FromSeconds(15);
+    private TimeSpan _windowDisposeTime = TimeSpan.Zero;
+
+    private bool _bindsRegistered;
+    private bool _hasUnreadInfo;
 
     public override void Initialize()
     {
         base.Initialize();
 
         _party.LocalPartyChanged += OnLocalPartyChanged;
-        _party.ChatMessageReceived += _ => UnreadInfoReceived();
 
-        _party.ReceivedInviteAdded += _ => UnreadInfoReceived();
-        _party.ReceivedInviteRemoved += _ => UnreadInfoReceived();
+        _party.LocalPartyEvents.HostChanged += _ => UnreadInfoReceived();
+
+        _party.LocalPartyEvents.MemberAdded += _ => UnreadInfoReceived();
+        _party.LocalPartyEvents.MemberRemoved += _ => UnreadInfoReceived();
+
+        _party.LocalPartyEvents.InviteAdded += _ => _window?.MainTab.LocalPartyInvitesWindow?.Refresh();
+        _party.LocalPartyEvents.InviteRemoved += _ => _window?.MainTab.LocalPartyInvitesWindow?.Refresh();
+        _party.LocalPartyEvents.InviteUpdated += OnLocalPartyInviteUpdated;
+
+        _party.ReceivedInviteAdded += OnReceivedInviteAdded;
+        _party.ReceivedInviteRemoved += OnReceivedInviteRemoved;
+        _party.ReceivedInviteUpdated += OnReceivedInviteUpdated;
+
+        _party.ChatMessageReceived += OnChatMessageReceived;
     }
 
-    private void OnLocalPartyChanged(Party? party)
+    public override void FrameUpdate(FrameEventArgs args)
     {
-        if (party != null)
-        {
-            party.HostChanged += _ => UnreadInfoReceived();
-            party.MemberAdded += _ => UnreadInfoReceived();
-            party.MemberRemoved += _ => UnreadInfoReceived();
-        }
+        base.FrameUpdate(args);
 
+        if (_window != null && !_window.IsOpen && _gameTiming.CurTime >= _windowDisposeTime)
+            _window = null;
+    }
+
+    private void OnLocalPartyChanged((Party? Old, Party? New) tulpe)
+    {
+        UnreadInfoReceived();
+        _window?.Refresh();
+    }
+
+    private void OnLocalPartyInviteUpdated(PartyInvite invite)
+    {
+        if (_window?.MainTab.LocalPartyInvitesWindow is not { } localPartyInvitesWindow)
+            return;
+
+        if (localPartyInvitesWindow.TryGetEntry(invite, out var entry) is true)
+            entry.Refresh();
+        else
+            localPartyInvitesWindow.Refresh();
+    }
+
+    private void OnReceivedInviteAdded(PartyInvite invite)
+    {
+        _window?.ReceivedInvitesTab.AddInvite(invite);
+        UnreadInfoReceived();
+    }
+
+    private void OnReceivedInviteRemoved(PartyInvite invite)
+    {
+        _window?.ReceivedInvitesTab.RemoveInvite(invite);
+        UnreadInfoReceived();
+    }
+
+    private void OnReceivedInviteUpdated(PartyInvite invite)
+    {
+        if (_window == null)
+            return;
+
+        if (_window.ReceivedInvitesTab.TryGetEntry(invite, out var entry))
+            entry.Refresh();
+        else
+            _window.ReceivedInvitesTab.Refresh();
+    }
+
+    private void OnChatMessageReceived(string message)
+    {
+        _window?.MainTab.AddChatMessage(message);
         UnreadInfoReceived();
     }
 
@@ -72,7 +130,7 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
 
     public void OpenWindow()
     {
-        _window?.OpenCentered();
+        EnsureWindow().OpenCentered();
     }
 
     public void CloseWindow()
@@ -82,10 +140,7 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
 
     public void ToggleWindow()
     {
-        if (_window == null)
-            return;
-
-        if (_window.IsOpen)
+        if (_window != null && _window.IsOpen)
             CloseWindow();
         else
             OpenWindow();
@@ -110,7 +165,6 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
         else
             DeactivateButton();
 
-        EnsureWindow();
         EnsureBinds();
     }
 
@@ -134,7 +188,6 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
         else
             DeactivateButton();
 
-        EnsureWindow();
         EnsureBinds();
     }
 
@@ -144,14 +197,23 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
             LobbyPartyButton.OnPressed -= PartyButtonPressed;
     }
 
-    private void EnsureWindow()
+    private PartyWindow EnsureWindow()
     {
         if (_window != null)
-            return;
+            return _window;
 
         _window = new PartyWindow();
-        _window.OnClose += DeactivateButton;
+        _window.OnClose += OnWindowClosed;
         _window.OnOpen += ActivateButton;
+
+        _windowDisposeTime = _gameTiming.CurTime + ClosedWindowLifeTime;
+        return _window;
+    }
+
+    private void OnWindowClosed()
+    {
+        DeactivateButton();
+        _windowDisposeTime = _gameTiming.CurTime + ClosedWindowLifeTime;
     }
 
     private void ClearWindow()

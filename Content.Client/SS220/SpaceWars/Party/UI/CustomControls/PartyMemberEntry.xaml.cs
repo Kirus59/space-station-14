@@ -15,7 +15,7 @@ using System.Numerics;
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
 [GenerateTypedNameReferences]
-public sealed partial class PartyMemberPanel : PanelContainer
+public sealed partial class PartyMemberEntry : PanelContainer
 {
     [Dependency] private readonly IResourceCache _cache = default!;
     [Dependency] private readonly IPartyManager _party = default!;
@@ -37,7 +37,7 @@ public sealed partial class PartyMemberPanel : PanelContainer
         {PartyMemberRole.Host, new Color(146, 122, 25)}
     };
 
-    public PartyMemberPanel(PartyMember member)
+    public PartyMemberEntry(PartyMember member)
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);

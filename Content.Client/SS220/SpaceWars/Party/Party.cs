@@ -23,18 +23,7 @@ public sealed class Party
 
     public PartySettings Settings;
 
-    public event Action<PartyMember>? HostChanged;
-    public event Action<PartyMember>? HostUpdated;
-
-    public event Action<PartyStatus>? StatusChanged;
-
-    public event Action<PartyMember>? MemberAdded;
-    public event Action<PartyMember>? MemberUpdated;
-    public event Action<PartyMember>? MemberRemoved;
-
-    public event Action<PartyInvite>? InviteAdded;
-    public event Action<PartyInvite>? InviteUpdated;
-    public event Action<PartyInvite>? InviteRemoved;
+    public PartyEventsHandler? EventsHandler;
 
     public Party(PartyState state)
     {
@@ -88,19 +77,22 @@ public sealed class Party
         if (Host.UserId != state.Host.UserId)
         {
             DebugTools.Assert(state.Host.Role is PartyMemberRole.Host);
+
+            var oldHost = Host;
             Host = new PartyMember(state.Host);
-            HostChanged?.Invoke(Host);
+            EventsHandler?.HostChanged?.Invoke((oldHost, Host));
         }
         else
         {
             Host.HandleState(state.Host);
-            HostUpdated?.Invoke(Host);
+            EventsHandler?.HostUpdated?.Invoke(Host);
         }
 
         if (Status != state.Status)
         {
+            var oldStatus = Status;
             Status = state.Status;
-            StatusChanged?.Invoke(Status);
+            EventsHandler?.StatusChanged?.Invoke((oldStatus, Status));
         }
 
         UpdateMembers(state.Members);
@@ -118,21 +110,21 @@ public sealed class Party
             if (_members.TryGetValue(userId, out var exist))
             {
                 exist.HandleState(state);
-                MemberUpdated?.Invoke(exist);
+                EventsHandler?.MemberUpdated?.Invoke(exist);
                 toRemove.Remove(exist);
             }
             else
             {
                 var member = new PartyMember(state);
                 _members.Add(userId, member);
-                MemberAdded?.Invoke(member);
+                EventsHandler?.MemberAdded?.Invoke(member);
             }
         }
 
         foreach (var member in toRemove)
         {
             if (_members.Remove(member.UserId))
-                MemberRemoved?.Invoke(member);
+                EventsHandler?.MemberRemoved?.Invoke(member);
         }
 
     }
@@ -145,21 +137,21 @@ public sealed class Party
             if (_invites.TryGetValue(state.Id, out var exist))
             {
                 exist.HandleState(state);
-                InviteUpdated?.Invoke(exist);
+                EventsHandler?.InviteUpdated?.Invoke(exist);
                 toRemove.Remove(exist);
             }
             else
             {
                 var invite = new PartyInvite(state);
                 _invites.Add(state.Id, invite);
-                InviteAdded?.Invoke(invite);
+                EventsHandler?.InviteAdded?.Invoke(invite);
             }
         }
 
         foreach (var invite in toRemove)
         {
             if (_invites.Remove(invite.Id))
-                InviteRemoved?.Invoke(invite);
+                EventsHandler?.InviteRemoved?.Invoke(invite);
         }
     }
 }

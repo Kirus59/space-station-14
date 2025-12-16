@@ -12,7 +12,7 @@ using System.Linq;
 namespace Content.Client.SS220.SpaceWars.Party.UI.CustomControls;
 
 [GenerateTypedNameReferences]
-public sealed partial class ReceivedPartyInvitePanel : PanelContainer
+public sealed partial class ReceivedPartyInviteEntry : PanelContainer
 {
     [Dependency] private readonly IPartyManager _party = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
@@ -20,7 +20,7 @@ public sealed partial class ReceivedPartyInvitePanel : PanelContainer
     public readonly PartyInvite Invite;
     private readonly QuickConfirmationWindow _confirmationWindow = new();
 
-    public ReceivedPartyInvitePanel(PartyInvite invite)
+    public ReceivedPartyInviteEntry(PartyInvite invite)
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
@@ -28,14 +28,6 @@ public sealed partial class ReceivedPartyInvitePanel : PanelContainer
         DebugTools.Assert(_party.ReceivedInvites.Contains(invite));
         DebugTools.AssertEqual(invite.Target, _player.LocalUser);
         Invite = invite;
-
-        _party.ReceivedInviteUpdated += args =>
-        {
-            if (args != Invite)
-                return;
-
-            Refresh();
-        };
 
         AcceptButton.OnPressed += _ => Accept();
         DenyButton.OnPressed += _ => Deny();

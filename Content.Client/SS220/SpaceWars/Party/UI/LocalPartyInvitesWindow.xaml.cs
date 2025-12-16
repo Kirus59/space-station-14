@@ -7,6 +7,7 @@ using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Configuration;
 using Robust.Shared.Utility;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Content.Client.SS220.SpaceWars.Party.UI;
@@ -24,6 +25,8 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
     private static readonly TimeSpan DefaultFailReasonShowTime = TimeSpan.FromSeconds(10);
     private static readonly Color FailReasonColor = Color.Red;
 
+    private readonly Dictionary<PartyInvite, LocalPartyInviteEntry> _entries = [];
+
     public LocalPartyInvitesWindow()
     {
         RobustXamlLoader.Load(this);
@@ -33,27 +36,13 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
         InputLine.PlaceHolder = Loc.GetString("ui-local-party-invites-window-inputline-placeholder");
         InviteButton.OnPressed += _ => SendInvite();
 
-        if (_party.LocalParty is { } party)
-        {
-            party.InviteAdded += _ => Refresh();
-            party.InviteRemoved += _ => Refresh();
-        }
-
-        _party.LocalPartyChanged += party =>
-        {
-            if (party is null)
-                return;
-
-            party.InviteAdded += _ => Refresh();
-            party.InviteRemoved += _ => Refresh();
-        };
-
         Refresh();
     }
 
     public void Refresh()
     {
         InvitesContainer.DisposeAllChildren();
+        _entries.Clear();
         if (_party.LocalParty is not { } party)
             return;
 
@@ -64,15 +53,35 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
 
         foreach (var invite in invites)
         {
-            var control = new LocalPartyInvitePanel(invite)
+            var entry = new LocalPartyInviteEntry(invite)
             {
                 Margin = LocalPartyInvitePanelThickness
             };
-            InvitesContainer.AddChild(control);
+            _entries.Add(invite, entry);
+            InvitesContainer.AddChild(entry);
         }
     }
 
-    public async void SendInvite()
+    public bool TryGetEntry(PartyInvite invite, [NotNullWhen(true)] out LocalPartyInviteEntry? entry)
+    {
+        return _entries.TryGetValue(invite, out entry);
+    }
+
+    protected override void EnteredTree()
+    {
+        base.EnteredTree();
+
+        _cfg.OnValueChanged(CCVars220.PartyInvitesLimit, OnInvitesLimitChanged, true);
+    }
+
+    protected override void ExitedTree()
+    {
+        base.ExitedTree();
+
+        _cfg.UnsubValueChanged(CCVars220.PartyInvitesLimit, OnInvitesLimitChanged);
+    }
+
+    private async void SendInvite()
     {
         var text = InputLine.Text;
         if (string.IsNullOrEmpty(text))
@@ -90,20 +99,6 @@ public sealed partial class LocalPartyInvitesWindow : DefaultWindow
             AddFailReason(responce.Text);
             return;
         }
-    }
-
-    protected override void EnteredTree()
-    {
-        base.EnteredTree();
-
-        _cfg.OnValueChanged(CCVars220.PartyInvitesLimit, OnInvitesLimitChanged, true);
-    }
-
-    protected override void ExitedTree()
-    {
-        base.ExitedTree();
-
-        _cfg.UnsubValueChanged(CCVars220.PartyInvitesLimit, OnInvitesLimitChanged);
     }
 
     private void OnInvitesLimitChanged(int value)

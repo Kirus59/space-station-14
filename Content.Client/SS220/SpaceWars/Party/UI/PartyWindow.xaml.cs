@@ -26,7 +26,7 @@ public sealed partial class PartyWindow : DefaultWindow
 
     public void Refresh()
     {
-        PartyMainTab.Refresh();
+        MainTab.Refresh();
         ReceivedInvitesTab.Refresh();
     }
 }

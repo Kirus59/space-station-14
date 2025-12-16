@@ -4,7 +4,7 @@
                MinSize="600 300"
                SetSize="700 300">
     <TabContainer Name="Tabs" Access="Public">
-        <tabs:PartyMainTab  Name="PartyMainTab" VerticalExpand="True"/>
-        <tabs:ReceivedPartyInvitesTab Name="ReceivedInvitesTab" VerticalExpand="True"/>
+        <tabs:PartyMainTab  Name="MainTab" VerticalExpand="True" Access="Public"/>
+        <tabs:ReceivedPartyInvitesTab Name="ReceivedInvitesTab" VerticalExpand="True" Access="Public"/>
     </TabContainer>
 </DefaultWindow>
