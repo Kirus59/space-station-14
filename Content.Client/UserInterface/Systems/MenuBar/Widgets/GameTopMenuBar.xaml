@@ -3,6 +3,7 @@
            xmlns:style="clr-namespace:Content.Client.Stylesheets"
            xmlns:ic="clr-namespace:Robust.Shared.Input;assembly=Robust.Shared"
            xmlns:is="clr-namespace:Content.Shared.Input;assembly=Content.Shared"
+           xmlns:is220="clr-namespace:Content.Shared.SS220.Input;assembly=Content.Shared"
            xmlns:xe="clr-namespace:Content.Client.UserInterface.XamlExtensions"
            xmlns:ui="clr-namespace:Content.Client.UserInterface.Controls"
            xmlns:widgets="clr-namespace:Content.Client.UserInterface.Systems.MenuBar.Widgets"
@@ -97,8 +98,8 @@
     <ui:MenuButton
         Name="PartyButton"
         Access="Internal"
-        Icon="{xe:Tex '/Textures/Interface/info.svg.192dpi.png'}"
-        BoundKey = "{x:Static is:ContentKeyFunctions.OpenPartyWindow}"
+        Icon="{xe:Tex '/Textures/SS220/SpaceWars/Interface/Party/party.png'}"
+        BoundKey = "{x:Static is220:KeyFunctions220.TogglePartyWindow}"
         ToolTip="{Loc 'ui-options-function-open-party-window'}"
         MinSize="42 64"
         HorizontalExpand="True"

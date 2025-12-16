@@ -22,32 +22,32 @@ public sealed class PartySetHostCommand : LocalizedCommands
     {
         if (args.Length < 2 || args.Length > 3)
         {
-            shell.WriteLine(Loc.GetString("cmd-party-set-host-invalid-arguments-count", ("help", Help)));
+            shell.WriteError(Loc.GetString("cmd-party-set-host-invalid-arguments-count", ("help", Help)));
             return;
         }
 
         if (!uint.TryParse(args[0], out var partyId))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-set-host-invalid-argument-1", ("arg", args[0])));
+            shell.WriteError(Loc.GetString("cmd-party-set-host-invalid-argument-1", ("arg", args[0])));
             return;
         }
 
         if (!_party.TryGetPartyById(partyId, out var party))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-set-host-invalid-party-id", ("id", partyId)));
+            shell.WriteError(Loc.GetString("cmd-party-set-host-invalid-party-id", ("id", partyId)));
             return;
         }
 
         if (!_player.TryGetSessionByUsername(args[1], out var session))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-set-host-invalid-username", ("username", args[1])));
+            shell.WriteError(Loc.GetString("cmd-party-set-host-invalid-username", ("username", args[1])));
             return;
         }
 
         var force = false;
         if (args.Length >= 3 && !bool.TryParse(args[2], out force))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-set-host-invalid-argument-3", ("arg", args[2])));
+            shell.WriteError(Loc.GetString("cmd-party-set-host-invalid-argument-3", ("arg", args[2])));
             return;
         }
 
@@ -55,24 +55,24 @@ public sealed class PartySetHostCommand : LocalizedCommands
         {
             if (_party.IsAnyPartyMember(session))
             {
-                shell.WriteLine(Loc.GetString("cmd-party-set-host-user-is-another-party-member", ("user", session.Name)));
+                shell.WriteError(Loc.GetString("cmd-party-set-host-user-is-another-party-member", ("user", session.Name)));
                 return;
             }
 
             if (party.MembersLimitReached)
             {
-                shell.WriteLine(Loc.GetString("cmd-party-set-host-members-limit-reached"));
+                shell.WriteError(Loc.GetString("cmd-party-set-host-members-limit-reached"));
                 return;
             }
         }
 
         if (!_party.SetHost(party, session, force: force))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-set-host-success", ("partyId", party.Id), ("username", session.Name)));
+            shell.WriteError(Loc.GetString("cmd-party-set-host-fail", ("partyId", party.Id), ("username", session.Name)));
             return;
         }
 
-        shell.WriteLine(Loc.GetString("cmd-party-set-host-fail", ("partyId", party.Id), ("username", session.Name)));
+        shell.WriteError(Loc.GetString("cmd-party-set-host-success", ("partyId", party.Id), ("username", session.Name)));
     }
 
     public override CompletionResult GetCompletion(IConsoleShell shell, string[] args)

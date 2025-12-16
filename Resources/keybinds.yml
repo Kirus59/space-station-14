@@ -714,7 +714,7 @@ binds:
   key: B
 # SS220 resist fire bind end
 # SS220_SpaceWars party begin
-- function: OpenPartyWindow
+- function: TogglePartyWindow
   type: State
-  key: F12
+  key: P
 # SS220_SpaceWars party end

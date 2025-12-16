@@ -6,7 +6,7 @@ using Robust.Shared.Console;
 namespace Content.Client.SS220.SpaceWars.Party.Commands;
 
 [UsedImplicitly]
-public sealed class PartyMenuCommand : LocalizedCommands
+public sealed class PartyWindowCommand : LocalizedCommands
 {
     [Dependency] private readonly IPartyManager _party = default!;
 

@@ -26,7 +26,7 @@ public sealed class ListPartiesCommand : LocalizedCommands
         var parties = _party.Parties;
         if (parties.Count == 0)
         {
-            shell.WriteLine(Loc.GetString("cmd-list-parties-zero-paries"));
+            shell.WriteError(Loc.GetString("cmd-list-parties-zero-paries"));
             return;
         }
 

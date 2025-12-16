@@ -21,32 +21,32 @@ public sealed class PartyAddMemberCommand : LocalizedCommands
     {
         if (args.Length < 2 || args.Length > 3)
         {
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-invalid-arguments-count", ("help", Help)));
+            shell.WriteError(Loc.GetString("cmd-party-add-member-invalid-arguments-count", ("help", Help)));
             return;
         }
 
         if (!uint.TryParse(args[0], out var partyId))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-invalid-arguments-1", ("arg", args[0])));
+            shell.WriteError(Loc.GetString("cmd-party-add-member-invalid-arguments-1", ("arg", args[0])));
             return;
         }
 
         if (!_party.TryGetPartyById(partyId, out var party))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-invalid-party-id", ("id", partyId)));
+            shell.WriteError(Loc.GetString("cmd-party-add-member-invalid-party-id", ("id", partyId)));
             return;
         }
 
         if (!_player.TryGetSessionByUsername(args[1], out var session))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-invalid-username", ("username", args[1])));
+            shell.WriteError(Loc.GetString("cmd-party-add-member-invalid-username", ("username", args[1])));
             return;
         }
 
         var force = false;
         if (args.Length >= 3 && !bool.TryParse(args[2], out force))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-invalid-argument-3", ("arg", args[2])));
+            shell.WriteError(Loc.GetString("cmd-party-add-member-invalid-argument-3", ("arg", args[2])));
             return;
         }
 
@@ -54,20 +54,20 @@ public sealed class PartyAddMemberCommand : LocalizedCommands
         {
             if (_party.IsAnyPartyMember(session))
             {
-                shell.WriteLine(Loc.GetString("cmd-party-add-member-user-is-another-party-member", ("username", session.Name)));
+                shell.WriteError(Loc.GetString("cmd-party-add-member-user-is-another-party-member", ("username", session.Name)));
                 return;
             }
 
             if (party.MembersLimitReached)
             {
-                shell.WriteLine(Loc.GetString("cmd-party-add-member-members-limit-reached"));
+                shell.WriteError(Loc.GetString("cmd-party-add-member-members-limit-reached"));
                 return;
             }
         }
 
         if (!_party.AddMember(party, session, force: force, ignoreLimit: force))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-add-member-fail", ("partyId", party.Id), ("username", session.Name)));
+            shell.WriteError(Loc.GetString("cmd-party-add-member-fail", ("partyId", party.Id), ("username", session.Name)));
             return;
         }
 

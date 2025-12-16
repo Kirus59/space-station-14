@@ -5,7 +5,7 @@ using Content.Client.Lobby.UI;
 using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
 using Content.Client.UserInterface.Systems.MenuBar.Widgets;
-using Content.Shared.Input;
+using Content.Shared.SS220.Input;
 using JetBrains.Annotations;
 using Robust.Client.UserInterface.Controllers;
 using Robust.Client.UserInterface.Controls;
@@ -166,7 +166,7 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
             return;
 
         CommandBinds.Builder
-            .Bind(ContentKeyFunctions.OpenPartyWindow,
+            .Bind(KeyFunctions220.TogglePartyWindow,
                 InputCmdHandler.FromDelegate(_ => ToggleWindow()))
             .Register<PartyUIController>();
 

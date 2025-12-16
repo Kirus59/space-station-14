@@ -21,37 +21,37 @@ public sealed class PartyRemoveMemberCommand : LocalizedCommands
     {
         if (args.Length != 2)
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-invalid-arguments-count", ("help", Help)));
+            shell.WriteError(Loc.GetString("cmd-party-remove-member-invalid-arguments-count", ("help", Help)));
             return;
         }
 
         if (!uint.TryParse(args[0], out var partyId))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-invalid-argument-1", ("arg", args[0])));
+            shell.WriteError(Loc.GetString("cmd-party-remove-member-invalid-argument-1", ("arg", args[0])));
             return;
         }
 
         if (!_party.TryGetPartyById(partyId, out var party))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-invalid-party-id", ("id", partyId)));
+            shell.WriteError(Loc.GetString("cmd-party-remove-member-invalid-party-id", ("id", partyId)));
             return;
         }
 
         if (!_player.TryGetSessionByUsername(args[1], out var session))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-invalid-username", ("username", args[1])));
+            shell.WriteError(Loc.GetString("cmd-party-remove-member-invalid-username", ("username", args[1])));
             return;
         }
 
         if (!party.ContainsMember(session))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-user-is-not-in-party", ("username", session.Name), ("partyId", party.Id)));
+            shell.WriteError(Loc.GetString("cmd-party-remove-member-user-is-not-in-party", ("username", session.Name), ("partyId", party.Id)));
             return;
         }
 
         if (!_party.RemoveMember(party, session))
         {
-            shell.WriteLine(Loc.GetString("cmd-party-remove-member-fail", ("partyId", party.Id), ("username", session.Name)));
+            shell.WriteError(Loc.GetString("cmd-party-remove-member-fail", ("partyId", party.Id), ("username", session.Name)));
             return;
         }
 

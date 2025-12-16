@@ -19,25 +19,25 @@ public sealed class DisbandPartyCommand : LocalizedCommands
     {
         if (args.Length != 1)
         {
-            shell.WriteLine(Loc.GetString("cmd-disband-party-invalid-arguments-count", ("help", Help)));
+            shell.WriteError(Loc.GetString("cmd-disband-party-invalid-arguments-count", ("help", Help)));
             return;
         }
 
         if (!uint.TryParse(args[0], out var partyId))
         {
-            shell.WriteLine(Loc.GetString("cmd-disband-party-invalid-argument-1", ("arg", args[0])));
+            shell.WriteError(Loc.GetString("cmd-disband-party-invalid-argument-1", ("arg", args[0])));
             return;
         }
 
         if (!_party.TryGetPartyById(partyId, out var party))
         {
-            shell.WriteLine(Loc.GetString("cmd-disband-party-invalid-party-id", ("id", partyId)));
+            shell.WriteError(Loc.GetString("cmd-disband-party-invalid-party-id", ("id", partyId)));
             return;
         }
 
         if (!_party.DisbandParty(party))
         {
-            shell.WriteLine(Loc.GetString("cmd-disband-party-fail", ("id", party.Id)));
+            shell.WriteError(Loc.GetString("cmd-disband-party-fail", ("id", party.Id)));
             return;
         }
 

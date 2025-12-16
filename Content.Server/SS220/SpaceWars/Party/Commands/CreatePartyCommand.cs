@@ -21,33 +21,33 @@ public sealed class CreatePartyCommand : LocalizedCommands
     {
         if (args.Length < 1 || args.Length > 2)
         {
-            shell.WriteLine(Loc.GetString("cmd-create-party-invalid-arguments-count", ("help", Help)));
+            shell.WriteError(Loc.GetString("cmd-create-party-invalid-arguments-count", ("help", Help)));
             return;
         }
 
         var hostName = args[0];
         if (!_player.TryGetSessionByUsername(hostName, out var host))
         {
-            shell.WriteLine(Loc.GetString("cmd-create-party-invalid-username", ("username", hostName)));
+            shell.WriteError(Loc.GetString("cmd-create-party-invalid-username", ("username", hostName)));
             return;
         }
 
         var force = false;
         if (args.Length >= 2 && !bool.TryParse(args[1], out force))
         {
-            shell.WriteLine(Loc.GetString("cmd-create-party-invalid-argument-2", ("arg", args[1])));
+            shell.WriteError(Loc.GetString("cmd-create-party-invalid-argument-2", ("arg", args[1])));
             return;
         }
 
         if (!force && _party.IsAnyPartyMember(host))
         {
-            shell.WriteLine(Loc.GetString("cmd-create-party-user-is-another-party-member", ("user", host.Name)));
+            shell.WriteError(Loc.GetString("cmd-create-party-user-is-another-party-member", ("user", host.Name)));
             return;
         }
 
         if (!_party.CreateParty(host, out var party, force: force))
         {
-            shell.WriteLine(Loc.GetString("cmd-create-party-fail"));
+            shell.WriteError(Loc.GetString("cmd-create-party-fail"));
             return;
         }
 

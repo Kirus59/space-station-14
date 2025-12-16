@@ -26,6 +26,9 @@ public static class KeyFunctions220
     public static readonly BoundKeyFunction ItemOffer = "ItemOffer";
     public static readonly BoundKeyFunction ResistFire = "ResistFire";
 
+    // SS220_SpaceWars
+    public static readonly BoundKeyFunction TogglePartyWindow = "TogglePartyWindow";
+
     public static void AddCalculatorKeys(IInputCmdContext context)
     {
         context.AddFunction(CalculatorType0);
