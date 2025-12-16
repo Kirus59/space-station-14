@@ -179,6 +179,9 @@
   - type: LockedWiresPanel
   - type: Damageable
     damageContainer: Silicon
+    damageModifierSet: Silicon #SS220 Add Silicon Resistance Begin
+  - type: ExplosionResistance
+    damageCoefficient: 0.7 #SS220 Add Silicon Resistance End
   - type: Destructible
     thresholds:
     - trigger:
@@ -264,6 +267,13 @@
     - id: Universal
   # SS220-Add-Languages end
   - type: DefibrillatorSkill #SS220 LimitationRevive
+  #SS220 Cult hotfix 17 #3641 start
+  - type: DamageCorruptInteraction
+    damageSound: /Audio/Items/welder.ogg #for now, cause no sound
+    damage:
+      types:
+        Heat: 50
+  #SS220 Cult hotfix 17 #3641 end
 
 - type: entity
   abstract: true
@@ -382,6 +392,11 @@
       Unsexed: UnisexSiliconSyndicate
   - type: PointLight
     color: "#dd200b"
+  - type: Damageable #SS220 Add Silicon Resistance Begin
+    damageContainer: Silicon
+    damageModifierSet: SiliconSyndicate
+  - type: ExplosionResistance
+    damageCoefficient: 0.4 #SS220 Add Silicon Resistance End
 
 - type: entity
   id: BaseBorgChassisDerelict

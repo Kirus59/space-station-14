@@ -2121,8 +2121,6 @@
   #SS220 PDA-Resprite-End
   - type: PdaBorderColor
     borderColor: "#7a998d" #SS220 PDA-Resprite
-#    accentHColor: "#447987" #SS220 PDA-Resprite
-#    accentVColor: "#447987" #SS220 PDA-Resprite
   - type: Sprite #SS220 PDA-Resprite-Start
     layers:
     - map: [ "enum.PdaVisualLayers.Base" ]
@@ -2584,13 +2582,13 @@
     appearanceDataInit:
      enum.PdaVisuals.PdaType:
        !type:String
-       pda-cargo #SS220 PDA-Resprite-TODO
+       pda-seniorcourier #SS220 Resprite Senior Courier PDA
   - type: PdaBorderColor
     borderColor: "#e39751"
-    accentVColor: "#DFDFDF"
+    accentVColor: "#4b474f" #SS220 Resprite Senior Courier PDA
   - type: Icon
-    sprite: Objects/Devices/pda.rsi #SS220 PDA-Resprite-TODO
-    state: pda-cargo #SS220 PDA-Resprite-TODO
+    sprite: SS220/Objects/Devices/pda.rsi #SS220 Resprite Senior Courier PDA
+    state: pda-seniorcourier #SS220 Resprite Senior Courier PDA
 
 - type: entity
   parent: [ BaseMajorContraband, SyndiPDA ]
