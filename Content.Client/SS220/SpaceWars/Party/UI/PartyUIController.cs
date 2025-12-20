@@ -75,7 +75,7 @@ public sealed class PartyUIController : UIController, IOnStateChanged<GameplaySt
         if (_window?.MainTab.LocalPartyInvitesWindow is not { } localPartyInvitesWindow)
             return;
 
-        if (localPartyInvitesWindow.TryGetEntry(invite, out var entry) is true)
+        if (localPartyInvitesWindow.TryGetEntry(invite, out var entry))
             entry.Refresh();
         else
             localPartyInvitesWindow.Refresh();
